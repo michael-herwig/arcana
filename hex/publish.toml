@@ -1,0 +1,38 @@
+#:schema https://grimoire.rs/schemas/grim-publish.schema.json
+registry = "ghcr.io"
+repository_prefix = "michael-herwig"
+version = "0.1.0"
+
+[announce]
+namespace = "michael-herwig"
+# Fork grimoire-rs/index → michael-herwig/grimoire-index and open a cross-repo
+# PR, even though the token has upstream push (grim 0.11.1+ `never|auto|always`).
+fork = "always"
+
+# Fans out to every entry's repository; per-skill catalog metadata
+# (summary, description, keywords) lives in each SKILL.md frontmatter.
+[description]
+readme = "README.md"
+logo = "assets/hex.svg"
+changelog = "CHANGELOG.md"
+
+[skills."hex-core"]
+path = "hex-core"
+
+[skills."hex-init"]
+path = "hex-init"
+
+[skills."hex-plan"]
+path = "hex-plan"
+
+[skills."hex-execute"]
+path = "hex-execute"
+
+[skills."hex-review"]
+path = "hex-review"
+
+[skills."hex-architect"]
+path = "hex-architect"
+
+[bundles.hex]
+path = "hex.toml"

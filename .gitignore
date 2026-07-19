@@ -1,0 +1,7 @@
+# agents
+.agents/worktrees/
+.claude/state
+.claude/settings.local.json
+
+# user
+TODO.md

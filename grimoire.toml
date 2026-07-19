@@ -1,0 +1,16 @@
+#:schema https://grimoire.rs/schemas/grimoire-config.schema.json
+[options]
+clients = ["claude"]
+
+[bundles]
+grim-essentials = "ghcr.io/grimoire-rs/bundles/grim-essentials"
+
+[skills]
+hex-architect = "./hex/hex-architect"
+hex-core = "./hex/hex-core"
+hex-execute = "./hex/hex-execute"
+hex-init = "./hex/hex-init"
+hex-plan = "./hex/hex-plan"
+hex-review = "./hex/hex-review"
+
+[rules]

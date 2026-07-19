@@ -1,0 +1,17 @@
+version: "3"
+
+includes:
+  release: ./taskfiles/release.taskfile.yml
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+
+  publish:
+    desc: publish all subdirectories containing a publish.toml file
+    cmds:
+      - |
+        for manifest in */publish.toml; do
+          grim publish --manifest "$manifest" {{.CLI_ARGS}}
+        done

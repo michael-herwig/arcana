@@ -1,0 +1,78 @@
+rule = []
+agent = []
+
+[metadata]
+lock_version = 1
+declaration_hash_version = 1
+declaration_hash = "sha256:6cb4a07ebe6c21fbd5c62de5b9b61eb4e5ddd533adbbc04c99e79e63daf95113"
+generated_by = "grim 0.10.0"
+generated_at = "2026-07-22T05:45:32Z"
+
+[[skill]]
+name = "ai-config-authoring"
+pinned = "ghcr.io/grimoire-rs/skills/ai-config-authoring@sha256:69eae5173926bdae25208ae048e2c68f9bbcd6099b782c4b8134072a8f894584"
+bundle = "ghcr.io/grimoire-rs/bundles/grim-essentials"
+bundle_tag = "latest"
+
+[[skill]]
+name = "grim-authoring"
+pinned = "ghcr.io/grimoire-rs/skills/grim-authoring@sha256:cd5b526f293c445c3a2be3e45efb065f3b19a08b1215cc3fd513a38228ed6836"
+bundle = "ghcr.io/grimoire-rs/bundles/grim-essentials"
+bundle_tag = "latest"
+
+[[skill]]
+name = "grim-usage"
+pinned = "ghcr.io/grimoire-rs/skills/grim-usage@sha256:cb51529efb1806ce5892dc53c04a6a74410bb2b9e442b7c0d1b9999a5334a50d"
+bundle = "ghcr.io/grimoire-rs/bundles/grim-essentials"
+bundle_tag = "latest"
+
+[[skill]]
+name = "hex-architect"
+path = "./hex/hex-architect"
+hash = "sha256:351efbdc78eb136415aa1b5b2df53e05c5a0e82d4aac30bacc820de899ec3fbb"
+
+[[skill]]
+name = "hex-core"
+path = "./hex/hex-core"
+hash = "sha256:256f56601d3f8d9b3a41d5dcde615eb42fa33faf2bbae3c1daaaef65d64e4354"
+
+[[skill]]
+name = "hex-execute"
+path = "./hex/hex-execute"
+hash = "sha256:d0436f5d495be2dd16bfa541d5b3d7b68e247f572c8bb27fcefebbfdd56bf1df"
+
+[[skill]]
+name = "hex-init"
+path = "./hex/hex-init"
+hash = "sha256:9066301d52c580a9a2ad7d371d1ec43b259c9432a65c42ca43b2df592029a927"
+
+[[skill]]
+name = "hex-plan"
+path = "./hex/hex-plan"
+hash = "sha256:ca41665a6070297c5e5b63f68146cf918fc1ae92a53a37787b47df2c07b8a007"
+
+[[skill]]
+name = "hex-review"
+path = "./hex/hex-review"
+hash = "sha256:55c7e334c5ddbecfc664abf8865bc380cd616f12083e35cfe416eea9c8cfb156"
+
+[[bundle]]
+name = "grim-essentials"
+repo = "ghcr.io/grimoire-rs/bundles/grim-essentials"
+tag = "latest"
+pinned = "ghcr.io/grimoire-rs/bundles/grim-essentials@sha256:9384f76ab863da59509587b6178a49a4dbdd4e896ba8a40862e340390a1bc2e3"
+
+[[bundle.member]]
+kind = "skill"
+name = "ai-config-authoring"
+id = "ghcr.io/grimoire-rs/skills/ai-config-authoring:0"
+
+[[bundle.member]]
+kind = "skill"
+name = "grim-authoring"
+id = "ghcr.io/grimoire-rs/skills/grim-authoring:0"
+
+[[bundle.member]]
+kind = "skill"
+name = "grim-usage"
+id = "ghcr.io/grimoire-rs/skills/grim-usage:0"

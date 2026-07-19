@@ -1,0 +1,76 @@
+name: publish
+
+on:
+  push:
+    tags: ['v[0-9]*']         # matches cliff.toml tag_pattern; version comes from the tag
+  workflow_dispatch: {}        # manual dry-run smoke test
+
+permissions:
+  contents: read
+  packages: write              # push bundle bytes to ghcr.io/michael-herwig/*
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: grimoire-rs/setup-grimoire@v1.2.0   # floating @v1 tag is stale/broken
+        with:
+          version: v0.11.1
+
+      # Isolate the Docker credential store to the job (runner.temp is only
+      # available inside steps, not in job-level env).
+      - name: Isolate Docker credential store
+        run: |
+          mkdir -p "$RUNNER_TEMP/docker"
+          echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+
+      - name: Log in to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | grim login ghcr.io -u "${{ github.actor }}" \
+            --password-stdin --allow-insecure-store
+
+      # Manual dispatch = validate the manifest, push nothing.
+      # `canary` is a non-semver channel tag so it never cascades or skip-exists.
+      - name: Dry run (manual)
+        if: github.event_name == 'workflow_dispatch'
+        run: grim publish --manifest hex/publish.toml --version canary --dry-run
+
+      # Tag push = real release: bytes to ghcr.io, then announce (fork → PR to public index).
+      # --version <tag> overrides the stale static `version = "0.1.0"` in publish.toml
+      # and cascades X.Y / X / latest for all 7 entries.
+      - name: Publish + announce
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          # A classic PAT (or the gh token) that can read grimoire-rs/index —
+          # a fine-grained token scoped to the fork 403s there and can't fork.
+          GH_TOKEN: ${{ secrets.GRIM_ANNOUNCE_TOKEN }}
+          GRIM_ANNOUNCE_TOKEN: ${{ secrets.GRIM_ANNOUNCE_TOKEN }}
+        run: |
+          if [ -n "$GH_TOKEN" ]; then gh auth setup-git; fi
+          set +e
+          grim publish --manifest hex/publish.toml \
+            --version "${{ github.ref_name }}" --announce --format json \
+            2> "$RUNNER_TEMP/publish.err" | tee "$RUNNER_TEMP/publish.json"
+          rc=${PIPESTATUS[0]}
+          set -e
+          cat "$RUNNER_TEMP/publish.err" >&2 || true
+          jq -r '.announce // empty | "announce: \(.outcome) \(.branch // "") \(.url // "") fork=\(.fork.repo // "none")"' \
+            "$RUNNER_TEMP/publish.json" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          # Bytes-published is the hard gate; an announce-only failure (exit 69) soft-warns.
+          if [ "$rc" -eq 69 ]; then
+            echo "::warning::Bundle published to ghcr.io, but the index announce did not complete (exit 69): $(tail -n1 "$RUNNER_TEMP/publish.err")"
+          elif [ "$rc" -ne 0 ]; then
+            exit "$rc"
+          fi
+
+      - name: Log out of GHCR
+        if: always()
+        run: grim logout ghcr.io || true

@@ -1,0 +1,13 @@
+summary = "Tiered multi-agent swarm orchestration: plan, execute, review, architect"
+description = "Swarm orchestration bundle: four tiered orchestrator skills covering the full feature lifecycle - planning, contract-first TDD execution, adversarial review, and architecture design. Each scales worker count, model choice, and review breadth via a low|medium|high tier (auto default) plus single-axis overlays."
+keywords = "swarm,orchestration,multi-agent,planning,tdd,review,architecture"
+license = "Apache-2.0"
+repository = "https://github.com/michael-herwig/arcana"
+
+[skills]
+"hex-core" = "./hex-core:latest"
+"hex-init" = "./hex-init:latest"
+"hex-plan" = "./hex-plan:latest"
+"hex-execute" = "./hex-execute:latest"
+"hex-review" = "./hex-review:latest"
+"hex-architect" = "./hex-architect:latest"
