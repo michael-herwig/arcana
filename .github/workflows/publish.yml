@@ -71,23 +71,6 @@ jobs:
             exit "$rc"
           fi
 
-      # One-shot v0.1.1 migration: the flat ghcr.io/michael-herwig/hex* repos
-      # moved under the `arcana` namespace. Republish the same bytes there with
-      # a `deprecated` notice + `replaced-by` (both are authored in-source, so
-      # they are injected into a throwaway copy). Delete this step after v0.1.1.
-      - name: Deprecate the pre-arcana namespace
-        if: github.ref_name == 'v0.1.1'
-        run: |
-          legacy="$RUNNER_TEMP/legacy"
-          cp -r hex "$legacy"
-          for f in "$legacy"/hex-*/SKILL.md; do
-            n=$(basename "$(dirname "$f")")
-            sed -i "/^metadata:/a\\  deprecated: \"Moved to ghcr.io/michael-herwig/arcana/$n — this repository is retired.\"\n  replaced-by: ghcr.io/michael-herwig/arcana/$n" "$f"
-          done
-          sed -i '/^\[skills\]/i deprecated = "Moved to ghcr.io/michael-herwig/arcana/hex — this repository is retired."\nreplaced-by = "ghcr.io/michael-herwig/arcana/hex"\n' "$legacy/hex.toml"
-          sed -i 's|^repository_prefix = .*|repository_prefix = "michael-herwig"|' "$legacy/publish.toml"
-          grim publish --manifest "$legacy/publish.toml" --version "${{ github.ref_name }}"
-
       - name: Log out of GHCR
         if: always()
         run: grim logout ghcr.io || true
