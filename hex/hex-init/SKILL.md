@@ -341,7 +341,7 @@ user's spellings untouched rather than collapsing them.
   `spec.md` used in Step 3.
 
 The reference links above resolve when `hex-core` is installed alongside
-this skill; if it isn't: `grim add ghcr.io/michael-herwig/hex-core:latest`.
+this skill; if it isn't: `grim add ghcr.io/michael-herwig/arcana/hex-core:latest`.
 
 ## Arguments
 

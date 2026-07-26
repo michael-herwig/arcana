@@ -23,7 +23,7 @@ Shared contracts:
 [`workers.md`](../hex-core/references/workers.md) ·
 [`models.md`](../hex-core/references/models.md) ·
 [`memory.md`](../hex-core/references/memory.md).
-If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/hex-core:latest`.
+If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core:latest`.
 
 ## Argument syntax
 

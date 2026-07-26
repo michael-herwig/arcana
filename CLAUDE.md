@@ -11,6 +11,18 @@ Run `grim build <skill-dir>` for every changed skill/rule before considering
 a change complete (validates + packs, no push; exit 65 on validation
 failure). Full sweep: `task publish -- --dry-run`.
 
+## Publishing
+
+- **Namespace: every published artifact lives under
+  `ghcr.io/michael-herwig/arcana/<name>`** — bundles and their member
+  skills/rules/agents alike, flat under `arcana`. A new `publish.toml`
+  sets `repository_prefix = "michael-herwig/arcana"`; docs and
+  `grim add` snippets use the same path. The flat pre-0.1.1 repos
+  (`ghcr.io/michael-herwig/hex*`) are deprecated, not deleted.
+- `deprecated` / `replaced-by` are authored in the artifact source
+  (SKILL.md `metadata:`, bundle TOML top level), never in `publish.toml` —
+  a re-release without them clears the flag.
+
 ## Spec / plan / ADR conventions
 
 - Plans live in `.agents/plans/`, ADRs in `.agents/adrs/`
