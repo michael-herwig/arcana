@@ -11,10 +11,47 @@
 
 ---
 
-> 🚧 Placeholder — first artifacts coming soon.
+Every artifact here ships as a versioned OCI package under
+`ghcr.io/michael-herwig/arcana/<name>`: add it with
+[`grim`](https://grimoire.rs), pin it in a lockfile, update it like any
+other dependency. Skills are plain markdown — client-neutral by design,
+developed against Claude Code.
+
+## hex — swarm orchestration
+
+The flagship bundle: five slash commands that take a feature from idea to
+merged, reviewed code with a tiered multi-agent swarm — not a single agent
+following a script.
+
+```sh
+grim add ghcr.io/michael-herwig/arcana/hex
+```
+
+| Command | Phase |
+|---|---|
+| `/hex-init` | Audit &amp; bootstrap a project for the swarm |
+| `/hex-plan` | Decompose a feature into a reviewed, contract-first TDD plan |
+| `/hex-execute` | Implement it — parallel git worktrees, review-fix loop, commit |
+| `/hex-review` | Adversarial pre-merge panel — findings and a verdict, never auto-fixes |
+| `/hex-architect` | ADRs and trade-off analysis for hard-to-reverse decisions |
+
+Every orchestrator scales worker count, model choice, and review breadth
+through one shared `low|medium|high` tier grammar (`auto` by default), and
+asks for exactly **one approval** before any work starts — no mid-flow
+questions.
+
+The full story — tier grammar, two-layer swarm memory, and how hex
+compares to [spec-kit](https://github.com/github/spec-kit) and
+[OpenSpec](https://openspec.dev) — lives in [`hex/README.md`](hex/README.md).
 
 ## Layout
 
 ```
-assets/   logo (SVG source, rendered PNGs, favicon)
+assets/   arcana logo (SVG source, rendered PNGs, favicon)
+hex/      the hex bundle — six skills + bundle manifest
+.agents/  hex dogfooding hex: the ADRs, plans, and research behind it
 ```
+
+## License
+
+Apache-2.0.
