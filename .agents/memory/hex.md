@@ -37,8 +37,9 @@ preferences, not copies. Team-shared — commit it.
   documented convention else `.agents/discussions/`, rule `hex-state` ships
   v0.2.0 with the skill). Rule generalized at review to bundle-generic
   `hex-state` (one always-on artifact, one line per shipped mode).**
-  - **Active plan:** `plans/plan_adr_0008_discussion_mode.md` (State:
-    **review**, tier high, executed 2026-08-28/29). All 5 WPs merged on
+  - **Landed plan (no active plan):** `plans/plan_adr_0008_discussion_mode.md`
+    (State: **done**; ff-landed on main 2026-08-29 as `2aa16fa` feat +
+    2 chores, owner skipped review round 4 — 3 rounds converged). All 5 WPs merged on
     branch **`hex/adr-0008-discussion-mode`** (9 commits `8f131bd`→
     `a1acfc9` off `ef566de`; merge order WP2→WP3→WP5→WP1→WP4 held).
     Full TDD cycle per WP (stub → post-stub spec+architect → checklist

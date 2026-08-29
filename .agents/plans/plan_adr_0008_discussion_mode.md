@@ -11,10 +11,10 @@ stays authoritative.
 -->
 
 ## Status
-- State:   review  <!-- planning → plan-approved → executing → review → done -->
+- State:   done  <!-- planning → plan-approved → executing → review → done -->
 - Tier:    high
 - Updated: 2026-08-29
-- Next:    /hex-review .agents/plans/plan_adr_0008_discussion_mode.md
+- Next:    (none — landed on main 2026-08-29)
 
 ## Overview
 
