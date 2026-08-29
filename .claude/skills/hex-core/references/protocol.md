@@ -53,9 +53,15 @@ Exactly **one** approval point, before any work starts. The orchestrator
 never asks mid-flow questions — ambiguity is resolved here or by a
 documented default, never by interrupting a running swarm. **This
 single-gate rule scopes to the four orchestrators** (`hex-plan`,
-`hex-execute`, `hex-review`, `hex-architect`); `/hex-init` is a
-configuration wizard, not an orchestrator, and is exempt — an exemption
-that does not extend to any skill that spawns workers.
+`hex-execute`, `hex-review`, `hex-architect`); two skills are exempt,
+each named here with its own stated ground and no criterion to
+interpret — `/hex-init`, a configuration wizard, not an orchestrator,
+which spawns nothing; and `hex-discuss`, which keeps exactly one
+approval gate, positioned at the drain, with workers that are read-only,
+capped by its own contract (C-706), and never on the critical path, so
+there is no swarm to strand. The list is closed — a skill not named here
+is not exempt, whether or not it spawns workers, and a third member is
+added by amending this sentence, never by analogy.
 
 The gate announces the fully resolved config, each item attributed to its
 source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`):
@@ -428,7 +434,9 @@ check, not a prose judgment:
 - **Component contracts are numbered `C-001, C-002, …`; UX scenarios
   `S-001, S-002, …`** — assigned when the artifact is written (in the
   spec when one exists, carried into the plan unchanged), stable within
-  the artifact, never renumbered.
+  the artifact, never renumbered. IDs never originate in a
+  discussion artifact; an orchestrator consuming one **assigns** IDs and
+  never inherits them.
 - **Every ID maps to at least one WP and at least one test**: the
   Parallelization table's Scope column cites the IDs a WP delivers, and
   every Specify-phase test names the IDs it covers.
@@ -810,6 +818,30 @@ hint) is recorded in `hex.md › Memory` and proposed at the next `/hex-init`
 run. This is part of the flow (portable, no hooks needed); because the file
 holds pointers rather than copies, upkeep is cheap. The section specs and
 staleness rules are in [`memory.md`](memory.md).
+
+The upkeep duties in this section belong to the four orchestrators; a
+**non-orchestrator hex skill makes an upkeep write only where its own
+contract names one**, and `hex-discuss`'s post-gate discussion hand-off
+record and index rows (C-708) are the single such case today.
+
+**Which sections bind a spawning non-orchestrator skill.** Bound:
+[Worker
+coordination](#worker-coordination) — it governs spawning itself — and this
+section, per the sentence above. Exempt: [Shared shape](#shared-shape)
+(written for a skill that resolves a whole config up front; this one
+resolves none); [The meta-plan approval gate](#the-meta-plan-approval-gate)
+— but **only for a skill named in that section's own closed exemption list**;
+for `hex-discuss`, the one named spawning member, the gate is relocated to the
+drain, not removed, and its resolved-literal-model disclosure is carried in
+substance by [`models.md`](models.md#rules) rule 1's quiet-form clause; and
+[Spawn-selection precedence](#spawn-selection-precedence) — exempt in its
+*carriers* (an announce block showing the resolved set, a user picking
+perspectives at an entry gate) and in its layered precedence, moot for a
+skill with no tier baseline and no overlays, while `models.md`'s resolution
+order and persona loading still bind (C-706). [Handoff
+contract](#handoff-contract) binds in substance via the skill's own drain
+block — its `Next:` command and terminal-state report, not the
+orchestrator-specific fields.
 
 **Federation — a plan carrying a `Repo` column.** Upkeep additionally makes
 the **only** upkeep writes that leave the lead repo: for a plan in `landing`,

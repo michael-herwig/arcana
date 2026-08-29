@@ -5,6 +5,7 @@ an existing one, or reviewing a skill's anatomy, size, or bundled files.
 
 Contents: [Anatomy](#anatomy) · [Size](#size) ·
 [Progressive Disclosure](#progressive-disclosure) ·
+[Discovery and Portability](#discovery-and-portability) ·
 [Eval-Driven Authoring](#eval-driven-authoring) ·
 [Anti-Patterns](#anti-patterns)
 
@@ -81,6 +82,46 @@ manual — table of contents, then chapters, then a detailed appendix.
   re-verify).
 - Relative paths from the skill root, forward slashes only.
 
+## Discovery and Portability
+
+The skill is the one artifact type every surveyed client hosts — rules and
+agents are supported by roughly half each. Write one canonical `SKILL.md`
+against the open standard and it is readable everywhere; only the directory
+it must sit in changes (as of 2026; re-verify):
+
+| Directory | Scanned by |
+|---|---|
+| `.claude/skills/` | [Claude Code][cc], also scanned by [OpenCode][oc] and [Copilot][cop] |
+| `.agents/skills/` | the cross-vendor pool — see below |
+| `<client>/skills/` | each client's own dir: `.opencode/`, `.github/`, `.cursor/`, `.kiro/`, `.junie/`, and one per newer client |
+
+The pool is where portability actually pays off, and it is the one place
+where **reading it and writing to it are different lists** — conflating
+them is the usual mistake. [Codex][cx], [Gemini CLI][gem], [Zed][zed],
+[Amp][amp] and [Goose][goose] point at `.agents/skills/` as their own
+location. [OpenCode][oc], [Copilot][cop], [Cursor][cur] and [Warp][warp]
+scan it *in addition* to a first-class directory of their own, so a tool
+writing on your behalf will usually prefer the vendor-specific path and
+treat the pool as an opt-in. And adoption is not universal: [Cline][cline]
+documents `.cline/skills/`, `.clinerules/skills/` and `.claude/skills/`
+with the pool named nowhere (as of 2026; re-verify each of these — this
+list moves faster than anything else in this guide).
+
+Two consequences worth designing for:
+
+- **The shared pool is one copy with many readers.** A skill in
+  `.agents/skills/` is visible to every client that scans the directory
+  simultaneously — so a name collision there collides for all of them, and
+  editing or deleting it changes what all of them see. The reader set keeps
+  growing as clients adopt the convention, which only sharpens the point:
+  unique, specific names matter more here than anywhere else. It also means
+  "installed for one client" and "visible to one client" are not the same
+  statement — never assume a pool skill is private to the client you
+  installed it for.
+- **Vendor frontmatter degrades silently.** All major clients ignore
+  unknown frontmatter, so a client-specific field is dropped rather than
+  rejected — never make correctness depend on one (see [Anatomy](#anatomy)).
+
 ## Eval-Driven Authoring
 
 Build evaluations *before* writing extensive documentation. The loop:
@@ -135,6 +176,17 @@ body.
   trigger diagnostics, testing matrix, distribution.
 
 [spec]: https://agentskills.io/specification
+[cc]: https://code.claude.com/docs/en/skills
+[oc]: https://opencode.ai/docs/skills
+[cop]: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills
+[cx]: https://developers.openai.com/codex/skills
+[gem]: https://geminicli.com
+[zed]: https://zed.dev
+[amp]: https://ampcode.com
+[cur]: https://cursor.com
+[goose]: https://block.github.io/goose
+[warp]: https://warp.dev
+[cline]: https://cline.bot
 [bp]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
 [overview]: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview
 [eng]: https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills

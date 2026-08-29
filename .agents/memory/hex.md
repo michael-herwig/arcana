@@ -135,7 +135,9 @@ preferences, not copies. Team-shared — commit it.
     as separate commits.
     Next: Michael reviews commits + lands (no further review round —
     3 rounds converged, yield collapsed);
-    **`grim install` dev-sync before any dogfood** (W3) still mandatory.
+    **W3 RESOLVED 2026-08-29: Michael ran the grim install dev-sync**
+    (.claude/skills + .claude/rules synced — hex-discuss + hex-state
+    live; grim 0.13.0 regenerated grimoire.lock). Dogfood run unblocked.
   `adrs/adr_0008_pre_plan_discussion_mode.md` — pre-plan discussion mode
   (hex-discuss skill + `.agents/discussions/` artifact class + the bundle's
   first rule artifact + a trust-scoped hex-architect fast path). Tier-high

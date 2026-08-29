@@ -1,8 +1,8 @@
 ---
 name: grim-usage
-description: Drive the grim CLI — the OCI package manager for AI skills, rules, agents, and bundles. Use when installing, updating, searching, or publishing AI-config artifacts with grim; when composing grim init, config, add, lock, install, update, status, context, fetch, describe, search, tui, mcp, build, release, publish, login, or logout commands; when configuring settings, multiple registries, or qualified alias/repo references; or when resolving registries, project vs global scope, client targets, or offline mode.
+description: Drive the grim CLI — the OCI package manager for AI skills, rules, agents, and bundles. Use when installing, updating, searching, rating, or publishing AI-config artifacts with grim; when composing grim init, config, add, lock, install, update, status, context, fetch, describe, search, rate, tui, mcp, build, release, publish, login, logout, or completions commands; when configuring settings, multiple registries, or qualified alias/repo references; or when resolving registries, project vs global scope, client targets, or offline mode.
 license: Apache-2.0
-compatibility: grim>=0.9
+compatibility: grim>=0.14
 metadata:
   summary: How to use the grim CLI end to end
   keywords: grim,grimoire,cli,oci,registry,install,update,publish,skills,rules,agents,bundles,mcp,multi-registry
@@ -14,20 +14,40 @@ metadata:
 Grimoire (binary: `grim`) is a package manager for AI-agent configuration.
 It distributes five artifact kinds — **skills**, **rules**, **agents**,
 **MCP servers**, and **bundles** — through any standard OCI registry (GHCR,
-Docker Hub, a private Distribution), with lockfile-pinned installs into AI
-clients such as Claude Code, OpenCode, GitHub Copilot, and Codex. An MCP
-server artifact installs by registering an entry in each client's native MCP
-config file (never as a file of its own); uninstall removes only that
-entry, never the file. (Codex supports skills, agents, and MCP servers;
-rules are not supported and grim warns and skips them when `--client codex`
-is specified.)
+Docker Hub, a private Distribution), with lockfile-pinned installs into a
+growing fleet of AI clients plus a vendor-neutral `agents` target. The
+current names are listed in
+[references/registries.md](references/registries.md#client-targets); the
+set grows every minor release, so read it there rather than assuming. An
+MCP server artifact installs by registering an entry in each client's
+native MCP config file (never as a file of its own); uninstall removes
+only that entry, never the file.
+
+Not every client can host every kind: a **skill** is the one kind every
+client hosts, but a rule needs a per-file scoping surface, an agent needs a
+shipped file format, and an MCP server needs a config file grim can splice —
+and many clients lack one or more of those. Where a client cannot faithfully
+host a kind, grim warns and skips it, writing zero files. Most of the fleet
+declines rules and agents, and the skills-only clients write no MCP config
+at all. The authoritative per-client support matrix is the [Client
+Compatibility][clients] docs page — trust it over this summary, and check it
+rather than assuming.
+
+Two consequences of that shape are worth knowing before your first
+install. When **nothing** is detected, grim targets the generic `agents`
+client — one copy into the shared `.agents/skills` pool — rather than
+writing a directory for every client it knows about; a lock holding only
+rules, agents, or MCP servers then has nowhere to go and exits **78**. And
+a client that reads that shared pool can be moved into it deliberately with
+`options.vendors.<name>.shared_skills`. Both in
+[references/registries.md](references/registries.md#client-targets).
 
 ## Verify Before Acting
 
 Before composing any non-trivial grim command:
 
-1. Run `grim --version`. This guide is written against grim 0.10.x; on a
-   different minor, treat every flag mentioned here as a hypothesis.
+1. Run `grim --version`. This guide tracks the release it ships beside; on
+   a different minor, treat every flag mentioned here as a hypothesis.
 2. Run `grim <command> --help` before using flags you have not verified
    this session — it is the authoritative, always-current flag list.
 3. On any conflict between this skill and live `--help` output, **trust
@@ -52,12 +72,14 @@ full reference is `--help` plus the docs site linked below.
 | `grim describe` | Report an artifact's metadata (kind, annotations, tags) without downloading content | [consume](references/consume.md) |
 | `grim remove` / `uninstall` | Undeclare vs full inverse of install | [consume](references/consume.md) |
 | `grim search` / `tui` | Browse your declared registries' catalogs | [registries](references/registries.md) |
+| `grim rate` | Vote on an artifact through the index's rating forge | [registries](references/registries.md) |
 | `grim mcp` | Run a local STDIO MCP server for AI agent integration | [registries](references/registries.md) |
 | `grim build` | Validate and pack locally, no push | [publish](references/publish.md) |
 | `grim release` | Validate, pack, push with cascade tags | [publish](references/publish.md) |
 | `grim publish` | Batch-release packages from a `publish.toml` manifest | [publish](references/publish.md) |
 | `grim login` / `logout` | Manage registry credentials | [publish](references/publish.md) |
 | `grim schema` | Emit the JSON Schema for `grimoire.toml` / `publish.toml` / `grimoire.lock` / the MCP descriptor | [publish](references/publish.md) |
+| `grim completions <shell>` | Print a shell completion script (bash, elvish, fish, powershell, zsh) to stdout; redirect it into your shell's completion dir | `grim completions --help` |
 
 > **Deprecation:** a publisher can retire a package without
 > unpublishing it; `add` and `status` flag it as deprecated (an `add` of a
@@ -68,9 +90,20 @@ full reference is `--help` plus the docs site linked below.
 > true`). A `replaced-by` successor reference, when the publisher named
 > one, surfaces in `grim search` / `grim describe`. See [Publishing][publishing].
 >
-> **Git provenance:** `build`, `release`, and `publish` can embed
-> the publishing commit, date, and origin as OCI annotations via opt-in
-> `--git`; confirm with `grim release --help`.
+> **Build provenance:** `build`, `release`, and `publish` embed the
+> publishing commit and its date as OCI annotations **by default** (never a
+> wall-clock time, so re-release stays idempotent). `--git` additionally
+> requires them and discloses the `origin` remote and commit author;
+> `--no-git` suppresses every derived annotation. Confirm with
+> `grim release --help`.
+>
+> **Global flags** apply to every subcommand — `--format`, `--global`,
+> `--config`, `--registry`, `--offline`, `--log-level`, and `--color
+> <auto|always|never>` (default `auto` colorizes clap's help/error output
+> and `--format json` only when stdout is a terminal; `--color always`
+> colorizes unconditionally, so never pass it into a pipeline that parses
+> the document. The JSON error document is never colorized in any mode).
+> Confirm the set with `grim --help`.
 
 ## Reference Syntax
 
@@ -81,7 +114,7 @@ immutable digest). A bare reference defaults to `:latest`.
 A third form skips the registry: a **local path** — `./skills/x`,
 `../shared/rule.md`, or an absolute path — names a directory or file on
 disk directly. The discriminant is used everywhere a reference is accepted
-(`grim add`, `grim install`, a `[skills]`/`[rules]`/`[agents]`/`[bundles]`
+(`grim add`, `grim install`, a `[skills]`/`[rules]`/`[agents]`/`[mcp]`/`[bundles]`
 value): a value starting with `./` or `../`, or an absolute path, is a
 local path source; anything else is an OCI reference. See
 [references/consume.md](references/consume.md#declaring) for how it is
@@ -108,7 +141,7 @@ multi-registry browse behavior in
 |---|---|
 | [references/consume.md](references/consume.md) | Installing, updating, or removing artifacts in a project |
 | [references/publish.md](references/publish.md) | Building, releasing, tagging, or logging in to publish |
-| [references/registries.md](references/registries.md) | Resolving registries, scopes, client targets, offline mode, or searching |
+| [references/registries.md](references/registries.md) | Resolving registries, scopes, client targets, offline mode, searching, or rating |
 | [references/troubleshooting.md](references/troubleshooting.md) | A grim command failed — exit codes, integrity gates, common causes |
 | [references/updating.md](references/updating.md) | Maintaining this skill itself against newer grim releases |
 
@@ -127,7 +160,8 @@ multi-registry browse behavior in
 [config]: https://grimoire.rs/configuration.html
 [publishing]: https://grimoire.rs/publishing.html
 [auth]: https://grimoire.rs/authentication.html
+[clients]: https://grimoire.rs/clients.html
 
 ---
 
-Verified against grim 0.10.0.
+Verified against the grim release this package ships beside.

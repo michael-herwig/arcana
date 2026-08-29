@@ -9,8 +9,8 @@ Contents: [The Loop](#the-loop) · [The Two Files](#the-two-files) ·
 [Updating](#updating) · [Inspecting](#inspecting) ·
 [Removing](#removing) · [Bundles](#bundles)
 
-Flags shown here are grim 0.10.x; confirm with `grim <cmd> --help` before
-relying on one.
+Flags shown here track the release this package ships beside; confirm with
+`grim <cmd> --help` before relying on one.
 
 ## The Loop
 
@@ -67,11 +67,13 @@ grim add --no-install ghcr.io/acme/code-review:1   # declare + lock only
   artifact's kind metadata set at release time (the `com.grimoire.kind`
   annotation; legacy `artifactType` on older artifacts). If grim cannot
   infer it (a non-Grimoire image), `add` errors and asks for `--kind`.
-- `--name` defaults to the reference's last path segment. A name that is
-  already declared for that kind under a *different* reference refuses
-  (exit 64) instead of silently replacing it — pass `--name` to bind the
-  new reference under another name. Re-adding the same reference is a
-  no-op. A renamed skill installs under the binding name with its
+- `--name` defaults to the reference's last path segment. Re-adding a
+  declared name from the *same* repository at another tag or digest
+  re-pins it — config, lock and installed files all move to the new
+  version; re-adding the identical reference is a no-op. A name already
+  declared for that kind under a *different repository* refuses (exit 64)
+  instead of silently replacing it — pass `--name` to bind the new
+  reference under another name. A renamed skill installs under the binding name with its
   `SKILL.md` frontmatter `name` rewritten to match (no client-level name
   collision); a renamed multi-file rule may break the index's relative
   links (grim warns). Skill/rule/agent binding names must be 1–64 chars —
@@ -171,12 +173,40 @@ grim update
 grim update code-review rust-style
 ```
 
+Update runs the **same integrity gate as install**. A new pin overwrites
+grim-managed content with no flag — that is the whole point of a rolling
+update — but an artifact whose bytes you edited yourself is refused with
+exit 65 until you pass `--force`:
+
+```sh
+grim update           # exit 65: "installed artifact was modified locally"
+grim update --force   # overwrite my edit deliberately
+```
+
+One flag therefore governs every way update can destroy hand-edited work:
+this overwrite, the prune below, and the client reap below that.
+
+A refusal does not abandon the pass. Every other artifact is still
+reconciled, the lock still rolls forward, and the report is still
+printed — this is a refusal, not an error document. Under `--format json`
+the refused row carries `refused: true` (always present, `false`
+everywhere else), which is how you tell this exit 65 from any other
+without scraping stderr; `action` keeps reporting the lock diff, because
+the pin *did* move and only the materialization was refused. The plain
+table has no such column, so on that surface the refusal is named on
+stderr instead. Re-run with `--force` to complete it, or
+[`grim remove`](#removing) the artifact to keep your edit and stop
+tracking it.
+
 Update is also the only command that **prunes**: an artifact that
 dropped out of the lock (most often a bundle member the bundle stopped
 including) is deleted and reported as `removed` — unless you edited it
 locally, in which case it is kept and reported as `kept-modified` until
 you re-run with `--force`. Your local edits are never silently
-discarded.
+discarded. A pruned or reaped row can also report `retained` /
+`abandoned_entries` — the footprint grim dropped from its record but
+deliberately left on disk; same contract as on `uninstall`, see
+[Removing](#removing).
 
 The same reconciliation applies when you narrow the configured client
 set (`[options].clients`): a client that leaves the set has its outputs
@@ -211,12 +241,47 @@ vendor layout itself is not a stable contract). Each item also carries
 `[options].clients` diffed against what is actually recorded installed,
 computed locally, no network. Left unset (autodetect), both stay `[]` on
 every item instead of diffing against live client detection.
+`clients_missing` also skips a configured client whose vendor cannot host
+that kind at that scope (Codex declines rules, for one), since no output
+was ever going to be recorded for it.
+
+`outputs_pending` answers a different question: **what would `grim install`
+write right now that the record does not already cover?** Same
+`{client, path}` shape, `[]` when an install would write nothing new. Two
+things fill it, both real install work — a client that gained support since
+the last install (you installed another AI client, or configured one), and a
+render-layout move (reported at the new path). A recorded output whose file
+was deleted is not one of them; that entry reads `state: missing`. This is
+*materialization drift*: the artifact is intact at
+its locked pin, so `state` correctly reads `installed` while an install
+still has files to write, and no other field can see it. Unlike
+`clients_missing` it is reported under autodetect too, because it asks what
+an install would do rather than what you configured. Fix it with
+`grim install` — not `grim update`, which would also roll your pins forward.
+
+A third
+array, `clients_unresolved`, names every active client whose recorded
+output could not be resolved at all — the anchor root is gone, or the
+containment guard refused the path — so that client is silently absent
+from `outputs`. It is `[]` normally; a non-empty one is the signal to look
+at [troubleshooting.md](troubleshooting.md#containment-refusals). `state`
+stays `missing` and the exit code stays `0`: status reports, it never
+gates.
 
 `grim status --check` adds one live catalog round-trip: it fills in
 `deprecated`/`replaced_by` on every registry-sourced item and, via a
-fresh per-artifact tag re-resolution, `update_available` — "is a newer
-version out there right now" versus status's normal offline read. The
-top-level `checked` field says whether the check actually ran online;
+fresh per-artifact re-resolution, `update_available`.
+
+That re-resolution follows **the reference the config declares**, tag and
+all — so `update_available` answers *would `grim update` move this pin?*,
+the same decision the TUI's `↑ outdated` badge makes. It is deliberately
+not "is a newer version out there right now": a release the declared
+reference does not point at is **not** an available update, so an exact
+version pin, an unmoved advisory float, and a digest pin all report
+`false` while the repository carries a strictly higher tag. Widen the
+declared reference (`grim add <ref>` re-pins it) to follow those releases.
+
+The top-level `checked` field says whether the check actually ran online;
 `checked == false` means all three of those item fields are `null`.
 When scripting against it, treat `update_available: null` as "could not
 determine", never as "up to date": it is `null` (not `false`) for a
@@ -243,7 +308,9 @@ Two read-only companions:
 - `grim context` reports the resolved invocation context — scope,
   config/lock/state paths (with existence flags), effective client set
   (names only), registry browse set, default registry, offline mode —
-  so scripts need not reimplement walk-up or precedence rules. Each JSON
+  so scripts need not reimplement walk-up or precedence rules. `lock_error`
+  carries the reason an *existing* lock cannot be read (else `null`):
+  `lock_exists` answers "is it there", not "can grim use it". Each JSON
   `registries` entry carries an `authenticated` boolean: whether the
   docker-compatible credential store holds an entry for that registry's
   host (a file-only probe — it never invokes a credential helper, so a
@@ -292,11 +359,28 @@ next `grim install` rematerializes them). When the surviving bundle
 binds a *different* identifier, grim drops the entry, leaves the lock
 stale, and tells you to run `grim lock` — never a silently wrong pin.
 
+"Deleted" has one documented exception, reported rather than hidden. The
+JSON report of `uninstall` (and of a pruning `update`) carries two
+always-present arrays, `[]` on a healthy run:
+
+- `retained` — absolute paths grim dropped from its install record but
+  refused to delete, because the recorded path resolved outside its anchor
+  root. State and filesystem deliberately diverge; remove those paths by
+  hand.
+- `abandoned_entries` — the same idea for a managed MCP entry inside a
+  shared, user-owned config file: `{path, pointer}` per entry, `path` the
+  config file and `pointer` the JSON pointer of the member grim could not
+  splice out. It is now unrecorded, so no later `uninstall` will remove it.
+
+Both come from the containment guard — see
+[troubleshooting.md](troubleshooting.md#containment-refusals).
+
 ## Bundles
 
 A bundle is a curated set of members. Declare it once and it **expands**
-into its member skills, rules, and agents at lock time, each pinned like a
-direct declaration and tagged with the bundle as its provenance:
+into its members — skills, rules, agents, and MCP servers — at lock time,
+each pinned like a direct declaration and tagged with the bundle as its
+provenance:
 
 ```sh
 grim add --kind bundle ghcr.io/acme/python-stack:1

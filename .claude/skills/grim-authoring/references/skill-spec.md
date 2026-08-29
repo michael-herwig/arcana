@@ -31,7 +31,7 @@ round-trip, never rejected.
 | `name` | yes | Must equal the directory name |
 | `description` | yes | Non-empty, ≤ 1024 chars; what it does + when to use it |
 | `license` | no | SPDX-style id (e.g. `Apache-2.0`); becomes the OCI license annotation |
-| `compatibility` | no | Free-text environment hint (e.g. `grim>=0.4`) |
+| `compatibility` | no | Free-text environment hint (e.g. `grim>=0.4`); published as the `com.grimoire.compatibility` annotation |
 | `allowed-tools` | no | Comma-separated tool allowlist |
 | `metadata` | no | String→string map: catalog keys + vendor extensions |
 
@@ -59,6 +59,18 @@ rules and bundles, where these keys are top-level):
 | `metadata.repository` | `https://` URL only; `git@…` or `http://` fails the release (exit 65) |
 | `metadata.deprecated` | Deprecation notice; non-empty marks the skill deprecated (flagged in search/TUI, warned on `add`). Empty ⇒ not deprecated |
 | `metadata.replaced-by` | Successor reference (independent of `deprecated`); surfaced in search / `grim describe`. Must parse as a reference or the release fails (exit 65) |
+| `metadata.authors` | Who maintains it. Prefer a team name or alias — a manifest is readable by anyone who can pull it |
+| `metadata.vendor` | Distributing organization; derived from the release repository's namespace when omitted |
+| `metadata.homepage` | Project home page; defaults to `metadata.repository` |
+| `metadata.documentation` | Docs URL; defaults to `<repository>#readme` |
+
+`vendor`, `homepage`, and `documentation` are derived when omitted;
+`authors` is **not** — the only automatic source is the commit author
+under `--git`, which publishes a person's name, so author a team alias
+instead. Together with the top-level `license`, the set to write on every
+skill is [the default six][defaults]. Each has a matching `grim release`
+flag and a `publish.toml` `[metadata]` entry — both fill gaps and never
+override what the file authors.
 
 Full annotation mapping: [catalog metadata][pub-metadata] and
 [annotations][annotations].
@@ -87,9 +99,10 @@ a description companion instead — see
 
 ## Client-Agnostic Content
 
-One published skill serves Claude Code, OpenCode, and Copilot. The
-OpenCode and Copilot skill registries are intentionally empty — both get
-the identical universal render; only `claude.*` skill keys exist today
+One published skill serves every client grim supports — skill is the one
+kind no client declines. Only Claude Code carries a *skill* registry; every other
+client's is intentionally empty, so they all receive the identical
+universal render and read the lifted `claude.*` fields as unknown keys
 ([empty registries][empty-registries]). Write the body client-neutrally:
 never assume one client's tool names or directory layout; put
 Claude-only behavior in `claude.*` keys, not prose.
@@ -146,7 +159,7 @@ All hard errors exit 65 (DataError) at `grim build` / `grim release`.
 | `keywords` written as a YAML list | Not accepted — must be one comma string |
 | Known `claude.*` key with a bad literal (`claude.effort: extreme`) | Hard error — publish stops ([projection][projection]) |
 | Typo'd own-namespace key (`claude.efort`) | **Warning + dropped** — silent loss if ignored |
-| Any `opencode.*` / `copilot.*` key on a skill | Always unknown → warning + dropped |
+| Any non-`claude.*` vendor key on a skill (`opencode.*`, `codex.*`, `cursor.*`, `kiro.*`, …) | Always unknown → warning + dropped |
 | Legacy Claude field at top level (`user-invocable: true`) | Warning only — installs verbatim; migrate to `claude.user-invocable` ([migration][migration]) |
 | `summary`/`keywords` at top level (rule-style) | No error — preserved as unknown keys, but the catalog never sees them |
 
@@ -170,3 +183,4 @@ All hard errors exit 65 (DataError) at `grim build` / `grim release`.
 [projection]: https://grimoire.rs/vendor-metadata.html#projection-semantics
 [migration]: https://grimoire.rs/vendor-metadata.html#migration
 [agentskills]: https://agentskills.io/specification
+[defaults]: ./release-checklist.md#metadata-defaults

@@ -28,8 +28,27 @@ per-area fleet. In parallel, read directly the project's architectural
 conventions for every area touched, and all prior ADRs/plans/research in the
 convention-resolved artifact home for the whole domain.
 
-**Gate** — a full architecture map is produced; every prior decision record
-in the domain is enumerated.
+**With a dossier**, Phase 1 shrinks to the bounded claim diff exactly as the
+`medium` tier defines it — containment-first canonicalization, both failure
+modes, the git-history discriminator, and the derived staleness anchor live in
+[`tier-medium.md` Phase 1](tier-medium.md#phase-1-discover-single-worker) and
+are not restated here. This tier's delta is the **residual ground**: what the
+dossier does not cover is larger here, spanning every area the decision
+touches plus the whole domain's prior ADRs/plans/research as above, not the
+`medium` tier's single feature area.
+
+Which makes the Phase-1 shrink **marginal at this tier**: the
+`architecture-explorer` still runs at full breadth over that residual ground,
+so the claim diff displaces reads rather than removing them. The fast path's
+real saving here is
+[Phase 2](#phase-2-research-3-axes-gate-selected--mandatory)'s skipped
+researchers — read the gate's cost preview that way, and never promise a
+cheap Discover at `high`.
+
+**Gate** — a full architecture map is produced, or, with a dossier, the claim
+diff (per [`tier-medium.md` Phase 1](tier-medium.md#phase-1-discover-single-worker))
+covers every path the dossier names and the residual ground is explored;
+every prior decision record in the domain is enumerated.
 
 ## Phase 2: Research (3 axes, gate-selected — mandatory)
 
@@ -47,8 +66,19 @@ opinionated recommendation with trend analysis, adoption signals, and
 citations. Persist each as a research artifact — mandatory at this tier;
 substantial findings are expected.
 
-**Gate** — three research artifacts persisted; axis choices recorded with
-their source (classifier default or user pick).
+**With a dossier**, the per-axis research skip applies here unchanged — the
+cite-and-unexpired predicate and its announcement format are defined in
+[`tier-medium.md` Phase 2](tier-medium.md#phase-2-research-1-axis-gate-selected)
+and are not restated here. The delta is count: **3** axes are selected at this
+tier rather than 1, so up to **3** independent skip announcements are
+possible, and a dossier covering all three may legitimately resolve to
+**zero** researchers at this tier too — the mandatory-research language above
+does not override the skip.
+
+**Gate** — every selected axis either persisted a research artifact or was
+announced skipped with its cited dossier source (C-724, per
+[`tier-medium.md` Phase 2](tier-medium.md#phase-2-research-1-axis-gate-selected));
+axis choices recorded with their source (classifier default or user pick).
 
 ## Phase 3: Classify (sequential)
 
@@ -99,7 +129,9 @@ canonical loop's artifact-scope rule, never restated here.
   consistent with the stated decision?
 - `reviewer` (focus `quality`, prompted adversarially) — steelman every
   rejected option; is the reversibility claim honest; does the design
-  introduce a boundary or convention violation?
+  introduce a boundary or convention violation? With a dossier, one further
+  duty is **mandatory**: steelman against the dossier's own `## Decisions` —
+  two-party agreement is *unexamined*, not evidence.
 - `researcher` — does the design miss a trending pattern, a known pitfall,
   or a state-of-the-art approach the research axes didn't surface?
 - `reviewer` (focus `security`) — mandatory when

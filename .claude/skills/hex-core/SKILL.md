@@ -41,7 +41,7 @@ See [`../hex-core/references/protocol.md`](../hex-core/references/protocol.md).
 If `hex-core` is not installed, add it:
 
 ```sh
-grim add ghcr.io/michael-herwig/hex-core:latest
+grim add ghcr.io/michael-herwig/arcana/hex-core:latest
 ```
 
 Cross-skill mentions elsewhere use the command form: `/hex-plan`,

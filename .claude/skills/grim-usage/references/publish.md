@@ -12,8 +12,8 @@ Contents: [Build, Then Release](#build-then-release) ·
 [Description Companion](#description-companion) ·
 [Authentication](#authentication)
 
-Flags shown here are grim 0.10.x; confirm with `grim <cmd> --help` before
-relying on one.
+Flags shown here track the release this package ships beside; confirm with
+`grim <cmd> --help` before relying on one.
 
 ## Build, Then Release
 
@@ -156,6 +156,41 @@ Key behaviors — confirmed invariants, not subject to minor-release drift:
   value exits 65 before any push. `grim release` takes the same
   `--push-registry` flag.
 
+### Repository Layout: Prefer Flat {#flat-layout}
+
+The default layout puts a kind segment in the path — `registry/skills/x`,
+`registry/bundles/y`. That segment is a **namespace partition, not a type
+tag**: grim reads an artifact's kind from the `com.grimoire.kind`
+annotation on its manifest, never from the path. It buys exactly one
+thing — room for a skill and a bundle to share a name.
+
+With names unique across kinds it buys nothing and still costs:
+
+- every reference your users type carries it, and a short reference cannot
+  shrink below `skills/x`;
+- the TUI tree nests every artifact under a `skills` / `bundles` node that
+  restates what the row's kind already says — and doubles it when
+  `options.tui.group_by_type` is on, giving a `skill` group holding a
+  `skills` group.
+
+Publish flat by naming your namespace as the prefix:
+
+```toml
+registry = "ghcr.io"
+repository_prefix = "acme"
+
+[skills.code-review]     # → ghcr.io/acme/code-review
+[bundles.essentials]     # → ghcr.io/acme/essentials
+```
+
+Bundles work unchanged; a flat bundle names its members with the
+same-directory form `./code-review:0` instead of `../skills/code-review:0`.
+
+**Decide before the first publish.** A repository path is a public
+reference the moment a consumer pins it in a `grimoire.lock`, so moving it
+later means publishing under new names and keeping the old ones alive for
+everyone already on them.
+
 Common flags — confirm current spelling with `grim publish --help`:
 
 ```sh
@@ -191,6 +226,21 @@ topic branch, then opens the pull/merge request via the forge REST API
 A GitLab host without an API token gets the MR via git push options; a
 plain git host gets the pushed branch and its URL printed.
 
+The pointer path carries no kind, so a name is claimed by one kind per
+namespace. A manifest whose entries share a name — a skill and a bundle
+both called `hex` — is refused before any push (exit 65), on a dry run
+too; drop `--announce` and the same two entries publish fine, to distinct
+OCI repositories.
+
+With an API-capable credential, `--announce` auto-forks: when you lack
+push access to the configured index, grim forks it for you and opens the
+cross-repo pull/merge request against the upstream automatically.
+`[announce] fork` picks the policy — `"auto"` is that default, `"never"`
+opts back out to the manual-fork workflow, and `"always"` forks even when
+you *can* push, so every announce lands as a reviewable PR. The legacy
+booleans still work (`true` = auto, `false` = never). Confirm the current
+behavior with `grim publish --help`.
+
 Configure the target and ownership in an optional `[announce]` table in
 `publish.toml`:
 
@@ -224,11 +274,12 @@ Announce also tolerates GitLab's `HOME`-less step environments.
 
 The outcome is machine-readable: `grim publish --format json` emits a
 wrapper object `{"items": [...], "announce": ...}` where `announce`
-carries `{outcome, branch, url}` — `outcome` is `pull-request`,
-`branch-pushed`, or `up-to-date`, and `branch` (the deterministic topic
+carries `{outcome, branch, url, fork}` — `outcome` is `pull-request`,
+`branch-pushed`, or `up-to-date`; `branch` (the deterministic topic
 branch) is always present, so CI reads it from stdout instead of grepping
-stderr. `announce` is `null` when the step did not complete (no
-`--announce`, dry run, a fail-fast stop, or failure).
+stderr; `fork` is `{repo, created}` when the branch landed on a fork grim
+created or reused, else `null`. `announce` is `null` when the step did
+not complete (no `--announce`, dry run, a fail-fast stop, or failure).
 
 The default index auto-merges an announcement PR when: only your own
 namespace's `metadata.json` paths changed, you own that namespace (login
@@ -251,7 +302,7 @@ for the hosted URLs.
 
 ## Bundles
 
-A bundle is a small `.toml` whose `[skills]` / `[rules]` / `[agents]`
+A bundle is a small `.toml` whose `[skills]` / `[rules]` / `[agents]` / `[mcp]`
 tables list members by reference — the same shape as a `grimoire.toml`.
 Build and release it like any artifact:
 
@@ -280,9 +331,14 @@ in `grim search`, the TUI, and on `grim add`; an empty or whitespace
 value means not deprecated. A sixth, `replaced-by`, names the successor
 artifact (authored independently of `deprecated`) — surfaced as
 `replaced_by` in `grim search` / `grim describe --format json`; the value
-must parse as a reference or the release fails with exit 65. You author
-them all in the source file itself, so a release always publishes what the
-file says. Two invariants hold for every kind:
+must parse as a reference or the release fails with exit 65. Four more
+describe provenance and docs: `authors`, `vendor`, `homepage`, and
+`documentation`, each **derived when omitted** (vendor from the release
+repository's namespace, homepage from `repository`, documentation from
+`<repository>#readme`; authors only under `--git`).
+
+You author them all in the source file itself, so a release always
+publishes what the file says. Two invariants hold for every kind:
 
 - `keywords` is a single comma-separated **string** (`rust,lint`), never
   a YAML/TOML list — an OCI annotation value is a string.
@@ -290,8 +346,45 @@ file says. Two invariants hold for every kind:
   release with exit 65.
 
 *Where* the fields live differs by kind (skill/agent: the frontmatter
-`metadata` map; rule: top-level frontmatter; bundle: top-level TOML) —
-see [the per-kind examples][metadata].
+`metadata` map; rule: top-level frontmatter; bundle and mcp: top-level
+TOML) — see [the per-kind examples][metadata].
+
+Not editing every artifact: each field has a matching flag on `build`,
+`release`, and `publish` (`--license`, `--repository`, `--authors`,
+`--vendor`, `--url`, `--documentation`), and `publish.toml` takes a
+top-level `[metadata]` table plus per-entry overrides. Both are gap-fillers
+— precedence is **artifact frontmatter > flag > per-entry `[metadata]` >
+top-level `[metadata]` > derived**, merged field by field.
+
+### What to Set by Default {#metadata-defaults}
+
+Grim derives what it can, but a derivation is a guess, and an unset key is
+a missing row in `grim describe` and a blank line in the TUI detail pane.
+Treat these as required on every package, not optional:
+
+| Field | Why it is not optional in practice |
+|---|---|
+| `summary` | The single line `grim search` and the TUI show *instead of* the description |
+| `keywords` | The only thing fuzzy search matches beyond the name |
+| `repository` | Also the source `homepage` and `documentation` derive from — author one key, get three annotations |
+| `license` | Never derived. A manifest with no license is one a company's review cannot clear |
+| `authors` | **Never derived.** The only automatic source is the commit author under `--git` — which publishes a person's name. A team alias here is what prevents that |
+| `vendor` | Derived from the release namespace; author it when that namespace is not your organization's name |
+
+Set them once per catalog in `publish.toml`'s `[metadata]` table rather
+than repeating them in every artifact — the table fills only what an
+artifact leaves unset, so a package that states its own license still wins.
+
+Two repository-level companions complete the picture, and neither is
+artifact metadata: `[description]` (README/CHANGELOG/logo) and the
+manifest-level `[support]` table (issues/chat/contact/security). Together with the
+table above they are exactly what fills the TUI detail pane's `Overview`,
+`Readme`, and `Changelog` panels — see [Description
+Companion](#description-companion).
+
+`compatibility` (skills only) and the retirement pair `deprecated` /
+`replaced-by` stay opt-in: publish them when they are true, never as
+boilerplate.
 
 ## Description Companion {#description-companion}
 
@@ -335,6 +428,19 @@ include   = ["docs/img/*.png"]   # extra README-referenced assets
 - There is no separate publish command for it — re-running `grim publish`
   after a docs-only edit re-points the companion; the artifacts themselves
   skip-existing as usual.
+- **Support channels.** A manifest-level `[support]` table — sibling of
+  `[metadata]`, not part of `[description]` — publishes
+  `issues` / `chat` / `contact` / `security` as `com.grimoire.support.*`
+  annotations on the companion manifest, read back as `grim describe`'s
+  `support` object. They ride the *companion* rather than a version's
+  manifest precisely because the companion tag is mutable: change a link,
+  re-run `grim publish`, and every already-published version reports the new
+  one — no re-release. It fans out to **every** companion the run pushes, so a
+  per-entry `[description]` table (which replaces the file set wholesale) never
+  disturbs it; there is no per-entry override and no `grim release` flag.
+  `grim describe` is the **only** read surface for them:
+  `grim search` and the TUI read a disk-cached catalog, and a cached contact
+  link is one that may already have moved.
 - The companion's tag namespace is machine-owned: `grim release` /
   `grim publish` reject a user-supplied tag colliding with the reserved
   `__grimoire` namespace as a usage error (exit 64), before any network
@@ -344,18 +450,29 @@ include   = ["docs/img/*.png"]   # extra README-referenced assets
 Confirm the current schema with `grim schema --kind publish` and flags
 with `grim publish --help`.
 
-## Git Provenance
+## Build Provenance
 
-`build`, `release`, and `publish` take an opt-in `--git` flag that stamps the
-publishing commit (revision, commit date, and the `origin` remote) onto the
-manifest as standard OCI annotations, surfaced in the TUI detail pane and
-`grim search --format json`. It is off by default so an ordinary re-release
-stays idempotent; with `--git` a re-release from a different commit changes
-the digest. A repo with no `origin` (or no HTTPS-resolvable remote) still
-succeeds — revision and commit date are stamped and the source is just
-omitted; only a non-git path or a missing `git` fails (exit 65). Confirm the
-flag with `grim release --help` and see the [publishing guide][publishing]
-for the trade-off.
+`build`, `release`, and `publish` stamp the publishing commit (revision and
+commit date) onto the manifest as standard OCI annotations **by default**,
+surfaced in the TUI detail pane, `grim describe`, and `grim search --format
+json`. Re-release stays idempotent because neither value comes from the clock:
+`created` is the commit's own date, or a `SOURCE_DATE_EPOCH` instant outside a
+repository. Re-releasing the same version from a *different* commit does
+change the digest and needs `--force`.
+
+Two flags bound that default:
+
+- `--git` *requires* provenance — a non-git path or a missing `git` fails
+  (exit 65) — and additionally publishes the `origin` remote as the source
+  annotation and the commit author's **name** (never their email). Those name
+  the forge host and a person rather than the artifact, so they stay opt-in.
+- `--no-git` suppresses every derived annotation, for publishing where the
+  manifest must disclose nothing about the build.
+
+A repo with no `origin` (or no HTTPS-resolvable remote) still succeeds under
+`--git` — revision and date are stamped and the source is just omitted.
+Confirm the flags with `grim release --help` and see the
+[publishing guide][publishing].
 
 ## Authentication
 
@@ -404,6 +521,8 @@ With no positional registry, `login`/`logout` resolve `--registry`, then
   hosting your own.
 - [Authentication][auth] — credential resolution, storage tiers, CI.
 - [Command reference: build, release, login, logout][commands].
+- [Publishing from CI][ci] — wiring publish/announce into GitHub or
+  GitLab CI.
 
 [publishing]: https://grimoire.rs/publishing.html
 [package-index]: https://grimoire.rs/package-index.html
@@ -413,3 +532,4 @@ With no positional registry, `login`/`logout` resolve `--registry`, then
 [auth]: https://grimoire.rs/authentication.html
 [commands]: https://grimoire.rs/commands.html#build
 [artifacts-readme]: https://grimoire.rs/artifacts.html#well-known-assets
+[ci]: https://grimoire.rs/ci.html

@@ -97,20 +97,39 @@ empty.
 
 ## Portability
 
-Agents are the **least portable** artifact type — four incompatible
-envelopes (as of 2026):
+Agents are the **least portable** artifact type — a minority of clients host
+an installable agent file at all, each in its own incompatible envelope, and
+every other client hosts none (as of 2026; re-verify):
 
 | Client | Path | Format | Notes |
 |---|---|---|---|
-| Claude Code | `.claude/agents/*.md` | Markdown | Richest field set; tools inherit-all when omitted |
-| OpenCode | `.opencode/agents/*.md` | Markdown | Primary/subagent modes; per-tool permission map |
-| Copilot | `.github/agents/*.agent.md` | Markdown | Body capped at 30,000 chars (as of 2026; re-verify) |
-| Codex | `.codex/agents/<name>.toml` | TOML | Body in `developer_instructions`; `tools` dropped with warning |
+| [Claude Code][cc-agents] | `.claude/agents/*.md` | Markdown | Richest field set; tools inherit-all when omitted |
+| [OpenCode][oc-agents] | `.opencode/agents/*.md` | Markdown | Primary/subagent modes; per-tool permission map |
+| [Copilot][cop-agents] | `.github/agents/*.agent.md` | Markdown | Body capped at 30,000 chars (as of 2026; re-verify) |
+| [Codex][cx-agents] | `.codex/agents/<name>.toml` | TOML | Body in `developer_instructions`; no `tools` equivalent |
+| [Cursor][cur-agents] | `.cursor/agents/*.md` | Markdown | Read-only and background flags; no `tools` equivalent |
+| [Gemini CLI][gem-agents] | `.gemini/agents/*.md` | Markdown | Loaded only while the `experimental.enableAgents` setting is on — it defaults on (as of 2026; re-verify) |
+| [Antigravity][ag-agents] | `.agents/agents/*.md` | Markdown | `tools` is typed `string[]` upstream — a YAML list, not the comma string other clients take |
 
-The only cross-read: VS Code Copilot also detects `.claude/agents/*.md`.
-OpenCode and Codex read neither foreign path. Portable strategy: keep the
-prompt body vendor-neutral and generate the per-client envelopes; only
-`description` is conceptually common to all four.
+**Several clients have no agent file you can package**: [Kiro][kiro] — a
+native IDE format exists, but its CLI expects an incompatible schema in the
+same `.kiro/agents/` directory ([kiro #8040][kiro-8040]), so no single file
+serves both; [Junie][junie] — its agents directory is early-access preview,
+not generally available; [Zed][zed] — agents run over the Agent Client
+Protocol, with no file to install; and [Amp][amp] — subagents are spawned at
+runtime. Newer skills-first clients are in the same position by default:
+assume no packageable agent format until a client documents one — a later
+survey of seven of them turned up exactly one exception (Antigravity,
+above), with Goose and OpenClaw spawning subagents at runtime, Warp
+confining agent profiles to its settings UI, and Cline, Droid and Kilo
+shipping no agent file at all. Delegation still works on those clients —
+it is just not something you can package.
+
+The only documented cross-read: VS Code Copilot also detects
+`.claude/agents/*.md`; no other cross-read is documented (as of 2026;
+re-verify). Portable strategy: keep the prompt body vendor-neutral and
+generate the per-client envelopes; only `description` is conceptually
+common to every envelope.
 
 ## Further Reading
 
@@ -123,6 +142,9 @@ prompt body vendor-neutral and generate the per-client envelopes; only
 - [VS Code: custom agents][vsc-agents] — the chatmode-to-agent migration
   and the `.claude/agents/` cross-read.
 - [Codex: subagents][cx-agents] — the `.codex/agents/*.toml` format.
+- [Cursor: subagents][cur-agents] / [Gemini CLI: subagents][gem-agents] —
+  the two newer clients with an installable agent file; re-check Gemini's
+  enabling setting before relying on it.
 - [How a multi-agent research system was built][mars] — orchestrator-worker
   pattern, delegation prompt anatomy, the 15x token figure, when
   multi-agent is wrong.
@@ -136,6 +158,14 @@ prompt body vendor-neutral and generate the per-client envelopes; only
 [cop-agents]: https://docs.github.com/en/copilot/reference/custom-agents-configuration
 [vsc-agents]: https://code.visualstudio.com/docs/agent-customization/custom-agents
 [cx-agents]: https://developers.openai.com/codex/subagents
+[cur-agents]: https://cursor.com/docs/context/subagents
+[gem-agents]: https://geminicli.com/docs/core/subagents
+[ag-agents]: https://antigravity.google/docs/subagents
+[kiro]: https://kiro.dev
+[kiro-8040]: https://github.com/kirodotdev/Kiro/issues/8040
+[junie]: https://www.jetbrains.com/junie/
+[zed]: https://zed.dev
+[amp]: https://ampcode.com
 [mars]: https://www.anthropic.com/engineering/multi-agent-research-system
 [ctx]: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
 [tools]: https://www.anthropic.com/engineering/writing-tools-for-agents

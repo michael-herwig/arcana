@@ -61,6 +61,37 @@ specs. A project that has never planned anything is asked nothing.
   [`archive.md`](../../hex-core/references/archive.md#destination-resolution);
   this item only asks and records the answer, never restates them.
 
+### Discussions home documented (conditional)
+
+A **conditional** item — asked only when a discussion artifact already
+exists, **or** the user asks for one. A project that has never discussed
+anything is asked nothing, and hex never raises the question on its own.
+
+- **Proposal order:** an existing practiced location first — a
+  `docs/discussions*` or `discussions/` tree the project already uses —
+  else `.agents/discussions/` as the **last resort**, with consent.
+- **Recorded as:** one `hex.md › Pointers` row —
+  ``- Discussions: `<home>` — pre-plan discussion artifacts (/hex-discuss).``
+  `<home>` is the location the user consented to, `.agents/discussions/`
+  only when the last resort was taken.
+- **Seed offer:** when the resolved home is empty, offer to copy
+  [`../assets/templates/discussion.md`](../assets/templates/discussion.md)
+  to `<home>/_template.md`, **copy-only-if-absent**, with consent. The
+  underscore prefix marks the file as never a discussion — say so in the
+  offer, so nothing scanning the home for a live one picks it up.
+- Verify-on-consumption and the re-audit apply unchanged — this item adds
+  no staleness mechanism of its own. The mechanics it feeds are defined
+  once: home resolution in
+  [`memory.md`](../../hex-core/references/memory.md#location-and-resolution),
+  containment in
+  [`archive.md`](../../hex-core/references/archive.md#destination-resolution),
+  whose **path** conditions bind every write under `<home>` — the seed
+  copy above and `/hex-discuss`'s own `<home>/<slug>.md` alike (its
+  already-exists and git-tracked conditions belong to the fold; the
+  no-symlink, no-directory clause still binds — a dangling symlink reads
+  as absent). This item only asks and records the answer, never restates
+  them.
+
 ### Rules carry architectural context?
 
 - **Look for:** rules or conventions that state module boundaries,
@@ -255,7 +286,7 @@ checkouts are ignored.
 ```markdown
 <!-- hex:start -->
 Swarm memory: `.agents/memory/hex.md` (search upward; pointers + preferences).
-Commands: `/hex-init`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`.
+Commands: `/hex-init`, `/hex-discuss`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`.
 <!-- hex:end -->
 ```
 
