@@ -389,8 +389,11 @@ decisions resolved above. Full adjudication and rejected alternatives:
    mid-flow questions)," above, never literally named `hex-init` — it has
    no tiers and spawns no workers, so the stranded-swarm risk the rule
    guards against doesn't apply to it. The exemption is narrow and named:
-   `hex-init` only, because it spawns nothing; no skill that spawns
-   workers gets it. `hex-init`'s current batched-consent shape (Step 2)
+   ~~`hex-init` only, because it spawns nothing; no skill that spawns
+   workers gets it~~ — superseded, widened to a closed list of two named
+   skills by `protocol.md` § The meta-plan approval gate, ratified as
+   `adr_0008`'s `protocol.md` deviation 1.
+   `hex-init`'s current batched-consent shape (Step 2)
    is unchanged by this round — a later wave upgrades it to a validated,
    per-question wizard (`adr_0003` C-212), not built yet.
 
@@ -572,3 +575,94 @@ and consented at the existing gate. C-303's write probe precedes it but
 consents to nothing (self-undoing) and is disclosed *in* the gate echo —
 declared as its own `protocol.md § The meta-plan approval gate` deviation in
 `adr_0004`, not a `DESIGN.md` round. **hex never pushes**, in every repo.
+
+## Discussion-mode round (2026-08-28, round 9)
+
+`adr_0008` (pre-plan discussion mode — the `hex-discuss` skill, the
+`.agents/discussions/` artifact class, and the bundle's first rule
+artifact) amends **two resolved positions**. Full adjudication and the
+scored A/B/C/D/E comparison: `adr_0008` § Constitution deviations and
+§ Considered Options.
+
+1. **"Shared shape (all orchestrators)" scopes to the four orchestrators;
+   `hex-discuss` is a fifth *skill* with its single gate at the exit.**
+   The shape above — parse args → classify tier → resolve overlays →
+   single meta-plan approval gate → announce the resolved config →
+   dispatch to a tier file, laid out as `SKILL.md` + `classify.md` +
+   `overlays.md` + `tier-{low,medium,high}.md` — was written for skills
+   that resolve a whole swarm before launching it. `hex-discuss` resolves
+   nothing at turn zero: its spawn set is discovered *through* the
+   conversation, and its two knobs (research on/off, the deep-sweep gear)
+   are conversational moments, not config. Rejected alternative:
+   **giving `hex-discuss` tiers and an entry gate** (Option D's shape,
+   and the conforming route) forces an approval block that announces a
+   config nobody has yet chosen, in front of a mode whose premise is that
+   nothing is committed — an entry gate that guards nothing while
+   destroying the mode's opening turn. What the rule protects is
+   preserved exactly: there is still **exactly one approval gate per
+   run**, and the reader is still never misled about what will happen —
+   the gate simply sits where the irreversible act is, at the drain
+   (`adr_0008` C-710), and the announce block is replaced by **one line
+   per mandated disclosure** (C-712) rather than dropped. One further
+   user-facing confirmation is declared here rather than left implicit,
+   and it is **not a gate**: the deep-sweep offer (C-707) asks before
+   spending up to twelve workers. It is a bounded, user-initiated
+   **spend** confirmation — a conversation is not a swarm, so nothing
+   strands when the user declines and no state advances when they
+   accept; it exists only because a twelve-worker spend mid-conversation
+   must never be silent. The approval-gate count is still one. Tier
+   *vocabulary* is untouched; `hex-discuss` has no tiers to name, so
+   `config.md`'s `tiers.<skill>` segment stays closed to the four and the
+   frozen v1 vocabulary gains no key.
+
+2. **The bundle ships a rule artifact — a second install surface, with
+   declared degradation.** Every resolved decision above assumes hex ships
+   skills; the closest neighbour, "Worker definitions: markdown prompt
+   blocks inside tier files, not shipped agent artifacts," chose *against*
+   a second artifact kind on portability grounds. A rule reaches Claude,
+   Cursor, Copilot and Kiro natively, is degraded on OpenCode and Junie,
+   and is absent elsewhere. Rejected alternative: **keeping the stance in
+   the skill body alone** (Option B) is the portable route and loses on
+   the single requirement the mode exists for — a skill body is
+   conversation content, condensed first at compaction, so the stance
+   lapses on exactly the long discussions that need it. The
+   portability the old decision protects is preserved by a contract, not
+   by abstinence: the rule is **strictly a hardening** and no hex file may
+   make its presence a condition of any behavior (`adr_0008` C-719), so a
+   client without a rule surface loses persistence convenience and never
+   capability — Option B is not a rejected design but `hex-discuss`'s own
+   degraded mode. The surface is also **singular by design**: the one
+   bundle-generic `hex-state` rule carries a single concrete line per
+   shipped mode, and a future mode amends that same file through its own
+   ADR rather than adding a rule per feature — the always-on cost stays
+   one artifact and grows by single lines, never by artifacts.
+
+**Considered and not deviated** (unchanged by this round): the **two-layer
+knowledge model** is upheld — `hex-discuss` writes no project context; a
+durable convention it surfaces is recorded in `hex.md › Memory` post-gate and
+proposed into project context at the next `/hex-init` **re-audit**, with
+consent (`hex-init/references/audit.md`) — the route for *project* knowledge,
+distinct from § Upkeep step's route for surfaced *preferences*, and named
+separately here so the two do not merge into one claim.
+**`adr_0005`'s fold path is untouched** — the spec drain target
+emits a `/hex-plan` command and a pointer to `/hex-review`'s Fold-Back;
+`hex-discuss` writes no spec and invokes no fold, so `archive.md`'s safety
+envelope remains the only fold mechanism. **Capability classes** — no
+literal model name appears in any shipped file (`DESIGN.md`'s own rule) and
+no harness tool name either (`protocol.md` § Worker coordination's
+capability-class-not-primitive-name rule, which is where that half of the
+house rule actually lives). The researcher's shipped default is
+`fast-balanced`, its matrix cell at every tier, so `hex-discuss` escalates
+nothing on its own judgment; a `models.overrides` escalation is possible and
+is disclosed by the resolved-literal-model line like any other. **A new
+directory under `.agents/` is not a
+deviation** — `.agents/` is the stated default artifact overflow home and
+`specs/`, `workers/`, `workflows/` were each added without an amendment.
+**`hex never pushes`, `hex never commits` outside execution** — unchanged.
+
+**Erratum (2026-08-29, review):** the round-9 always-on cost sentence
+undercounts — a shipped skill's frontmatter description is a second
+permanent always-on surface alongside the rule body. Corrected: the
+always-on cost is the rule body plus each shipped member's description
+line; a description carries entry triggers only and never duplicates body
+prose; a future member's ADR budgets both.

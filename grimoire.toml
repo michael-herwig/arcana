@@ -8,9 +8,11 @@ grim-essentials = "ghcr.io/grimoire-rs/bundles/grim-essentials"
 [skills]
 hex-architect = "./hex/hex-architect"
 hex-core = "./hex/hex-core"
+hex-discuss = "./hex/hex-discuss"
 hex-execute = "./hex/hex-execute"
 hex-init = "./hex/hex-init"
 hex-plan = "./hex/hex-plan"
 hex-review = "./hex/hex-review"
 
 [rules]
+hex-state = "./hex/hex-state.md"

@@ -55,6 +55,9 @@ from [`protocol.md`](protocol.md#tier-grammar).
    exists to prevent. The announce block prints each spawn's **resolved
    literal model**
    ([`protocol.md`](protocol.md#the-meta-plan-approval-gate)).
+   A skill that prints **no announce block** discloses the same resolved
+   literal model as one line under its declared quiet form, at the first
+   spawn of the role (C-712).
 
 2. **Resolution order**:
    1. **Instantiated matrix in `hex.md › Preferences`** — literal model

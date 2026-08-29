@@ -15,13 +15,17 @@ Then, in a project:
 
 ```
 /hex-init
+/hex-discuss <problem>   # optional — talk it through first
 /hex-plan <task>
 ```
 
 `/hex-init` audits your project's context (CLAUDE.md/AGENTS.md-equivalent)
 for what the swarm needs — how to verify, where specs/plans live — and
-bootstraps its own memory file. `/hex-plan` decomposes a task into a
-reviewed, contract-first plan; `/hex-execute` implements it;
+bootstraps its own memory file. `/hex-discuss` is the optional front of
+the funnel, for when the problem isn't sharp enough to plan yet: it
+elaborates, pushes back, researches in the background, and drains into a
+plan, an ADR, or a decision not to build. `/hex-plan` decomposes a task
+into a reviewed, contract-first plan; `/hex-execute` implements it;
 `/hex-review` runs an adversarial pass before it lands; `/hex-architect`
 handles decisions that are hard to reverse.
 
@@ -31,16 +35,22 @@ handles decisions that are hard to reverse.
 |---|---|
 | [`hex-core`](hex-core/) | Shared reference library — worker roles, model matrix, swarm protocol, memory spec. Never invoked directly. |
 | [`hex-init`](hex-init/) | Audits and bootstraps a project for the swarm: verification, conventions, `.agents/memory/hex.md`. |
+| [`hex-discuss`](hex-discuss/) | Pre-plan discussion mode: talks a problem through — elaborate, grill, research, capture — and drains to a plan, an ADR, or a decision not to build. |
 | [`hex-plan`](hex-plan/) | Decomposes a feature/issue/PR into a contract-first TDD plan through discover, research, design, decompose, and review. |
 | [`hex-execute`](hex-execute/) | Implements a plan or free-text task: stub, specify, implement, review-fix loop, commit. |
 | [`hex-review`](hex-review/) | Adversarial pre-merge review of a branch, PR, or diff — reports findings and a verdict, never auto-fixes. |
 | [`hex-architect`](hex-architect/) | Design specs, ADRs, and trade-off analysis for decisions that are hard to reverse. |
 
+**Rules:** [`hex-state`](hex-state.md) — always on, re-anchors hex state from
+files after context loss, and holds code and config edits while a local
+discussion is `State: active` (released by parking it).
+
 ## Tier grammar
 
-Every orchestrator (except `hex-init`, which has no tiers) scales its work
-through one shared tier **vocabulary** — `low|medium|high`+`auto` mean the
-same thing in every project:
+The four orchestrators — `hex-plan`, `hex-execute`, `hex-review`,
+`hex-architect` — scale their work through one shared tier **vocabulary**.
+`hex-init` and `hex-discuss` are not orchestrators and have no tiers.
+`low|medium|high`+`auto` mean the same thing in every project:
 
 | Tier | Intent |
 |---|---|
@@ -100,6 +110,11 @@ folds delivered, reviewed, converged work back into the project's spec (the
 gap that leaves a spec-kit or bare-review project authoring its next plan
 against a stale spec), and it coordinates a change across repos — the problem
 OpenSpec's own tracker still lists as open.
+
+Against the broader lifecycle toolkits — superpowers and its kin — hex
+interops rather than competes: it declines to race them on breadth, and
+everything it writes (a discussion, a plan, a spec) is plain markdown
+another toolkit can pick up mid-flow.
 
 [github/spec-kit]: https://github.com/github/spec-kit
 [openspec.dev]: https://openspec.dev

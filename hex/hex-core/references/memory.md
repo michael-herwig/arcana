@@ -76,14 +76,24 @@ presence, unconditionally, for `/hex-plan`, `/hex-execute`, `/hex-review`
 and `/hex-architect` — a satellite mid-federated-change must not
 accumulate a second, competing active plan, and telling "related" from
 "unrelated" local work is the judgement call that produced this split
-brain in the first place. **`/hex-init` is exempt**: it writes no plan,
-resolves no active-plan pointer, and must stay runnable so a satellite
-can be audited (and so the removal below can be offered). The two escape
-hatches are both printed in the `Fix:` line: relaunch from the lead, or
-delete the bullet. **Halt, never degrade** — a satellite with *no* memory
-file is the benign case: upward search finds nothing, the run falls back
-to shipped defaults with no active-plan pointer, so it stops and asks for
-a target. Visible, not silent.
+brain in the first place. The four are the halt's whole subject: a hex
+skill that is not an orchestrator — one that resolves no plan and writes
+no plan or federation state — sits **outside** the halt rather than
+exempt from it; today that is `hex-discuss`, whose memory writes are
+limited to the post-gate discussion hand-off record and index rows (C-708). Those
+writes land in whatever memory file the ordinary upward search resolves —
+in a satellite, that repo's own — and are **advisory**: no federated run
+reads a satellite's `hex.md` (§ Destination of knowledge › "One `hex.md`,
+the lead's").
+**`/hex-init` is exempt** rather than outside, because it *does* write
+federation state — the `Federation lead:` bullet removal below is its
+own: it writes no plan, resolves no active-plan pointer, and must stay
+runnable so a satellite can be audited (and so that removal can be
+offered). The two escape hatches are both printed in the `Fix:` line:
+relaunch from the lead, or delete the bullet. **Halt, never degrade** — a
+satellite with *no* memory file is the benign case: upward search finds
+nothing, the run falls back to shipped defaults with no active-plan
+pointer, so it stops and asks for a target. Visible, not silent.
 
 **Removal lifecycle (C-313).** The bullet is a **lock on running hex
 locally in a satellite**, so it expires with the plan that justified it:
@@ -245,6 +255,16 @@ because a second copy drifts:
   **`hex.md › Pointers`** — a cache the skills maintain themselves so a
   run doesn't re-discover the repo; never the truth, always re-pointable.
 - **Run state and learned facts** → **`hex.md › Memory`**.
+- **In-flight discussion state** → **the discussion artifact**, never
+  `hex.md`. `hex.md` holds pointers, not prose (§ Editing rules — "keep it
+  small"), and a discussion is prose by nature; `hex.md › Memory` records
+  only the discussion hand-off record, the artifact-index row, and the
+  promotion candidate a drain leaves behind (C-711). That candidate is
+  proposed into **project context** by the next `/hex-init` **re-audit**,
+  with consent ([§ Staleness](#staleness)) — the route for *project*
+  knowledge. Destination is what separates it from
+  [`protocol.md` § Upkeep step](protocol.md#upkeep-step)'s route for a
+  surfaced *preference*, which is bound for `hex.md › Preferences`.
 
 Product identity (what the product is, who uses it and where, related
 repositories, research keywords, comparable tools) is project knowledge,

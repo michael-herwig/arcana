@@ -44,5 +44,5 @@ failure). Full sweep: `task publish -- --dry-run`.
 
 <!-- hex:start -->
 Swarm memory: `.agents/memory/hex.md` (search upward; skill-managed).
-Commands: `/hex-init`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`.
+Commands: `/hex-init`, `/hex-discuss`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`.
 <!-- hex:end -->

@@ -32,6 +32,128 @@ preferences, not copies. Team-shared — commit it.
 
 ## Memory
 
+- **adr_0008 ACCEPTED (Michael, 2026-08-28; plain approval — all three
+  open-question recommendations stand: sweep cap 12, discussions home =
+  documented convention else `.agents/discussions/`, rule `hex-state` ships
+  v0.2.0 with the skill). Rule generalized at review to bundle-generic
+  `hex-state` (one always-on artifact, one line per shipped mode).**
+  - **Active plan:** `plans/plan_adr_0008_discussion_mode.md` (State:
+    **review**, tier high, executed 2026-08-28/29). All 5 WPs merged on
+    branch **`hex/adr-0008-discussion-mode`** (9 commits `8f131bd`→
+    `a1acfc9` off `ef566de`; merge order WP2→WP3→WP5→WP1→WP4 held).
+    Full TDD cycle per WP (stub → post-stub spec+architect → checklist
+    tester → implement → review); panels found 2 re-stubs (WP3, WP5) +
+    fix passes on every panel WP; codex one-shot on the branch diff
+    found 3 High + 1 Warn (all fixed: `<home>` interpolation in
+    hex-init's recorded row; canonical-path read; shape-based
+    `Ratified:` corroboration; re-point named at the restate).
+    `task publish -- --dry-run` green at 0.2.0 (skill + rule + bundle).
+    Learned: rule catalog check pre-publish = `grim build <rule>
+    --format json` → `annotation_count` 8 (top-level) vs 5 (nested);
+    skill `description` YAML rejects unquoted colon-space.
+    Reviewed 2026-08-29 (`/hex-review`, tier high, 8-worker panel +
+    codex one-shot): Request Changes — convergence 46/47 (C-723(a)
+    partial → WP6 row). Fix pass executed same day (WP7–WP11, all
+    findings incl. deferred Warn/Suggest per Michael's gate adjust):
+    branch now 18 commits `8f131bd`→`6eb48e5`; ADR amended in place
+    (changelog rows, § Validation +7, § Migration rollback sites);
+    reviewers caught + fixed a template-seed freeze (template ships
+    `State: parked`) and a restate-compression consent regression.
+    Dry-run green at 0.2.0; `grimoire.toml` now lists both members.
+    Learned: hex-discuss body pinned at exactly 400 (C-701 ceiling —
+    next line forces the references/ split); RTK mangles `git diff
+    --name-only` too (use `rtk proxy`).
+    **Michael's 4 High decisions RESOLVED 2026-08-29** (all four
+    recommendations accepted, applied as WP12 commit `87f7e04`,
+    absorbing WP6): C-718 gains the in-rule stale-`active` release
+    clause; `handed-off → context` is the fifth terminal state
+    (C-711/C-714 + 4 shipped sites); C-723(a) marker route ratified
+    (both stale Validation bullets corrected); C-722 dropped-Fix
+    reworded to truth. Zero open deferred findings.
+    **Re-reviewed 2026-08-29 (round 2, tier high, 8-worker panel + codex):
+    Request Changes.** Convergence 42/47 — 5 partial (C-701 zero-headroom
+    body, C-707 truncation clause, C-708/C-714 `Confidence:` drift, C-722
+    Error literal) → WP13/WP14 rows appended, plan back to `executing`.
+    Codex confirmed 1 High the panels missed: resuming a `parked`
+    discussion never re-arms `State: active`, so the hex-state freeze
+    silently lapses mid-discussion. RCA: 4 of 5 roots are RECURRENCES of
+    round-1 roots (no ADR write-back channel; trust rules scoped to the
+    motivating site; freeze over-firing unanalysed — now incl. the
+    committed-artifact multi-clone case, owner call; no new-member
+    structural checklist) + 1 new (ADR § Validation never re-derived
+    after the fix passes — 16 stale/missing items).
+    **Round-2 fix pass executed 2026-08-29 (WP15–WP18, all severities;
+    owner gate decisions: session-bound freeze predicate accepted, full
+    ADR batch authorized, hook backstop deferred, all findings).** Branch
+    tip **`c6dfa02`** (WP15 `120b1ef` hex-discuss body 392/400 +
+    references/reach.md split; WP16 `5276fcf` architect trust-boundary
+    generalizations incl. header-anchored State extraction; WP17
+    `f0eea25` session-bound rule predicate + release surface). ADR:
+    +11 owner-attributed changelog rows, § Validation 21→29 items,
+    C-721 retargeted to references/reach.md (7 sites), S-710/C-719
+    recovery text corrected. Reviewers: WP16 FAILed once (unmatchable
+    C-724 Domain-predicate → Triggered-by/topic match; echo list widened
+    to <anchor>/<date>; extraction anchored) — all fixed in-round; WP15/
+    17/18 PASS. Convergence WP13/WP14 closed. Dry-run exit 0 at 0.2.0.
+    Owner note 2026-08-29: hooks will be enabled in the future — the
+    hex-state hardening backstop should then become a REAL
+    init-provisioned hook (deferred from this release; research already
+    scoped it in discuss-mode-mechanics.md).
+    **Round-3 focused review 2026-08-29 (owner-adjusted breadth): Needs
+    Work.** Convergence **all 47** (five round-2 partials closed with
+    evidence); merges intact, DESIGN round 9 byte-locked, dry-run green.
+    Owner instructed committing all open changes onto the branch:
+    `54756a3` (ADR/plan/dossier/13 research) + `3a247e8` (.serena,
+    hex.png). 4 actionable remain: C-724 header-coupling (research
+    template names `Triggered by:`/`Domain:` but 0/13 real artifacts
+    carry them — producer side never points at the template; skip
+    rarely fires, fails safe); echo-list misses `<canonical>`+`<topic>`;
+    hex-discuss:44 "which is why" antecedent backwards; CHANGELOG:13
+    "trusted input" inverts the hardening story. Deferred: unrequested
+    riders in the docs commits (parity-oracle-gate.md, .serena/,
+    unreferenced hex.png — logo is assets/hex.svg); grim describe check
+    is post-publish-only; 29 § Validation items await the dogfood run.
+    **Round-3 fix pass executed 2026-08-29 (WP19, single Opus builder +
+    light review, PASS + 2 nits folded in-round):** C-724 title-line-
+    primary predicate + producer header-contract pointer (single home =
+    research.md title line + § Metadata; real counts recorded: 21
+    artifacts, 3 with `Triggered by:`); echo list now 7 placeholders
+    (+`<canonical>`, `<topic>`, sweep-verified complete); hex-discuss:44
+    antecedent restored; CHANGELOG:13 trust wording truthful. Merged as
+    WP19 `172d052` → merge tip; body 397/400; builds + dry-run exit 0.
+    All 19 WPs merged. ADR restatement-relation (not byte-quote) for
+    C-724 is the established norm — reviewer confirmed round-2 pair
+    diverged identically.
+    **History rewritten 2026-08-29 (owner instruction):** the branch's
+    32 scaffolding commits (fix passes, review bookkeeping, merges)
+    recomposed as 3 conventional commits — feat(hex) pre-plan discussion
+    mode / docs(adr_0008) / chore(riders) — tree byte-identical to the
+    old tip; backup ref `backup/adr-0008-round-history`. Owner idea for
+    later (/hex-discuss candidate): a hex **finalize** phase that does
+    this at landing — only changelog-worthy commits leave the branch;
+    fixes to a feature being introduced on the same branch never land
+    as separate commits.
+    Next: Michael reviews commits + lands (no further review round —
+    3 rounds converged, yield collapsed);
+    **`grim install` dev-sync before any dogfood** (W3) still mandatory.
+  `adrs/adr_0008_pre_plan_discussion_mode.md` — pre-plan discussion mode
+  (hex-discuss skill + `.agents/discussions/` artifact class + the bundle's
+  first rule artifact + a trust-scoped hex-architect fast path). Tier-high
+  run, dogfooding its own design: input dossier
+  `discussions/hex-discuss-skill.md` (State handed-off → architect,
+  Ratified). Claims C-701–731 / S-701–716 — **next ADR takes C-8xx**.
+  Pipeline: explorer + 4 researchers → Opus architect → 3-reviewer panel
+  (2 Block + 16 High, all fixed) → re-validation → codex adversary
+  (7 findings, all actionable, fixed + validated). Research persisted
+  (Expires 2027-02-28): discuss-{anthropic,openai,github,practitioners,
+  vendors,skills-field,mode-mechanics,grill-mechanics,competitive-delta}.md,
+  rule-{artifacts-grim,context-budgets}.md, dossier-fastpath-precedent.md.
+  **Michael's:** accept/reject adr_0008; 3 open questions carry
+  recommendations in the ADR; deferred — non-Claude skill-body durability
+  untested (ship-on-assumption vs dogfood one non-Claude client first), and
+  whether `grim update` removes a rule file when a bundle drops the member
+  (affects rollback). Preference to propose at next `/hex-init`: research
+  axis "AI-config packaging & distribution (grim, rules, hooks)".
 - **AUTONOMOUS PROGRAM (started 2026-07-22, no-prompt).** Goal: all three ADRs
   (0003/0005/0004) implemented + a tier-high hex review/fix loop **converged**
   (≤5 iterations); default layout made **arcana-unspecific** — move

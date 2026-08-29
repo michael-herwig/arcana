@@ -44,8 +44,10 @@ single-gate rule ([`protocol.md`](../hex-core/references/protocol.md)) that
 forbids mid-flow questions governs the four *orchestrators*, which run long
 autonomous swarms where an interruption strands parallel workers.
 `hex-init` runs no swarm and is **exempt** — it may ask its questions in
-sequence. The exemption is narrow and named: it extends to no skill that
-spawns workers.
+sequence. The exemption is narrow and named — `hex-init` is one of the two
+skills it covers, each on its own ground; the list is owned by
+[`protocol.md` § The meta-plan approval
+gate](../hex-core/references/protocol.md#the-meta-plan-approval-gate).
 
 Every question the Flow below asks obeys this shape:
 
@@ -96,6 +98,12 @@ propose adopting what exists via pointer before proposing anything new:
   names plans and ADRs but no specs; nothing is asked of a project that
   never planned anything. See
   [`references/audit.md`](references/audit.md#spec-home-documented-conditional).
+- Is a discussions home documented — a **conditional** item, asked only
+  when a discussion artifact already exists, or the user asks for one at
+  invocation or at any wizard question in Step 2; hex never raises it
+  first, and nothing is asked of a project that never discussed
+  anything. See
+  [`references/audit.md`](references/audit.md#discussions-home-documented-conditional).
 - Do the project's rules carry architectural context (boundaries,
   invariants, security-sensitive paths), not just style/lint rules?
 - Is product context documented — what the product is, who uses it and
@@ -164,6 +172,30 @@ convention, containment) are defined once in
 [`../hex-core/references/archive.md`](../hex-core/references/archive.md#destination-resolution);
 this step only asks and records the answer, never restates them.
 
+**Discussions home (conditional).** When the [discussions-home
+item](references/audit.md#discussions-home-documented-conditional)
+fires, propose in this order: an existing practiced location first, else
+`.agents/discussions/` as the **last resort** — with consent. Record the
+one outcome as a `hex.md › Pointers` row:
+``- Discussions: `<home>` — pre-plan discussion artifacts (/hex-discuss).``
+`<home>` is the location the user consented to, `.agents/discussions/`
+only when the last resort was taken. Discussion artifacts carry no
+`C-`/`S-` IDs, so there is no ID-marker question here and nothing is
+written to `hex.md › Preferences`. When the resolved home is empty, offer
+to seed it — copy `assets/templates/discussion.md` to
+`<home>/_template.md`, **copy-only-if-absent**, saying in the offer that
+the underscore prefix marks it as never a discussion, so nothing scanning
+the home for a live one picks it up. Mechanics are defined once
+elsewhere: home resolution and verify-on-consumption in
+[`../hex-core/references/memory.md`](../hex-core/references/memory.md#location-and-resolution),
+containment in
+[`../hex-core/references/archive.md`](../hex-core/references/archive.md#destination-resolution),
+whose **path** conditions bind every write under `<home>` — this seed copy
+and `/hex-discuss`'s own `<home>/<slug>.md` alike (its already-exists and
+git-tracked conditions belong to the fold; the no-symlink, no-directory
+clause still binds — a dangling symlink reads as absent). This step only
+asks and records the answer, never restates them.
+
 After the apply consent, write each block into the chosen file. If a
 hex-authored block from a prior run already lives there, replace it in
 place; never touch content the user or another tool wrote. Declined items are skipped
@@ -176,9 +208,10 @@ Only when Step 1 found no spec/plan/ADR conventions documented, **no
 de-facto scheme to adopt**, **and** the user opts into shipped defaults
 as part of the Step 2 approval: copy
 [`assets/templates/`](assets/templates/) (`plan.md`, `adr.md`,
-`research.md`, `spec.md`) to a location of the user's choice, **only if
-that file is absent** — never overwrite an existing file. Document the
-chosen location in the conventions block written in Step 2.
+`discussion.md`, `research.md`, `spec.md`) to a location of the user's
+choice, **only if that file is absent** — never overwrite an existing
+file. Document the chosen location in the conventions block written in
+Step 2.
 
 This is a fallback, not a default push. A project with its own RST/Sphinx
 templates keeps them and just documents where they live — hex never
@@ -232,11 +265,12 @@ the other two sections:
 
 - **`hex.md › Pointers`** — a cache seeded from Step 1's findings: where
   verification is documented, where spec/plan/ADR conventions live, the
-  doc and product-knowledge homes provisioned in Step 2, key
-  architectural rules, any worktree-location deviation, and the
-  constitution location (optional). Pointers only, never copies — the
-  product-knowledge pointer is how researchers and reviewers reach the
-  product facts that live in project context.
+  doc and product-knowledge homes provisioned in Step 2, the discussions
+  home when one was resolved, key architectural rules, any
+  worktree-location deviation, and the constitution location (optional).
+  Pointers only, never copies — the product-knowledge pointer is how
+  researchers and reviewers reach the product facts that live in project
+  context.
 - **`hex.md › Memory`** — left empty at bootstrap; the orchestrators
   maintain it during their own runs.
 
@@ -337,8 +371,8 @@ user's spellings untouched rather than collapsing them.
 - `SKILL.md` — this flow.
 - [`references/audit.md`](references/audit.md) — the audit checklist and
   the best-practice block templates used in Steps 1, 2, and 6.
-- `assets/templates/` — the fallback `plan.md`, `adr.md`, `research.md`,
-  `spec.md` used in Step 3.
+- `assets/templates/` — the fallback `plan.md`, `adr.md`,
+  `discussion.md`, `research.md`, `spec.md` used in Step 3.
 
 The reference links above resolve when `hex-core` is installed alongside
 this skill; if it isn't: `grim add ghcr.io/michael-herwig/arcana/hex-core:latest`.
