@@ -25,6 +25,39 @@ vague impression that "it's probably in there somewhere."
   `pyproject`/`tox`, Cargo aliases). A found command is proposed for
   **adoption via pointer** — document what exists, don't invent a new one.
 
+### Commit and landing requirements documented?
+
+- **Look for:** whether the project requires DCO sign-off, signed commits,
+  or a commit-message convention; which suites count as release-grade; and
+  which workflows are the release gate.
+- **Where:** project context and checked-in files only. This item performs
+  **no network read** — nothing here queries a forge, and every forge read
+  in hex lives inside `/hex-finalize`, behind its gate, where it is
+  disclosed.
+- **Documented looks like:** a named requirement paired with its
+  enforcement point — "commits must carry `Signed-off-by`, enforced by the
+  `dco` check" — not "we use conventional commits, probably". A convention
+  nobody enforces and a check nobody documented are both gaps.
+- **De facto discovery:** commitlint-family configs
+  (`commitlint.config.*`, `.commitlintrc*`, `cog.toml`, `.gitlint`),
+  `CONTRIBUTING.md`, and the last ~20 non-merge commits' own dialect. A
+  found requirement is proposed for **adoption via pointer**, never
+  invented.
+- **Recommend the control that actually holds:** protection on the target
+  branch — "restrict force pushes" plus a required pull request. Say why:
+  it is enforced server-side, so it binds regardless of what any agent's
+  prompt says, which no shipped instruction text can claim. Recommend it
+  whether or not the project already documents commit requirements.
+- **Series-shape offer (conditional, consent-gated).** Only when discovery
+  finds **both** axes undocumented — the default commit count per PR
+  (squash-to-one versus a bisectable series) and which test triggers the
+  squash decision — offer to record the team's preference as prose in
+  `hex.md › Preferences`, with consent. Name the alternative in the offer:
+  without it, `/hex-finalize` ships a **minimal bisectable series** — one
+  commit per user-facing change, riders split out. A project whose
+  convention is already documented is **not** asked; that documentation
+  wins over any hint recorded here.
+
 ### Spec / plan / ADR conventions documented?
 
 - **Look for:** where specs, plans, and ADRs live, and what format or
@@ -286,7 +319,7 @@ checkouts are ignored.
 ```markdown
 <!-- hex:start -->
 Swarm memory: `.agents/memory/hex.md` (search upward; pointers + preferences).
-Commands: `/hex-init`, `/hex-discuss`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`.
+Commands: `/hex-init`, `/hex-discuss`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`, `/hex-finalize`.
 <!-- hex:end -->
 ```
 

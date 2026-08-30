@@ -92,6 +92,11 @@ propose adopting what exists via pointer before proposing anything new:
 
 - Is verification (build/test/lint) documented, or only discoverable by
   guessing?
+- Are the project's commit and landing requirements documented — sign-off,
+  signing, message convention, which suites are release-grade, which
+  workflows gate a release? Checked-in files only; this item reads no
+  forge. See
+  [`references/audit.md`](references/audit.md#commit-and-landing-requirements-documented).
 - Are spec/plan/ADR conventions documented — location, format, template?
 - Is a spec home documented — a **conditional** sub-check, asked only when
   a plan carries an unresolved `## Spec Deltas` block, or the item above
@@ -195,6 +200,35 @@ and `/hex-discuss`'s own `<home>/<slug>.md` alike (its already-exists and
 git-tracked conditions belong to the fold; the no-symlink, no-directory
 clause still binds — a dangling symlink reads as absent). This step only
 asks and records the answer, never restates them.
+
+**Commit and landing requirements.** A requirement found by the
+[commit-and-landing
+item](references/audit.md#commit-and-landing-requirements-documented) is
+proposed for adoption via pointer, and two `hex.md › Pointers` rows record
+what only the swarm consumes:
+
+``- Forge: `<forge>` — CLI `<cli>`, used by /hex-finalize.``
+``- Target branch: `<branch>` — where feature branches land (/hex-finalize).``
+
+The forge row is proposed whenever a forge is in use, determined from the
+checked-in remote alone (`git remote -v` and its URL host) — never from a
+CLI auth probe, which would reach the network. The target-branch row
+is proposed **only where the trunk is not the obvious default** — a repo
+whose default branch is plainly `main` gets no row. Pair the proposal with
+the item's branch-protection recommendation; that recommendation is the one
+control enforced outside hex, so it is offered even to a project that
+already documents its commit requirements.
+
+**Series shape (conditional).** When the [commit-and-landing item's
+series-shape
+offer](references/audit.md#commit-and-landing-requirements-documented)
+fires, offer to record the team's preference as prose in `hex.md ›
+Preferences`, with consent. It is prose, never a config key: `config.md`'s
+vocabulary is frozen and gains nothing here. Mechanics (the trigger, the
+named alternative, the shipped default, the documented-convention defer)
+are defined once in
+[`audit.md`](references/audit.md#commit-and-landing-requirements-documented);
+this step only asks and records the answer, never restates them.
 
 After the apply consent, write each block into the chosen file. If a
 hex-authored block from a prior run already lives there, replace it in

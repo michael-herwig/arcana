@@ -171,7 +171,10 @@ announcement always shows the resolved set with per-item source
   file sets, merge back **onto the feature branch, serialized, in a
   valid topological order** with verification after every merge, delete
   branch + worktree after merge; feature branch → trunk is the human's
-  PR. hex never pushes.
+  PR. hex never pushes, except `/hex-finalize`'s force-push of the one
+  feature branch it was invoked on, consented by that invocation and
+  approved at its gate — see
+  [`finalize.md`](hex-core/references/finalize.md#scope).
 - **Parallel-by-default decomposition (locked 2026-07-19):** plans
   maximize parallelism — decompose by structural boundary (never feature
   slice), every WP declares its expected file set at plan time
@@ -666,3 +669,95 @@ permanent always-on surface alongside the rule body. Corrected: the
 always-on cost is the rule body plus each shipped member's description
 line; a description carries entry triggers only and never duplicates body
 prose; a future member's ADR budgets both.
+
+## Finalize round (2026-08-29, round 10)
+
+`adr_0009` (the finalize phase — the `/hex-finalize` command, the scoped
+remote-rights amendment, and the convention-discovery contract) amends
+**two resolved positions**. Full adjudication and the scored A/B/C/D
+comparison, including its stated sensitivity: `adr_0009` § Constitution
+deviations and § Considered Options.
+
+1. **`hex never pushes` scopes to everything except `/hex-finalize`'s
+   force-push of the one feature branch it was invoked on.** The rule
+   above — "feature branch → trunk is the human's PR. hex never pushes"
+   (§ Worktrees) — made every hex effect local and revertible, and that
+   remains true of every other skill: `hex-plan`, `hex-execute`,
+   `hex-review` and `hex-architect` are unchanged, and `hex-execute`'s
+   own "Never push to remote" is untouched. The amendment is **one
+   branch wide**: `/hex-finalize` may force-push the branch it was
+   invoked on, fetch that branch and its target once to pin the lease
+   and rebase onto real remote state, dispatch the project's own
+   **documented** release workflows against the pushed SHA, and create
+   or mutate that branch's one pull request. It **never** pushes the
+   target branch, never merges, never touches branch protection, and
+   never mints or stores a credential. Rejected alternative: **keeping
+   the rule absolute and printing the remote commands for the human to
+   run** (`adr_0009` Option D) scores within three points and is the
+   design's own bottom rung — but the two steps it hands back are
+   precisely the two that cannot be performed correctly outside the
+   run. A `--force-with-lease` value must be pinned to the SHA *this
+   run* fetched, or a background fetch silently degrades it to a plain
+   force; and the checks must be dispatched against the SHAs the
+   rewrite just minted, because a rewrite invalidates testing done
+   against the SHAs it replaced. What the old rule protected — that a
+   hex run leaves nothing a human cannot undo — is preserved by a
+   mechanic rather than by abstinence: every rewrite is anchored by an
+   armed `backup/<branch>-pre-finalize` ref taken before the first
+   history-modifying operation and renamed inert on **every** terminal
+   outcome, and a lease rejection is a hard stop rather than a retry.
+   The **sole definition site** is `hex-core/references/finalize.md`;
+   the four bundle-wide restatement sites gain a one-clause qualifier
+   pointing there, and every skill-, worker- and federation-scoped
+   restatement is **unchanged, because it remains true**.
+
+2. **The single approval gate's *position* clause admits a third named
+   member.** The shared shape puts one gate "before any work starts."
+   `/hex-finalize` keeps **exactly one** approval gate and moves it to
+   the local/remote boundary, on every degrade rung. Rejected
+   alternative: **a conforming entry gate** would have to announce a
+   commit plan that does not yet exist — the recomposed series is
+   derived by reading the branch diff, so an entry gate asks the human
+   to consent to a rewrite whose shape is unknown, which is the consent
+   theater `adr_0005` rejected for the fold. What the rule protects is
+   preserved exactly: one approval per run, no mid-flow questions, and
+   the reader never misled — the gate sits where the irreversible act
+   is and carries what only that position can carry, the exact
+   recomposed commit list with its `Signed-off-by` lines and its
+   literal signing identity. Everything before the gate is local and is
+   reversed by one command against the backup ref. The exemption list
+   in `protocol.md` § The meta-plan approval gate stays a **closed list
+   of named skills with stated grounds**, gaining a third name and
+   never a criterion to interpret.
+
+**One `adr_0008` contract is amended, in the open.** C-718's rule-body cap
+reads "≤10 lines" with no measure qualifier, and `hex-state.md`'s body is
+exactly ten physical lines today. A second mode line is about three more.
+Rather than redefine the measure to "non-blank" and claim headroom that
+does not exist, `adr_0009` **raises the cap to ≤14 physical lines**, on the
+ground that the cap bounds always-on instruction budget and that two modes
+plus the generic frame is fourteen with nothing spare. The next mode's ADR
+compresses or amends again, and — per this round's own erratum — budgets
+the **description-line** surface alongside the rule body.
+
+**Considered and not deviated** (unchanged by this round): the **two-layer
+knowledge model** is upheld — every git convention, commit requirement,
+release workflow and release-grade suite is a Layer-1 project fact,
+discovered by `/hex-init` and pointed at, never authored as hex config;
+`config.md` gains no key and its `<skill>` enumeration stays closed to the
+four orchestrators. **`adr_0005`'s fold path is untouched** — finalize
+never commits a fold; it halts on the uncommitted fold write with a named
+fix, so `git add` remains where a human approves a fold. **Capability
+classes** — untouched, and vacuously so: `/hex-finalize` spawns no workers.
+**Plan lifecycle** — no new `State:` value; finalize appends one line to an
+already-archived plan's Status block. **Federation** — `adr_0004` is
+unchanged and federated finalize is deferred; the one amendment is that
+`/hex-finalize` joins the satellite halt's scope, with its own `Fix:`
+variant, because its blast radius is a rewritten branch rather than a
+report. **`hex never commits` outside execution** — amended with the push.
+Round 9 stated both clauses unchanged; `/hex-finalize`'s recomposition
+(C-807, C-808) commits outside `/hex-execute`, on the one branch it was
+invoked on, after the gate, anchored by the same backup ref. Rejected
+alternative: having `/hex-execute` commit the recomposed series would put
+the rewrite behind a different skill's gate and re-open the two-command
+surface `adr_0009` Option C rejected.

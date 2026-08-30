@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-08-29
+
+### Added
+
+- `/hex-finalize` — takes a review-approved feature branch from *the work is right* to *this is ready to merge*: verify locally, recompose the commit series, one approval gate, then force-push and ready the pull request. The merge itself stays the human's; explicit invocation only
+- A scoped remote-rights amendment: hex's "never pushes" rule is now "never pushes except `/hex-finalize`'s force-push of the one feature branch it was invoked on, after its gate", defined once in `hex-core/references/finalize.md` — the act set, consent model, force-push mechanics, backup-ref lifecycle, degrade ladder, and trust classes for convention inputs
+- `/hex-init` audit item — "Commit and landing requirements documented?": DCO sign-off, signed commits, commit-message convention, which suites are release-grade, and which workflows are the release gate. It reads project context and checked-in files only, reaches no network, and recommends target-branch protection as the control that actually holds
+- `/hex-review` hands an approved branch off to `/hex-finalize`
+
+### Notes
+
+- No worker spawns and no new role for `/hex-finalize` — commit-boundary judgment needs the whole branch diff in one place and returns a decision, not a report, so `workers.md` and `models.md` are untouched. Revisit on field evidence that recomposition quality tracks the session model: that change is one spawn of an existing role plus one `models.md` row, not a design round.
+
 ## [0.2.0] - 2026-08-29
 
 ### Added

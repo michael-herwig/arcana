@@ -87,9 +87,9 @@ tier, phases, gates, or refusals. The list above is what governs those reads;
 [`tier-medium.md`](tier-medium.md#phase-4-reason--design-architect-worker-adr-mandatory)
 links back here where it hands the dossier to the architect worker.
 
-**Every echo of dossier-controlled text is quoted and length-bounded** — in a
-message or in an authored file alike: interpolated quoted, truncated with `…`
-past 120 characters, and never allowed to break its own line. That governs
+**Every echo of dossier-controlled text follows the echo rule** defined in
+[`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
+That governs
 **every placeholder in this file and the tier files that interpolates
 dossier-trust-class text** — today `<path>`, `<canonical>`, `<s>`,
 `<artifact>`, `<anchor>`, `<topic>`, and `<date>` — and is not restated at the
