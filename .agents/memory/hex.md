@@ -17,6 +17,8 @@ preferences, not copies. Team-shared — commit it.
 - Key rules: `CLAUDE.md` › "Architecture rules" → `hex/DESIGN.md`
   (binding for the hex bundle).
 - Worktrees: default `.agents/worktrees/` (gitignored).
+- Discussions home: `.agents/discussions/` (default convention,
+  adr_0008 artifact class; owner `/hex-discuss`).
 - Constitution: `hex/DESIGN.md` (plans gated against its resolved
   decisions).
 
@@ -32,6 +34,98 @@ preferences, not copies. Team-shared — commit it.
 
 ## Memory
 
+- **Plan done (no active plan):** `plans/plan_adr_0009_finalize_phase.md`
+  (State: **done**, tier high, archived in place 2026-08-30 per C-410;
+  fold target: none — plan carries no `## Spec Deltas` block) —
+  implement `/hex-finalize` per adr_0009. **Execution complete**: all 7 WPs merged on
+  `hex/adr-0009-finalize` (tip `5e3ea3d`, base local `main` = `71aa5c2`,
+  unpushed; 19 files, +1566/−28); merge order WP2→WP1→WP5→WP6→WP3→WP4→WP7
+  held; every WP reviewed per its budget (WP1/WP2 panel, WP3 light+security,
+  WP4/5/6 light-or-self, WP7 light PASS), all severities applied; builds ×7
+  + `task publish -- --dry-run` green post-close. Implementation errata
+  folded into the ADR: WP2 panel (E1 lease/ancestry, E2 re-entry gate, E3
+  never-list), WP3 (exemption clause), WP7 sweep (V12 stale grep), adversary
+  round (C-809 rename-refusal exit, C-802 PR-base-mismatch hard stop, C-812
+  quoted interpolation). 40-item validation mapping: 7 mechanical, 33 on the
+  plan's Dogfood docket (§ Deferred). **/hex-review 2026-08-29 (tier
+  medium, artifact target, breadth=full + codex plan-artifact): Request
+  Changes** — Converged 41/41, but 1 Block (README quickstart order),
+  6 High (quoting-rule scope, forged sign-off trailer provenance,
+  arming-refusal silent circle, gate-flag key, hex-init restatement,
+  C-807/808 definition sites), 10 Warn. **Fix pass FX1–FX3 merged
+  2026-08-30** (tip `80111ec`): all 18 actionable findings applied —
+  FX1 finalize.md (quoting rule → § Scope, arming-refusal loud exit,
+  gate-flag keyed (branch, pushed SHA), dispatch-guard scoped to own
+  workflow_dispatch runs), FX2 hex-finalize (trailer-provenance rule:
+  no trailer copied from branch messages; **C-807.**/**C-808.**
+  definition tags; full resume Never: line; "pre-gate" carve-out
+  dropped), FX3 (quickstart order, keywords, series-shape link);
+  5 ADR contract errata + plan docket V32/V37/V40 tightened; sweep
+  green; body 399 ≤400. Deferred (owner): gate-render weight,
+  ident-field classification, local-only × RESUME_PUBLISHED shape,
+  archive.md revert sentence.
+  **Round 2 (2026-08-30): Needs Work** — 17/18 fixed verified, 2 Warn
+  (stale index label; nine-item enumerations missing the tenth) →
+  **FX4 `92742dd`** closed both (direct commit, f1dc369 precedent);
+  zero "never-push qualifier" bundle-wide, sweep green. Tip `92742dd`.
+  **Round 3 (2026-08-30): Approve** — fix-verification scope (inline,
+  owner-approved minimal pass): stale label 0/0, tenth rule 1/1 in both
+  enumerations (wrap-tolerant), `grim build hex/hex-core` green,
+  Converged (all 11 table rows merged), Fold-Back not performed (no
+  Spec Deltas block). State: done, Next cleared, archived in place.
+  Next (Michael's): review commits + land `hex/adr-0009-finalize`
+  (tip `92742dd`, base local `main` `71aa5c2`, never pushed by hex),
+  0.3.0 publish, then the dogfood `/hex-finalize` run on this branch
+  (33-item docket + V40's 13-row map). Process note for next design
+  round: no verify-only re-entry — two one-line Warns forced a full
+  review invocation to flip Approve; severity floor for
+  fix-verification rounds is a candidate.
+- **adr_0009 ACCEPTED (Michael, 2026-08-29, at the /hex-plan gate)** (`adrs/adr_0009_finalize_phase.md`,
+  1059 lines + `adrs/adr_0009_system_design.md`, 764 lines) — `/hex-finalize`
+  branch-finalization mode, from the ratified finalize-phase dossier
+  (fast path, tier high). Claims **C-801–828 / S-801–813 — next ADR takes
+  C-9xx.** Recommended: one command, five phases, hex's single gate
+  relocated to the local/remote seam (commit list + sign-offs disclosed
+  pre-push); remote acts scoped to feature branch + PR; ambient forge CLI
+  disclosed at gate; four-rung degrade ladder ends local-only. Key
+  contracts: authoritative-only resolver for target/merge-strategy/
+  workflow-list (checked-in text narrows, never widens); armed/inert
+  backup-ref lifecycle = the lock + its release; recompose =
+  `rebase --onto` → `reset --soft` → staged re-commit with message-diff +
+  author-set halts; forge-conditional dispatch (GitHub per workflow,
+  GitLab per SHA); auto-merge armed → no flip (S-813). Amends in the open:
+  C-718 cap ≤14 physical lines; 4 bundle-wide never-push sites via 17-row
+  site table; third meta-plan-gate exemption; echo rule promoted to
+  protocol.md; C-826 audit item has zero forge reads. Pipeline: explorer +
+  3 axis researchers (adr0009-{remote-rights,failure-modes,hex-compat}.md,
+  expire 2027-02-28) → Opus architect → 4-seat panel (5 Block/23 High —
+  all fixed, 3 rounds) → codex (6 findings, High-1 a real defect:
+  re-signing makes recompose SHA-unstable, false no-op resume deleted) →
+  final spec validation PASS. **Both markers resolved by Michael
+  2026-08-29 (zero remain):** series-shape default = minimal bisectable
+  series behind a 3-step resolution order (project docs → `hex.md ›
+  Preferences` prose hint via /hex-init, never a key → shipped default;
+  gate names which step resolved); rerun ceiling = exactly one, failed
+  jobs only, per SHA. C-825 narrowed "zero config surface" → "zero config
+  *key*". Acknowledged limits (deferred, human judgment): act set is
+  prompt text — real backstops are target-branch protection + harness
+  allowlist; virgin-satellite hole narrowed not closed; backup-ref
+  accumulation cleanup is the human's. Research-axis note for next
+  /hex-init: "agent-held remote rights / CI supply-chain security"
+  carried the decisive evidence.
+- **Discussion drained 2026-08-29: "finalize phase" → architect**
+  (`discussions/finalize-phase.md`, `Ratified: 2026-08-29 → architect`).
+  Mandate: adr_0009 (claims C-8xx) for a new `/hex-finalize` command —
+  rebase onto target + recompose the feature branch into changelog-worthy
+  commits (3 OSS universals baked in, 2 shape axes team-discovered),
+  DCO/sign-off satisfied during rewrite, strictest documented verification
+  triggered post-rewrite on final SHAs via forge CLI (gh/glab),
+  force-push consented by invocation (feature branch + PR only, merge
+  stays human), draft→ready flip. Workspace invariant: primary checkout =
+  the PR branch. 9 research artifacts
+  `research/discuss-finalize-*.md` (expire 2027-02-28). 4 open-question
+  markers carried in the artifact (backup ref/range-diff, quality-ledger
+  home, changelog generation out, PR-mutation rights).
 - **adr_0008 ACCEPTED (Michael, 2026-08-28; plain approval — all three
   open-question recommendations stand: sweep cap 12, discussions home =
   documented convention else `.agents/discussions/`, rule `hex-state` ships
