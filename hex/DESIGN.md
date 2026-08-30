@@ -670,6 +670,8 @@ always-on cost is the rule body plus each shipped member's description
 line; a description carries entry triggers only and never duplicates body
 prose; a future member's ADR budgets both.
 
+**Erratum pointer (2026-08-30):** deviation 1's turn-zero premise and its two-gear sentences are re-argued and superseded by the discussion-rework round (round 11) below; round 9's own text is unchanged.
+
 ## Finalize round (2026-08-29, round 10)
 
 `adr_0009` (the finalize phase — the `/hex-finalize` command, the scoped
@@ -761,3 +763,67 @@ invoked on, after the gate, anchored by the same backup ref. Rejected
 alternative: having `/hex-execute` commit the recomposed series would put
 the rewrite behind a different skill's gate and re-open the two-command
 surface `adr_0009` Option C rejected.
+
+## Discussion-rework round (2026-08-30, round 11)
+
+The `hex-discuss` interactive rework (`adr_0008`, amended in place
+2026-08-30; plan `.agents/plans/plan_hex_discuss_ux_rework.md`) **re-argues
+one round-9 premise and supersedes two of its sentences**. Round 9's text is
+left as it was written and carries a pointer to this round.
+
+1. **Round 9's "resolves nothing at turn zero" premise is replaced, and the
+   conclusion it carried is re-derived on other ground.** Round 9 grounded
+   `hex-discuss`'s exemption from § Shared shape on the claim that "its spawn
+   set is discovered *through* the conversation." That premise no longer
+   holds literally: entry now fires an **automatic entry wave** of two fixed
+   lanes — codebase recon and a prior-art web scan, seeded from the opening
+   turn's own text — so part of the spawn set is fixed before the first
+   answer arrives, and that fixing is **two-path, not unconditional**: slot 1
+   present dispatches the wave that same turn; slot 1 absent defers it to
+   fire once slot 1 lands. **The exemption survives on a different ground**:
+   a fixed two-lane wave inside the default gear is **grounding, not
+   turn-zero config**. It resolves no tier, no overlays, and no spend the
+   user could be asked to approve; it reads the ground the first answer will
+   be discussed against, and it is dispatched *after* that answer is emitted,
+   never in front of it (`adr_0008` C-701's answer-first entry). **Dispatch,
+   once it happens, is non-repeatable** — a resume never re-fires an
+   already-dispatched wave — but a discussion parked before slot 1 ever
+   landed still gets its wave when slot 1 does. What round 9 rejected is
+   still rejected — an approval block announcing a config nobody has yet
+   chosen, in front of a mode whose premise is that nothing is committed —
+   and there is still **exactly one approval gate per run**, at the drain.
+   Rejected alternative: **an opt-out knob for the wave** (a flag, or a
+   `hex.md › Preferences` key) reintroduces precisely the turn-zero
+   configuration this position exists to keep out; it was considered and
+   declined at the plan round, so `config.md` gains no key and the wave has
+   no knob.
+
+2. **The spend threshold is stated, and it supersedes round 9's two-gear
+   sentences.** Round 9 declared one non-gate user-facing confirmation — the
+   two-gear offer of `adr_0008` C-707 — before spending up to twelve workers.
+   That offer is **retired**: C-707 is now a **lane multi-select**, offered
+   once after the entry wave dispatches and re-offered only on user demand or
+   on a new lane surfaced by a returning researcher's `leads:`, keeping the
+   same hard cap of 12 and the same batch-split disclosure. The general rule
+   underneath it is stated here rather than left implicit in a contract:
+   **automatic spend never exceeds the default gear and is always announced;
+   anything above the default gear is user-initiated.** The entry wave is the
+   automatic half — two lanes inside the three-concurrent default, disclosed
+   on the combined entry line — and the lane multi-select is the
+   user-initiated half, a bounded spend confirmation and **not a second
+   approval gate**, exactly as round 9 said of the offer it replaces. Round
+   9's sentences naming that retired offer, and its "two knobs (research
+   on/off, …)" clause, are **superseded by this round**; their bytes stay as
+   round 9 wrote them.
+
+**Considered and not deviated** (unchanged by this round): the single
+**approval** gate, its count and its position at the drain — the multi-select
+is a spend confirmation, as round 9 already established for the offer it
+replaces. **Capability classes** — the wave's two lanes and the council
+lane's perspective seats all spawn at the researcher row's pinned class, and
+no shipped file names a literal model or a harness tool; the second
+`references/` split (`hex-discuss/references/research-lanes.md`) is held to
+that rule, not excused from it. **Thin dispatcher + reference files** —
+`hex-discuss` still ships one body under its budget with contracts linked,
+never copied. The **two-layer knowledge model**, `adr_0005`'s fold path, and
+`hex never pushes` / `hex never commits` stand as round 10 left them.
