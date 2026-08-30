@@ -441,8 +441,11 @@ Two shapes:
   each in its own ephemeral branch + worktree, each running its own Stub →
   Specify → Implement → Review-Fix cycle scoped to its declared file set;
   merge back onto the feature branch serialized in a valid topological
-  order, verification after every merge. Mechanics — branch naming, frozen
-  base, worktree location and cleanup — live in
+  order, verification after every merge — a **scoped check** except on the
+  triggers
+  [`protocol.md` § Worktree work-package mechanics](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+  names. Mechanics — branch naming, frozen base, worktree location and
+  cleanup — live in
   [`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics),
   never restated here.
 
@@ -505,13 +508,14 @@ the post-gate realization, in the tier file's Discover phase:
 1. **Read the table.** Take the resolved plan's Parallelization table (WP
    id, scope, expected files, size, wave, depends-on, review, status) as the
    state of record. For a **free-text target** with no plan artifact, build
-   an inline mini-table with the same eight columns
-   (`WP | Scope | Expected Files | Size | Wave | Depends on | Review | Status`) so
-   the free-text path drives the same launch machinery — Review assigned per
+   an inline mini-table with the same nine columns
+   (`WP | Scope | Expected Files | Size | Wave | Depends on | Review | Verify | Status`)
+   so the free-text path drives the same launch machinery — Review assigned per
    the protocol heuristic
    ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)) — **a single WP by
    default**, decomposed into several only when the task plainly names ≥3
-   disjoint areas. (A free-text `high` target still routes through
+   disjoint areas. `Verify` defaults to `scoped` here: a free-text target has
+   no Status block, so there is no `Verify-default:` line to inherit (C-905). (A free-text `high` target still routes through
    `/hex-plan` — see
    [`classify.md`](classify.md#fallback-free-text-targets) — so a
    mini-table here is a `low`/`medium` shape.)
@@ -520,7 +524,9 @@ the post-gate realization, in the tier file's Discover phase:
    dependency-ready launch rule
    ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
    Recompute the ready-set after every merge; ready WPs' worktrees are
-   prepared post-gate (Discover) as each becomes eligible.
+   prepared post-gate (Discover) as each becomes eligible. Each merge also
+   appends its `## Schedule log` entry, whose grammar lives in
+   [`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition).
 3. **Select the fan-out mechanism.** Detect the harness's fan-out
    capabilities for this run — never stored — and pick each qualifying WP's
    mechanism per protocol.md's fan-out-mechanism rule

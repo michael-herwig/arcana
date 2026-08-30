@@ -508,6 +508,12 @@ so the phase and its Upkeep stay together; the satellite `Federation lead:`
 locks are a separate mechanism that persists past `landing` to `done` and are
 **not** this pointer.
 
+**One precondition on the terminal state:** a run that ends with a non-empty
+stranded-WP set never reaches its terminal review state — `done`, or
+`landing` for a plan carrying a `Repo` column. The failure cascade
+([`protocol.md`](protocol.md#parallel-by-default-decomposition)) owns that
+rule, and this phase stays its sole writer.
+
 Moving the plan to a dated archive directory was considered and rejected: it
 breaks every link that points at the plan for the sake of directory
 tidiness a `State:` field already provides, and imports the double-date-prefix

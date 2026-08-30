@@ -136,11 +136,12 @@ both panel and cross-model deferred findings are documented.
 
 Merge work packages onto the plan's feature branch, serialized in a valid
 topological order per [`SKILL.md`](SKILL.md#work-packages) — one WP at a
-time. Before each merge, run the merge-time file-set re-validation; the
-project's
-documented verification runs after every merge, and a merge conflict or a
-failed post-merge verification follows the merge-conflict /
-post-merge-failure playbook
+time. Before each merge, run the merge-time file-set re-validation;
+a **scoped check** runs after every merge — the project's full documented
+verification only on the triggers
+[`protocol.md` § Worktree work-package mechanics](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+names — and a merge conflict or a failed post-merge verification follows
+the merge-conflict / post-merge-failure playbook
 ([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
 Set the table's `Status` column to `merged` on a successful merge, `failed`
 on a playbook halt; ephemeral branch deleted and worktree removed once its

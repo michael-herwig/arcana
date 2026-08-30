@@ -25,6 +25,24 @@ vague impression that "it's probably in there somewhere."
   `pyproject`/`tox`, Cargo aliases). A found command is proposed for
   **adoption via pointer** — document what exists, don't invent a new one.
 
+### Selective test command documented?
+
+- **Look for:** a command that runs the tests a change affects, rather
+  than the whole suite — the project's own selective / affected-tests
+  entry point, named alongside the full one.
+- **Where:** project context and checked-in files only. This item performs
+  no network read.
+- **Documented looks like:** a runnable template with its placeholders —
+  `nx affected -t test --base={base}`, `pytest --testmon`, or
+  `npx jest --findRelatedTests {files}`. Not "we use Nx", and not a suite
+  name with no command behind it.
+- **De facto discovery:** `nx.json` or `turbo.json` at the repo root, a
+  `.testmondata` entry in `.gitignore`, an `affected`-shaped CI job. A
+  found command is proposed for **adoption via pointer**, never invented;
+  only what the user consents to record in project context is what hex
+  runs — see
+  [`protocol.md` § Verification › Scoped check](../../hex-core/references/protocol.md#scoped-check).
+
 ### Commit and landing requirements documented?
 
 - **Look for:** whether the project requires DCO sign-off, signed commits,
@@ -257,6 +275,29 @@ Run `<command>` before considering any change complete. Covers: <build |
 test | lint - whatever it actually runs>. <Anything it doesn't cover, if
 relevant.>
 ```
+
+### Selective test command block
+
+Extends the Verification section above. The fenced line below is proposed
+only when the audit found a selective command, or the user named one.
+
+```markdown
+Selective tests: run `<template, e.g. nx affected -t test --base={base}>`
+for the tests a change affects; `<command>` still runs the full suite.
+```
+
+Two `hex.md › Pointers` rows record where each is documented, in this
+grammar:
+
+``- Selective tests: `<location>` — where the selective test command is documented.``
+``- Sensitive paths: `<location>` — where the project's security-sensitive / hot-path convention is documented.``
+
+The second row is the named source the high-risk merge trigger reads —
+distinct from the `Key rules` pointer, which names the rule files
+themselves. It records **where the convention is documented**, never a
+path list and never a judgment, and it is proposed off the [rules
+item](#rules-carry-architectural-context) whether or not a selective
+command was found.
 
 ### Spec / plan / ADR conventions block
 
