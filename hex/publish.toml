@@ -4,7 +4,7 @@ registry = "ghcr.io"
 # ghcr.io/michael-herwig/arcana/<name>. The flat pre-0.1.1 repos
 # (ghcr.io/michael-herwig/hex*) are deprecated, see CHANGELOG.md.
 repository_prefix = "michael-herwig/arcana"
-version = "0.4.0"
+version = "0.2.0"
 
 [announce]
 namespace = "michael-herwig"

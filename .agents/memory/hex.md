@@ -119,7 +119,13 @@ preferences, not copies. Team-shared — commit it.
   `f31cbd1` + this terminal-state commit), dogfood docket (5 ADR
   checks incl. writing check-2's opportunity-ceiling rule from run
   evidence + forced anchor-fail-safe + slow-run attribution),
-  `.claude/skills` hex-* refresh chore, 0.4.0 publish.
+  `.claude/skills` hex-* refresh chore.
+  **Landed + released 2026-08-31:** PR #1 merged (`40aa7a3`); release
+  renumbered **0.2.0** (owner decision — 0.2.0/0.3.0 never published,
+  0.1.1 last on GHCR; CHANGELOG sections consolidated into one
+  `## [0.2.0]`, publish.toml 0.2.0, ADR erratum row records it); root
+  README command table gained `/hex-discuss` + `/hex-finalize` (was
+  5-command, pre-0.2.0-era); tagged `v0.2.0` → tag-driven publish CI.
 - **adr_0010 ACCEPTED (Michael, 2026-08-30, at the /hex-plan gate — tier
   high, fast path from the ratified exec-performance dossier)**
   (`adrs/adr_0010_execution_performance.md`, 1076 lines, ADR only — owner
