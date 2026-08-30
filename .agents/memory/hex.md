@@ -34,6 +34,48 @@ preferences, not copies. Team-shared — commit it.
 
 ## Memory
 
+- **Plan done (no active plan):** `plans/plan_hex_discuss_ux_rework.md`
+  (State: **done**, tier medium, archived in place 2026-08-30; fold
+  target: none — no `## Spec Deltas` block) — **executed + reviewed to
+  Approve** on `hex/discuss-ux-rework` (tip `5eab897`, base `f680fee`,
+  unpushed, 9 commits; merge order WP2→WP1→WP3 held, then fix commits
+  WP4 `961862e`, WP5 `a3b31ac`, `83309e4`, `5eab897`). Three /hex-review
+  rounds: R1 Needs Work (1 High entry-path + 3 Warn), R2 Needs Work
+  (ADR/DESIGN drift + dispatch-keyed once-rule + 4 Warn), R3 **Approve**
+  (Converged 23/23; gates wp1 51/51 · wp2 48/48 · wp3 31/31 · grim 0 ·
+  dry-run 0; body 399/400). Codex caught real gaps every round
+  (entry-path ambiguity, park-before-slot-1 resume, lane-menu timing
+  residue). Learned: a fix pass that changes shipped entry behavior must
+  re-touch the same round's ADR/DESIGN amendments (WP3 predated WP4 →
+  R2's two High). Next (Michael's): land the branch, dogfood run per the
+  plan's Step 5.3 docket, 0.3.0 publish. — hex-discuss interactive
+  rework per the drained hex-discuss-ux dossier. 3 WPs / 2 waves: WP1
+  SKILL.md rewrite ∥ WP2 new `references/research-lanes.md`, then WP3
+  adr_0008 amendments (10 stale sites, C-701 split budget) + DESIGN.md
+  full new round (re-argues round-9 deviation-1 premise; spend threshold:
+  automatic ≤ default gear, announced). Panel (spec+architect Opus+
+  researcher): 3 Block/7 High all fixed; codex adversary 5/5 actionable
+  fixed; final validation PASS. **Council lane in-plan (Michael,
+  2026-08-30), reframed as perspective council**: N same-class researcher
+  seats with assigned perspectives, blind to each other, orchestrator-side
+  synthesis, no ranking (moots self-preference bias); C-706 opinion
+  exception lexically scoped to opt-in lanes; cross-model seats → future
+  ADR. Zero open markers.
+  Next: `/hex-execute plans/plan_hex_discuss_ux_rework.md`.
+- **Discussion drained 2026-08-30: "hex-discuss UX" → plan**
+  (`discussions/hex-discuss-ux.md`, `Ratified: 2026-08-30 → plan`).
+  Mandate: rework `hex/hex-discuss` interactive/answer-first — automatic
+  fixed-2 entry recon wave; user-only drain (no unprompted offers;
+  restate + terminal summary stay); leads-fed multi-select research
+  lanes replace the quick/deep two-gear (gone entirely, cap 12 holds);
+  design questions batched ≤3 w/ recommendations; new `references/`
+  spawn contract (`negative:`/`leads:` return schema, blindness incl.
+  entry wave); results feed questions at turn boundaries; opt-in council
+  lane (karpathy/llm-council pattern; degraded single-provider). Ships
+  as skill edits + adr_0008 in-place amendments (C-7xx; § Validation
+  re-derivation is a hard deliverable). 3 research artifacts
+  `research/discuss-ux-{sota,community,adjacent}.md` (expire
+  2027-02-28). Zero open questions carried.
 - **Plan done (no active plan):** `plans/plan_adr_0009_finalize_phase.md`
   (State: **done**, tier high, archived in place 2026-08-30 per C-410;
   fold target: none — plan carries no `## Spec Deltas` block) —
