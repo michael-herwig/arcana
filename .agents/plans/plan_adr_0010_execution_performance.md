@@ -8,6 +8,7 @@
 - Tier:    high
 - Updated: 2026-08-31
 - Next:    —
+- Finalized: 2026-08-31 — recomposed 30→2 signed commits, pushed `bd5ca85`, [PR #1](https://github.com/michael-herwig/arcana/pull/1) ready; no remote gate exists (publish is tag-driven)
 
 ---
 
