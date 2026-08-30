@@ -1,6 +1,6 @@
 ---
 name: hex-discuss
-description: Use when the user says "let's just discuss this, don't edit anything yet", wants to think a fuzzy problem out loud, or asks to talk something through before a plan or ADR starts. Pre-plan discussion mode — elaborates the ask one question at a time, researches disputed facts in the background while the conversation continues, pushes back with a structured grill, and captures what was settled in a discussion artifact.
+description: Use when the user says "let's just discuss this, don't edit anything yet", wants to think a fuzzy problem out loud, or asks to talk something through before a plan or ADR starts. Pre-plan discussion mode — answers first, then fires an automatic entry recon wave, elaborates the ask in dependency-batched questions, pushes back with a structured grill, and captures what was settled in a discussion artifact.
 license: Apache-2.0
 metadata:
   keywords: discuss,discussion,clarify,elicit,interview,pre-plan,grill,research
@@ -66,14 +66,33 @@ artifact's `## Related` section and grounds every researcher prompt.
 slot leaves resurfaces later as a single design question with an attached
 recommendation under the cadence below — never as a re-ask of the form.
 
+### Entry wave
+
+The opening turn is **answer-first**: substance — engagement with intake slot 1 — is
+composed and emitted before anything dispatches; the shared contract reads that inform the
+reply gate the dispatch, never the reply itself. With slot 1 present, the wave —
+codebase recon plus a prior-art web scan, seeded from that text — fires this same turn,
+right after the substance, inside the default 3-concurrent gear, one slot free (degraded:
+inline per § Worker coordination); without it (bare invocation or a vague description-match
+entry) the intake ask itself is the opening turn's substance, and the wave defers, firing
+once when slot 1 lands, seeded from it — slot 1 is never re-asked. Only an
+already-dispatched wave is non-repeatable: a resume never re-fires it, but one
+parked before slot 1 landed still gets it when slot 1 does; lanes stay available on demand.
+Automatic spend never exceeds the default gear and is always announced, anything above it
+user-initiated; rule (d)'s blindness binds it. `references/research-lanes.md` is the lane
+catalog's normative home. The mandated one-liners follow as independent lines, never a
+block, then one drain-affordance sentence, never repeated — said once at entry: this skill
+never offers to end the discussion.
+
 ### Question cadence
 
 Inventory questions — facts the user simply has, like which service or which
-branch — batch into one composite ask. Design questions — anything whose answer
-is a choice — are strictly one per turn, and every one carries an attached
-recommendation. **Never a numbered list of design questions, and never two
-design questions in one turn.** Never spend a question on what the artifact or
-the repo already answers.
+branch — batch into one composite ask. Design questions — anything whose
+answer is a choice — ship in **dependency-batched sets of ≤3**, each option still
+carrying its own attached recommendation. **Never a numbered list outside
+that batch shape.** More than 3 pending → the 3 highest-priority ship, the
+rest carry to the next batch. Never spend a question on what the artifact
+or the repo already answers.
 
 A design question ships as **chips** — selectable options plus a free-text
 escape, rendered through the client's native structured-choice prompt where one
@@ -110,68 +129,48 @@ Four rules, all four normative — not a menu.
 - **(d) Researcher blindness.** A research prompt states the question
   neutrally — the evidence for and against each option on the named axis — and
   **never reveals which side the user or this skill favors**, including when
-  the user has already stated a preference.
+  the user has already stated a preference. Binds every research prompt this
+  skill sends, the automatic entry wave's two lanes included.
 
 ### Research
 
-Research runs in the background while the conversation continues; a
-conversational turn never waits on a researcher. A result lands as a one-line
-aside ([Announce form](#announce-form)); a researcher returning nothing useful
-is folded in with no aside; a researcher failing to return at all is a
-different event, surfaced once as a one-line transport note, because **a dead
-worker is never normalized into "no result found."** A spawn is permitted
-**only on a decision-relevant disputed fact** — never on an opinion, and never
-on a question the repo answers, which is read instead.
+Research runs in the background — no conversational turn waits on it. Spawns are one of three
+classes — **(a) entry recon spawn** (automatic, [Entry wave](#entry-wave)), **(b) opt-in lane
+spawn** (user-selected, below), **(c) disputed-fact spawn** (skill-initiated) — of which (a)
+and (c) fire **never on an opinion**, and never on a question the repo answers, which is read
+instead; (b) alone may target a judgment question, user-opted and spend-confirmed.
 
-Default gear: at most 3 concurrent `researcher` spawns, the role defined in
-[`workers.md`](../hex-core/references/workers.md#role-index), at model class
-`fast-balanced` — the researcher's cell at every tier in
-[`models.md`](../hex-core/references/models.md#the-matrix), so this skill
-**never escalates on its own judgment**. Three concurrent is a default gear,
-not a ceiling: only the deep sweep runs wider, never wider than § Worker
-coordination's cap. A `models.overrides` escalation is disclosed like any other
-([`models.md`](../hex-core/references/models.md#rules) rule 1,
-[Announce form](#announce-form)). Spawning is bound by
+Default gear: at most 3 concurrent `researcher` spawns
+([`workers.md`](../hex-core/references/workers.md#role-index)), `fast-balanced` at every tier
+in [`models.md`](../hex-core/references/models.md#the-matrix) — no self-escalation, disclosed
+like any other ([`models.md`](../hex-core/references/models.md#rules) rule 1) — bound by
 [`protocol.md` § Worker coordination](../hex-core/references/protocol.md#worker-coordination)
-— concurrency cap, sequential batching, per-axis degraded lines, no exemption.
+— concurrency cap, batching, degraded lines, no exemption.
 
-The deep sweep is offered as a chips moment — quick check (up to 3 researchers)
-/ deep sweep (up to 12 background researchers) / skip — when a topic looks
-sweep-worthy, and is **never entered silently**. The spend rides in the option
-text: a bounded, user-initiated spend confirmation, **not an approval gate** —
-nothing strands on a decline, no state advances on an accept. Second and later
-offers carry the running total in the chip text ("deep sweep — 12 more; 24
-spent this discussion"). Under `Degraded: inline workers` there is no
-background wave to buy: the sweep re-caps to the quick check's 3, and the chip
-text drops "background".
-
-A sweep is `researcher` spawns and nothing else — **no `coordinator`, no nested
-spawning, no new role, no new capability class** — in two waves: breadth
-(discover), orchestrator-side dedup, then depth (analyze), the dedup being the
-orchestrator's own synthesis duty. Hard total cap: 12 researchers per sweep —
-`max-workers` caps concurrency, not the total — and a demand above 12 truncates
-to 12, announced once. Each wave is also bounded by § Worker coordination's
-effective concurrency cap and, exceeding it, batches under that same section —
-never restated here — with the split announced once, naming the cap's source.
-
-The waves are asynchronous: each deduped depth lane is dispatched the moment
-its wave-1 result lands, **not at a barrier the conversation waits on**. Dedup
-is therefore incremental rather than global — each arriving result is deduped
-against the depth lanes already dispatched, first seen wins, the duplicate lane
-at the margin bounded by the hard cap. Findings longer than a paragraph persist
-per lane as research artifacts in the convention-resolved research home, each
-written against the header contract in
-[`hex-init/assets/templates/research.md`](../hex-init/assets/templates/research.md)
-— its title line and its `## Metadata` block — which is what a later reader
-attributes a citation by.
+**Lane multi-select** replaces the old two-gear offer — no retired vocabulary survives. Once,
+immediately after the entry wave dispatches, the turn offers a multi-select over research
+lanes, seeded with the default lanes (`references/research-lanes.md` catalogs them); spawns
+run within § Worker coordination's effective concurrency cap, running spend total in the chip
+text, hard cap 12 researchers per expansion — demand above 12 truncates to 12, announced
+once. **Skip → no re-offer** until the user asks again — a landed `leads:` entry only widens
+the offerable lane set; chips never re-surface unprompted. A landed result surfaces at the
+next turn boundary as a one-line aside, flagged as new, never spliced mid-turn; a result that
+changes a live thread feeds the next question; its `leads:` entries join the offerable lane
+set, deduplicated first-seen-wins. A researcher returning nothing useful folds in with no
+aside; one failing to return is surfaced once as a one-line transport note — **a dead worker
+is never normalized into "no result found."** Findings longer than a paragraph persist per
+lane as research artifacts, each written against the header contract in
+[`hex-init/assets/templates/research.md`](../hex-init/assets/templates/research.md).
 
 ### Stop rule
 
 The interview ends when the [restate](#the-restate-gate) can be filled without
 a gap — **never at a question count, and never at a turn budget**. A question
-answered in a few turns drains inline, deleting the entry stub, so the run nets
-zero files. **An inline drain is still gated** — it passes the restate-gate
-like every other drain.
+answered in a few turns drains inline, deleting the entry stub, so the run
+nets **zero discussion files** — the entry wave may already have landed
+research artifacts before that inline drain fires, and those persist in the
+shared research home, listed in the terminal report. **An inline drain is
+still gated** — it passes the restate-gate like every other drain.
 
 ## The discussion artifact
 
@@ -181,17 +180,18 @@ uses ([`memory.md`](../hex-core/references/memory.md#location-and-resolution)).
 Creating that row in `hex.md › Pointers` is post-gate
 ([Constraints](#constraints)); one file per discussion, its slug derived from
 the topic and stable for the discussion's life. Every write this skill makes —
-the artifact and each per-lane research artifact alike — holds to the path
-conditions of
+the artifact to the discussions home above, each per-lane research artifact to
+its own research home — holds to the path conditions of
 [`archive.md` § Containment](../hex-core/references/archive.md#containment-the-resolved-path-never-leaves-the-spec-home-c-418):
-inside the resolved home, no `..` segment, never absolute. **No silent
+inside its own resolved home, no `..` segment, never absolute. **No silent
 clobber:** entry with a slug already present at `State: active` or
 `State: parked` resumes that artifact and **never overwrites it**; a slug
 colliding with a drained (`handed-off`) artifact takes a date suffix instead.
 
 Lazy materialization has one declared exception: entry on a new slug writes a
 header-only stub — `State: active` plus `Updated:`, nothing else — disclosed
-once as `— discussion notes: <path>` ([Announce form](#announce-form)). Entry
+once as the combined `— discussion notes: <path> · recon: N dispatched` line
+([Announce form](#announce-form)). Entry
 that resumes an existing `active` or `parked` artifact opens it and **never
 re-stubs**, but does refresh the header: a fresh `Updated:` always, plus
 `State:` back to `active` when resuming from `parked`. That refresh is a header
@@ -237,8 +237,8 @@ its asker will not attend.
 
 The single approval gate, sitting at the exit before any drain: at entry
 nothing is yet committed, and the irreversible act is handing a downstream
-orchestrator a mandate. The deep-sweep offer is a spend confirmation, not a
-second approval gate — there is **exactly one approval gate per run**, and
+orchestrator a mandate. The lane-expansion offer is a spend confirmation,
+not a second approval gate — there is **exactly one approval gate per run**, and
 **every drain passes it, inline drains included**.
 
 Before any drain, emit a six-part structured restate — Outcome (what will be
@@ -333,16 +333,16 @@ currently known set, explicitly not closed:
 
 1. A research aside when a result lands:
    `— checked that: <one-line finding> [<source>]`
-2. `— discussion notes: <path>`, printed once when entry writes the stub — a
-   mode pitched as "don't edit anything yet" writes no file silently.
-3. The deep sweep's batch split, with the cap's source
+2. `— discussion notes: <path> · recon: N dispatched`, printed once at
+   entry, the stub write and the wave's dispatch count combined on one
+   line, never two: writes no file and spawns no worker silently.
+3. A lane expansion's batch split, with the cap's source
    ([`protocol.md` § Worker coordination](../hex-core/references/protocol.md#worker-coordination)).
-4. `Degraded: inline workers — no subagent spawning` — research then runs
-   inline, so a check briefly pauses the conversation, the deep sweep re-caps
-   to 3, and the mode loses its differentiator. Printed once at the first
-   degraded spawn: § Worker coordination prints degraded lines "at the gate",
-   and this mode's only gate is the drain — too late for a spend disclosure —
-   so it lands where rule 1's model line does.
+4. `Degraded: inline workers — no subagent spawning` — research runs
+   inline, one spawn at a time instead of concurrently, and the mode loses
+   its differentiator. Printed once at the first degraded spawn — this
+   mode's only gate is the drain, too late for a spend disclosure — so it
+   lands where rule 1's model line does.
 5. The resolved literal model at the first spawn of a role — the disclosure
    [`models.md`](../hex-core/references/models.md#rules) rule 1 mandates,
    carried under this quiet form, and where a `models.overrides` escalation
@@ -404,5 +404,7 @@ copy. **No hex file may make a rule's presence a condition of any other
 behavior.**
 
 Client portability: [references/reach.md](references/reach.md) (C-721).
+
+Research lanes and the researcher spawn contract: [references/research-lanes.md](references/research-lanes.md) (C-701 second split).
 
 $ARGUMENTS

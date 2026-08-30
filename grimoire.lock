@@ -5,7 +5,7 @@ lock_version = 1
 declaration_hash_version = 1
 declaration_hash = "sha256:b4a1fc7c7a1dd14a8551e72091688858552b8ff2b181668a3b897aa90cc52a15"
 generated_by = "grim 0.13.0"
-generated_at = "2026-08-30T07:11:27Z"
+generated_at = "2026-08-30T14:19:51Z"
 
 [[skill]]
 name = "ai-config-authoring"
@@ -38,7 +38,7 @@ hash = "sha256:b27c2f4e73faf6c448f6b68103aa837a2ff051d563a47781eb16cd63afa5f797"
 [[skill]]
 name = "hex-discuss"
 path = "./hex/hex-discuss"
-hash = "sha256:f18956c88c847e381b862149a73d7bc3943e31659a6f4166dd7f85a16ade796b"
+hash = "sha256:c2f8a4d948b7bd7037e125c0ea497587fe1edc2ace5df240f37e2dbfb195a041"
 
 [[skill]]
 name = "hex-execute"
