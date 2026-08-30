@@ -194,10 +194,14 @@ announcement always shows the resolved set with per-item source
   (arXiv 2607.00041), LLMCompiler DAG scheduling.
 - **Plan visualization (locked 2026-07-19):** WP table is the canonical
   artifact (id, scope, expected files, size, wave, depends-on — plus
-  status since round 5 and the review budget since the perf pass); one
-  mermaid `graph TD` with a subgraph per wave as a visual index (gantt
-  and gitGraph rejected — brittle syntax, silent render failures); plan
+  status since round 5, the review budget since the perf pass (C-905),
+  `Repo` in second position since round 8 (C-302), and `Verify`
+  immediately after `Review` since round 12 (C-905)); one mermaid
+  `graph TD` with a subgraph per wave as a visual index (gantt and
+  gitGraph rejected — brittle syntax, silent render failures); plan
   stays fully actionable from the table alone.
+
+**Erratum pointer (2026-08-30):** round 12 (§ Execution-performance round, below) amends this section by pointer, bytes intact: it supersedes round 4's "verification after every merge" (`:172`) — the per-merge default is now the scoped check, with full verification at the checkpoints round 12 names — and retro-claims the 2026-07-20 Review-budget addendum (`:187-189`) under C-905, semantics unchanged, joined by a `Verify` sibling.
 
 ### Staleness (how memory stays true)
 
@@ -827,3 +831,149 @@ that rule, not excused from it. **Thin dispatcher + reference files** —
 `hex-discuss` still ships one body under its budget with contracts linked,
 never copied. The **two-layer knowledge model**, `adr_0005`'s fold path, and
 `hex never pushes` / `hex never commits` stand as round 10 left them.
+
+## Execution-performance round (2026-08-30, round 12)
+
+`adr_0010` (scoped per-merge verification, checkpointed backstops,
+delta-scoped review rounds, and the failure cascade) amends **three
+positions in § Worktrees** — two from round 4 and its 2026-07-20 perf pass,
+and one from the *Plan visualization* lock. The first two supersede by
+pointer: their text is left as written and the `### Worktrees` region gains
+one erratum pointer, per round 11's convention. The third is a live lock
+and is amended in place — its enumeration has been amended twice in place
+before (`status`, round 5; the review budget, the 2026-07-20 perf pass) and
+once by round 8's standalone addendum bullet (`Repo`, C-302), which this
+round folds into the base text. Full adjudication and the two scored
+five-option comparisons: `adr_0010` § Considered Options.
+
+1. **"Verification after every merge" becomes "a scoped check after every
+   merge, with full verification on three policy triggers plus two override
+   paths."** The round-4 rule above — "merge back onto the feature
+   branch, serialized, in a valid topological order **with verification
+   after every merge**" (§ Worktrees, emphasis added) — made the tree
+   provably good after each merge, and the reason it gave remains
+   correct: cross-file interactions surface only post-merge. **The
+   amendment keeps that reason and bounds its cost rather than discarding
+   it.** A full verification still runs — on **three policy triggers** (a
+   coordinator join, a checkpoint, the final gate) and on **two override
+   paths** (a `Verify: full` cell or `Verify-default: full` line; a
+   degrade when no assembly gate or no runner-addressable test set can be
+   resolved) — and the **final gate is unchanged, mandatory, and
+   un-lowerable by any per-WP budget**. What changes is the ordinary
+   merge, which pays the WP's own contract tests plus the project's
+   cheapest assembly gate. The cadence is a **dual
+   trigger with a risk override** — `M = 3` merges since any full
+   verification, or a cleared dependency level, or a high-risk merge,
+   whichever fires first, each firing resetting the counter — because the
+   checkpoint literature's own 2024 survey reports Young/Daly does not
+   transfer to DAG-of-tasks workloads, and because every production
+   checkpoint policy surveyed (Postgres, CI tiering) is a dual trigger
+   rather than a computed optimum. Rejected alternative: **relaxing the
+   verify/merge coupling instead** — overlapping a merge's verification with
+   the next merge's launch. It scores **within six points on a 102-point
+   scale, close enough that the arithmetic does not carry the choice**, and
+   preserves the correctness property this amendment trades. Its apparent
+   licence is C-306's own text in `protocol.md` § Worktree
+   work-package mechanics (from `adr_0004`), which calls global
+   one-at-a-time "an operability choice … the first rule to relax if
+   merge wall-clock ever dominates" — but **that sentence is
+   federation-scoped** and governs the cross-repo order, not the
+   single-repo coupling the same section's serialized-merge rule states
+   ("each merge changes the base under the next"), which is grounded in
+   correctness and carries no such invitation. It loses on bundle surface
+   and legibility: an overlapped verification reports against a tree that
+   no longer exists, the merge-failure playbook grows a concurrency
+   story, and resume must reconstruct which verification was in flight.
+   **C-306's lever is therefore not spent — it is explicitly left
+   available** for the federated case it actually governs, and is the
+   right next move if scoped checks land and cross-repo merge wall-clock
+   still dominates. Also rejected: **selective checks with only the final
+   gate as backstop**, which is the premortem seat's named failure mode
+   made policy and has no production precedent in the survey. **The sole
+   definition site is `protocol.md` § Verification**; § Worktree
+   work-package mechanics carries the amended sentence and links there,
+   six further sites take a one-clause qualifier or an amended sentence,
+   and **every site whose sentence stays true is untouched** — including
+   three of the four glossary sites, because the merge gate now names a
+   *different* check rather than redefining "Verify". The fourth,
+   `hex-plan/SKILL.md:225`, takes a one-clause qualifier because that
+   same file now carries a column literally named `verify`.
+
+2. **The 2026-07-20 Review-budget addendum becomes a two-member family with
+   a stated direction rule, and its unowned contract surface is claimed.**
+   That perf pass added "a per-WP Review budget (`self | light |
+   panel`, lower-only vs the tier baseline, missing = panel)" and shipped it
+   with **no contract ID at all** — pre-`adr_0003` debt. `adr_0010`
+   **retro-claims it under C-905 with its semantics unchanged in every
+   byte**, and adds a sibling: **`Verify` (`scoped | full`, raise-only,
+   missing = `scoped`)**. The rule underneath both is stated here rather than
+   left implicit: **a budget column moves a WP away from the shipped default
+   in exactly one direction, fixed per column and stated in shipped text, and
+   each column's baseline sits at the unsafe end of its own range so the
+   unsafe direction is unreachable** — `Review`'s baseline is the full panel,
+   so only down exists; `Verify`'s baseline is the scoped check, so only up
+   exists. Rejected alternative: **leaving the `Review` column unowned and
+   numbering only `Verify`** would have shipped two columns governed by one
+   unwritten rule, with one of them still unciteable — the exact condition
+   that let the direction rule stay implicit for a year. Also rejected: **a
+   `config.md` key for either column.** The v1 vocabulary froze at six
+   (C-223); both columns are **plan-artifact cells**, so the freeze is not
+   reopened, and `M = 3` ships as text with no knob for the same reason.
+
+3. **The *Plan visualization* lock's column enumeration admits a fourth
+   amendment: `Verify`.** "Plan visualization (locked 2026-07-19)" fixes the
+   WP table's canonical column set, and it is a **live lock, not historical
+   round text** — which is why this is an amendment in place rather than a
+   supersede-by-pointer. It has been amended by explicit act three times
+   already — twice in place (`status`, round 5; the review budget, the
+   2026-07-20 perf pass) and once as round 8's standalone addendum bullet
+   (`Repo` in second position, `adr_0004` C-302, whose deviation row is the
+   shape this one follows); this round folds that addendum's outcome into
+   the base enumeration, which had never absorbed it, alongside `Verify`.
+   `adr_0010` adds **`Verify`, immediately after `Review`**, keeping the
+   two budget columns adjacent. The lock's stated intent is that the plan
+   "stays fully actionable from the table alone", and that intent is what
+   forces the column rather than tolerating it: under amendment 1 the
+   merge gate is per-WP, so a table without `Verify` cannot say what
+   check a given merge will run, and the plan stops being sufficient on
+   its own. Rejected alternative: **encoding
+   the raise inside `Scope` prose, or inferring it entirely from C-903's
+   merge-time high-risk predicate.** Prose makes a mechanical value a
+   substring to be parsed and cannot be inherited by sub-WP rows the way a
+   column is — the same objection `adr_0004` raised against encoding `Repo`
+   in `Expected Files`. Inference alone drops the author-judgment cases the
+   predicate cannot see (a changed default, a schema, a config value nothing
+   textually references), which is the column's entire reason to exist. The
+   optional **`Verify-default:` Status line** rides the same amendment: it
+   is a table-wide default, not a fourth column, and the mermaid index is
+   unaffected. **A plan without either renders and reads exactly as today.**
+
+**Considered and not deviated** (unchanged by this round): the **single
+approval gate** — its count and its position are untouched; a checkpoint
+is a *check*, never a gate, and asks nothing. The **depth-1 coordinator
+invariant** is not merely untouched but **reaffirmed as a hard
+requirement** (`adr_0010` C-914): no recursion ≥ 2, no new orchestrator
+role, and state stays the one flat Parallelization table with computed
+rollups — the new schedule log is held to it explicitly, one section per
+plan and never one per coordinator. **Capability classes** — vacuously
+upheld: this round adds no spawn, no role and no `models.md` row, and no
+shipped file it touches names a literal model or a harness tool. **`hex
+never pushes` / `hex never commits` outside execution** — untouched;
+round 10's scoping stands as written. **The two-layer knowledge model**
+is upheld: the selective-test command is Layer-1 project context with a
+`hex.md › Pointers` row (it is "how to verify", the model's own worked
+example), and the sensitive-path convention is a Layer-1 project fact
+reached through a `hex.md › Pointers` row — hex authors neither as its
+own config, and C-917 records where each lives rather than what either
+says. **`adr_0005`'s fold path** is untouched: `hex-review` still writes
+only the Status block, the convergence check, and — on an approved
+converged fold — the spec file and receipt; C-401 and C-412 are unchanged
+and C-410's exclusive ownership of the terminal review state — `done`, or
+`landing` for a plan carrying a `Repo` column — gains one precondition (a
+run with stranded WPs does not reach it) rather than a second writer.
+**`adr_0004`'s federation contracts** are unchanged: per-repo
+verification (C-321) and global merge serialization (C-306) both apply to
+the scoped check verbatim. **Thin dispatchers + per-tier phase files** —
+no tier file gains a rule; two take a one-clause qualifier and the rest
+are untouched. **`config.md` gains no key** and its `<skill>` enumeration
+is not reopened.
