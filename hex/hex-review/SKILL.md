@@ -100,11 +100,18 @@ labels, base ref, and file list in this order of preference:
 3. neither available — treat the input as a branch name or free text and
    continue.
 
-Resolve the baseline: user `--base=<ref>` wins; else a PR target uses its
-fetched base ref; else `main`. Fast-fail when the baseline doesn't resolve
-(`git rev-parse --verify <base>` fails) — print remediation and stop. An
-empty diff reports "nothing to review" and exits clean. A markdown-artifact
-target skips baseline resolution entirely.
+Resolve the baseline: user `--base=<ref>` wins; else, where the traced plan
+carries a valid `Reviewed:` anchor and the invocation is a review round
+continuing that plan's loop, the anchor is the baseline — validity per
+[`protocol.md`](../hex-core/references/protocol.md#anchor-validation), which
+resolves the fallback below *first* and validates the anchor against it; else
+a PR target uses its fetched base ref; else `main`. Fast-fail when the
+baseline doesn't resolve (`git rev-parse --verify <base>` fails) — print
+remediation and stop. An empty baseline-to-HEAD diff reports
+"nothing to review" and exits clean where no converged pass is outstanding;
+an empty `anchor..HEAD` delta proceeds to that pass instead
+([`protocol.md`](../hex-core/references/protocol.md#delta-round-scope)).
+A markdown-artifact target skips baseline resolution entirely.
 
 **Federation refusal (C-323).** A run is federated only if its own resolved
 `hex.md` carries `Federation:` bullets; if the resolved plan (or the branch's
@@ -278,13 +285,19 @@ invocation — it is not a persisted plan artifact. hex-review's writes land
 only here, on the plan artifact itself, never on the code or diff under
 review. When the target traces to an active plan (the `hex.md › Memory`
 active-plan pointer, or a `## Status` block found in a referenced markdown
-file — see [`memory.md`](../hex-core/references/memory.md)), mutate that
-block: on round entry, flip `State` to `review`; on verdict, set `State` to
-`done` with `Next` cleared (Approve — or `State: landing`, not `done`, for a
-plan carrying a `Repo` column, whose `Next` names the landing enumeration,
-C-324), or leave `State: executing` and set
-`Next` to `/hex-execute <plan path>` (Needs Work / Request Changes). Skip
-silently when no active plan is found — never invent one.
+file — see [`memory.md`](../hex-core/references/memory.md)),
+mutate that block: on round entry, flip `State` to `review`; on verdict,
+set `State` to `done` with `Next` cleared (Approve — or `State: landing`,
+not `done`, for a plan carrying a `Repo` column, whose `Next` names the
+landing enumeration, C-324), or leave `State: executing` and set `Next` to
+`/hex-execute <plan path>` (Needs Work / Request Changes). Skip silently when
+no active plan is found — never invent one. An Approve never writes the
+terminal review state — `done`, or `landing` for a plan carrying a `Repo`
+column — where the run ended with a non-empty stranded set
+([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
+Writing the `Reviewed:` anchor is a Status-block write, the class of write
+`hex-review` already performs — a branch-scope pass only
+([`protocol.md`](../hex-core/references/protocol.md#the-last-reviewed-anchor)).
 
 **Federated diff scope (C-309).** When the target traces to a plan carrying a
 `Repo` column, the resolved review scope is not one repo's diff but the
@@ -419,7 +432,8 @@ transcript belongs, is a spec violation.
 
 **Review-only contract.** hex-review **never edits the code or diff under
 review, and never commits.** Its writes are the plan-artifact mutations
-above — the Status block and the append-only convergence rows — plus, under
+above — the Status block, including the `Reviewed:` anchor line on a
+branch-scope pass, and the append-only convergence rows — plus, under
 the [Fold-Back phase](#the-review-report)'s four preconditions only, the one
 resolved spec file and the fold receipt appended to the plan's `## Spec
 Deltas` block; a fold is never inferred from silence, and every write lands
@@ -431,7 +445,8 @@ reported, not applied; the fix loop belongs to
 ## Constraints
 
 - **Never edits the code or diff under review, and never commits** — its
-  writes are the plan-artifact Status block, the append-only convergence
+  writes are the plan-artifact Status block, including the `Reviewed:`
+  anchor line on a branch-scope pass, and the append-only convergence
   rows, and — under the [Fold-Back phase](#the-review-report)'s four
   preconditions only — the one resolved spec file and the fold receipt (see
   [`archive.md`](../hex-core/references/archive.md)).

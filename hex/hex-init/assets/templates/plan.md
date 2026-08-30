@@ -25,6 +25,8 @@ the project's plan location. Read and mutated by /hex-plan, /hex-execute,
 - Tier:    [low | medium | high]
 - Updated: [YYYY-MM-DD]
 - Next:    /hex-execute [this plan's path]
+- Reviewed: <full 40-char SHA>   <!-- optional — the branch-scope last-reviewed anchor. Written by the reviewer, not the plan author: whoever completes a branch-scope pass over a diff headed at that SHA writes it, and a WP-scope round never does — delete this line until a review pass has run. It records that every commit reachable from that SHA saw at least one pass, not that the pass was clean. Absent line ⇒ never reviewed ⇒ full-branch review (C-907, C-915) — never an error, never a migration prompt. Mechanics: hex-core references/protocol.md § The Review-Fix Loop. -->
+- Verify-default: full   <!-- optional — sets the default every empty `Verify` cell inherits, restoring pre-adr_0010 merge gates for this plan; individual cells still override it. Absent line ⇒ `scoped` (C-905, C-915). Delete unless the plan needs it. -->
 - Repos:   <!-- optional — present only when the table carries a `Repo`
   column (C-324); written once at execution start, frozen, never
   re-resolved (C-317). Mechanics: hex-core references/protocol.md
@@ -148,19 +150,27 @@ hex-core references/protocol.md § Verification (C-311). Concurrently-running
 WPs must additionally own disjoint
 `(Repo, path)` pairs, not bare paths — substance in hex-core
 references/protocol.md § Parallel-by-default decomposition (C-316).
+Verify is the per-WP merge gate: `scoped | full`, raise-only — there is
+deliberately no value below `scoped`. `full` runs the project's full
+documented verification after this WP's merge; `scoped` is the default
+and is written only for readability.
+A missing column or cell means the plan's `Verify-default:` line, else
+`scoped` (C-905, C-915); write `full` only with a one-line
+justification. Substance: hex-core references/protocol.md § Verification
+(C-901).
 Mechanics: hex-core references/protocol.md § Parallel-by-default
 decomposition and § Worktree work-package mechanics. This table is the
 source of truth; the diagram is a visual index and may be dropped by
 renderers.
 -->
 
-| WP | Repo | Scope | Expected Files | Size | Wave | Depends on | Review | Status |
-|----|------|-------|----------------|------|------|------------|--------|--------|
-| [WP 1] | `.` | [Covers C-001, S-001] | `path/to/file` | [S/M/L] | 1 | — | [self/light/panel] | pending |
-| [WP 2] | `.` | [Covers C-002] | `path/to/other` | [S/M/L] | 1 | — | [self/light/panel] | pending |
-| [WP 3] | `.` | [Covers S-002] | `path/to/third` | [S/M/L] | 2* | WP 1, WP 2 | panel | pending *(rollup — computed)* |
-| [WP 3.1] | *(inherits)* | [Covers S-002] | `path/to/third_a` | [S/M/L] | 2 | *(inherits WP 3's)* | *(inherits)* | pending |
-| [WP 3.2] | *(inherits)* | [Covers S-002] | `path/to/third_b` | [S/M/L] | 3 | WP 3.1 | *(inherits)* | pending |
+| WP | Repo | Scope | Expected Files | Size | Wave | Depends on | Review | Verify | Status |
+|----|------|-------|----------------|------|------|------------|--------|--------|--------|
+| [WP 1] | `.` | [Covers C-001, S-001] | `path/to/file` | [S/M/L] | 1 | — | [self/light/panel] | [scoped/full] | pending |
+| [WP 2] | `.` | [Covers C-002] | `path/to/other` | [S/M/L] | 1 | — | [self/light/panel] | [scoped/full] | pending |
+| [WP 3] | `.` | [Covers S-002] | `path/to/third` | [S/M/L] | 2* | WP 1, WP 2 | panel | — | pending *(rollup — computed)* |
+| [WP 3.1] | *(inherits)* | [Covers S-002] | `path/to/third_a` | [S/M/L] | 2 | *(inherits WP 3's)* | *(inherits)* | — | pending |
+| [WP 3.2] | *(inherits)* | [Covers S-002] | `path/to/third_b` | [S/M/L] | 3 | WP 3.1 | *(inherits)* | — | pending |
 
 <!--
 Dotted IDs (WP 3.1, WP 3.2, ...) are sub-WPs: same table, same columns,
@@ -172,7 +182,12 @@ marked with a trailing `*`; reporting only — a parent row is never itself
 launched. A sub-WP's Depends-on and Repo, if absent, inherit the parent's
 — a sub-WP never names a different repo than its parent, since only leaf
 rows are branch- and worktree-eligible, so a cross-repo split belongs at
-WP grain, not sub-WP grain (C-302). Only leaf rows get a branch +
+WP grain, not sub-WP grain (C-302). `Verify` is not inherited and is n/a
+for sub-WPs: only feature-branch merges are gate sites (C-901). It is n/a
+on a coordinator-owned parent row too — write `—`: that merge always pays
+the full documented verification under trigger (i), which supersedes the
+cell (C-901).
+Only leaf rows get a branch +
 worktree — a parent with children is never itself branched. Genuine join
 work is an ordinary sibling row (e.g. a
 WP 3.3 depending on WP 3.1 and WP 3.2), not a 5th status. IDs are never
@@ -200,8 +215,9 @@ graph TD
 Delete at tier low (single WP).]
 
 **Merge order:** a valid topological order, serialized — [WP 1], [WP 2], [WP 3] — with
-the project's documented verification after each merge onto the feature
-branch.
+the scoped check after each merge onto the feature branch, and full
+verification on the documented triggers and overrides — hex-core
+references/protocol.md § Worktree work-package mechanics (C-901).
 
 **Parallelization justification:** [only when fewer parallel WPs than
 file-disjointness allows, or a sub-overhead WP stays isolated — one line
@@ -397,8 +413,17 @@ Folded: [YYYY-MM-DD] → path/to/spec file
 
 ---
 
-## Progress Log
+## Schedule log
 
-| Date | Update |
-|------|--------|
-| [Date] | [What was done] |
+<!--
+Append-only, one bullet per merge onto the feature branch, never edited or
+reordered. Entries are appended on first merge; the section ships without
+a pre-seeded table, created on first write. An absent section is a
+pre-adr_0010 run, never an error (C-912, C-915). Grammar, one line:
+
+- <ISO-8601 UTC> · merged <WP> @ <post-merge SHA> · verify <scoped | full(<trigger>)> [<elapsed>] · ready: <ids | —> · blocked: <id (<blocker>), … | —>
+
+The post-merge SHA is mandatory; `<elapsed>` is wall-clock and optional.
+Substance: hex-core references/protocol.md § Parallel-by-default
+decomposition (C-912).
+-->

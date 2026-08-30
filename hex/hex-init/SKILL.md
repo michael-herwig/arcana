@@ -92,6 +92,8 @@ propose adopting what exists via pointer before proposing anything new:
 
 - Is verification (build/test/lint) documented, or only discoverable by
   guessing?
+- Is a selective test command documented — one that runs the tests a
+  change affects, rather than the whole suite?
 - Are the project's commit and landing requirements documented — sign-off,
   signing, message convention, which suites are release-grade, which
   workflows gate a release? Checked-in files only; this item reads no
@@ -201,6 +203,19 @@ git-tracked conditions belong to the fold; the no-symlink, no-directory
 clause still binds — a dangling symlink reads as absent). This step only
 asks and records the answer, never restates them.
 
+**Selective test command.** A command found by the [selective-test
+item](references/audit.md#selective-test-command-documented) is proposed
+for adoption via pointer, with the matching block from
+[`references/audit.md`](references/audit.md#best-practice-blocks); that
+block pins the grammar of the two `hex.md › Pointers` rows this run
+records — where the selective test command is documented, and where the
+project's security-sensitive / hot-path convention is documented. Both are
+wizard questions inside the existing sequence, written under the same
+apply consent as the discussions row above. The second row is asked
+whether or not a selective command was found — its trigger is Step 1's
+rules question — and it names **where the convention is documented**,
+never a path list and never a judgment.
+
 **Commit and landing requirements.** A requirement found by the
 [commit-and-landing
 item](references/audit.md#commit-and-landing-requirements-documented) is
@@ -298,10 +313,15 @@ Write or update `.agents/memory/hex.md` per
 the other two sections:
 
 - **`hex.md › Pointers`** — a cache seeded from Step 1's findings: where
-  verification is documented, where spec/plan/ADR conventions live, the
-  doc and product-knowledge homes provisioned in Step 2, the discussions
-  home when one was resolved, key architectural rules, any
-  worktree-location deviation, and the constitution location (optional).
+  verification is documented, where the selective test command is
+  documented, where the project's security-sensitive / hot-path convention
+  is documented, where spec/plan/ADR conventions live, the doc and
+  product-knowledge homes provisioned in Step 2, the discussions home when
+  one was resolved, key architectural rules, any worktree-location
+  deviation, and the constitution location (optional). The sensitive-path
+  row is the named source the high-risk merge trigger reads; the
+  key-architectural-rules pointer beside it keeps its own job — naming the
+  rule files — and neither replaces the other.
   Pointers only, never copies — the product-knowledge pointer is how
   researchers and reviewers reach the product facts that live in project
   context.

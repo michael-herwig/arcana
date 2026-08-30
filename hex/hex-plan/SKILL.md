@@ -223,7 +223,9 @@ project rules), cached in the Pointers section of
 `.agents/memory/hex.md`
 ([`memory.md`](../hex-core/references/memory.md#the-three-sections)). "Verify"
 anywhere below means **run the project's documented verification**
-([`protocol.md`](../hex-core/references/protocol.md#verification)).
+([`protocol.md`](../hex-core/references/protocol.md#verification)) — the
+work-package table's `Verify` column is the exception: its cell grammar is
+the plan template's (C-905).
 
 ## The plan artifact
 
@@ -268,8 +270,9 @@ in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
   task, runnable by `/hex-execute` without further decomposition.
 - **Parallelization** — decomposed to maximize parallel execution
   ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)):
-  a work-package table (id, scope, expected files, size, wave, depends-on,
-  review — the `self | light | panel` budget — and status, initialized
+  a work-package table (id, repo, scope, expected files, size, wave,
+  depends-on, review and verify — the `self | light | panel` review budget
+  and the `scoped | full` merge-gate budget — and status, initialized
   `pending`), its Scope column citing the C-/S- IDs each WP covers, a
   wave-grouped mermaid `graph TD` as its visual index
   (the table stays canonical), the critical path, a "Shippable after wave:

@@ -35,6 +35,11 @@ last step, taking a review-approved branch from *the work is right* to *this
 is ready to merge* — verify, recompose, one gate, publish — and stopping at
 the merge, which stays yours.
 
+Inside `/hex-execute`, each work-package merge is gated by a **scoped
+check** — that package's own contract tests plus your build gate — with your
+full verification as a periodic backstop and at the final gate, so a long
+suite is paid a few times per run instead of once per merge.
+
 ## Members
 
 | Skill | What it does |

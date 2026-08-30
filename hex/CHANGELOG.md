@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-08-30
+
+### Added
+
+- A `Verify` column on the plan's work-package table (`scoped | full`) — plan-time, raise-only, for a work package whose merge deserves the full suite because it changes a default, a schema or a config value nothing textually references, which the merge-time risk predicate cannot see
+- A `- Reviewed: <sha>` Status-block anchor and delta-scoped review rounds — a round reads what changed since the last round, plus the files the previous round's findings named, instead of re-reading the whole branch every time. The anchor is range-validated before use and falls back to a full-branch review when it fails; one full pass at the converged gate stays mandatory and cannot be lowered
+- `## Schedule log` — an append-only plan section, one line per merge: time, work package, post-merge SHA, which gate ran and why, and the ready and blocked sets. It makes a ready-set that never widens visible as drift, and it makes a failed checkpoint bisectable. It replaces the plan template's never-written `## Progress Log`
+- A selective-test-command convention — a `/hex-init` audit item ("Selective test command documented?") plus two `hex.md › Pointers` homes: where that command is documented, and where the project's security-sensitive / hot-path convention lives. hex substitutes `{base}` and `{files}` textually and never rewrites the command into a tool's flag dialect
+- A stranded-work-package report at the end of a run: the failed work package first, then every package that never became eligible, each naming its direct blocker. `/hex-review` withholds the terminal Approve state — `done`, or `landing` for a federated plan — while a run ends with a non-empty stranded set
+
+### Changed
+
+- The per-merge gate: a work-package merge onto the feature branch now runs a scoped check — that package's own contract tests plus the project's cheapest documented gate proving the merged tree assembles — rather than the project's full documented verification. Full verification still runs on the documented triggers (a coordinator join; a checkpoint, which fires three merges after the last full run, on a cleared dependency level, or on a high-risk merge diff; and the final gate) and on the overrides (a `Verify: full` cell, or a degrade where no scoped check can be assembled). The final gate is unchanged and un-lowerable
+- The failure cascade no longer halts the wave: a failed work package is still marked `failed`, but the run continues while any package is eligible and escalates at the end with the stranded set. A failure caught at a checkpoint is bisected over the merges since the last full run — the schedule log's SHAs make that free — and the escalation names the culprit, not the window
+
+### Notes
+
+- Upgrading changes the merge gate with no edit to any plan. The per-plan escape hatch is one Status-block line: `- Verify-default: full` restores pre-adr_0010 merge gates — the project's full documented verification after every merge — for that plan, and individual `Verify` cells still override it.
+
 ## [0.3.0] - 2026-08-29
 
 ### Added

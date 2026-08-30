@@ -268,6 +268,135 @@ every other file links here.** Diff-scoped, bounded, tier-scaled.
   verification passes on the final state, and deferred findings are
   documented for handoff.
 
+### The last-reviewed anchor
+
+**One rule, two scopes, one of them persisted.**
+A review round reads `<last-reviewed>..HEAD`, where `<last-reviewed>` is the
+SHA the previous round **of the same scope** reviewed.
+
+- **WP scope** — inside a Review-Fix Loop in a WP worktree, the anchor is
+  the SHA round N−1 reviewed. It is held in the orchestrator's session state
+  and **is not persisted**, because it never outlives the ephemeral branch
+  it names and therefore cannot go stale.
+- **Branch scope** — across `/hex-review` invocations on the feature branch,
+  the anchor must survive the session and **is persisted** as one
+  Status-block line: `- Reviewed: <full 40-char SHA>`, following the
+  `Repos:` ledger's full-SHA precedent (C-324) for exactly the same reason —
+  a short SHA or a ref name is not a stable identity. **Placement:
+  immediately after `Next:` and *before* the `Repos:` ledger** — this line and
+  the optional `- Verify-default:` line alike, because the `Repos:` ledger is
+  multi-row and unbounded, so a line placed behind it has no stable position.
+- **One writer rule** — whoever completes a review pass over a diff whose
+  head is `<sha>` writes `Reviewed: <sha>`. It means precisely *"every
+  commit reachable from this SHA has been through at least one review
+  pass"* — nothing about verdicts, and nothing about whether findings
+  remain. A WP-scope round **never** writes the field. Absent field ⇒ never
+  reviewed ⇒ full-branch review.
+
+### Anchor validation
+
+**One predicate, fail-safe.** Before a persisted anchor
+is used, assert that it lies **inside the range this review is about**;
+reachability alone is not enough. **Validation runs in two steps, in this
+order:** the fallback baseline is resolved first — the PR's fetched base ref,
+else `main` — the anchor is validated against *that* value, and only a valid
+anchor then substitutes as the round's baseline. **Two tests, both required:**
+`git merge-base --is-ancestor <anchor> <HEAD>` **must pass** (the anchor is
+reachable), **and**
+`git merge-base --is-ancestor <anchor> <resolved-baseline>`
+**must fail** (the anchor is not already behind the baseline). The second
+test closes a fail-open hole the first cannot: a trunk SHA, or any common
+ancestor, is a perfectly good ancestor of HEAD, so a one-test check would
+accept it and review only `trunk..HEAD` **minus the feature-branch commits
+that precede it** — silently omitting reviewed-looking work nobody reviewed.
+An anchor **equal to the merge-base** fails the second test and is treated
+as valid-and-degenerate: its range is the whole branch, which is a full
+review anyway. On a miss of either test the anchor is invalid: **fall back
+to a full-branch review**, announce the fallback with its reason, and
+rewrite the anchor at the end. This is a degrade, never a halt — a redundant
+full review costs time, while a wrong-scope review silently reports on a
+diff it did not read. **A missing object is a miss, not a crash**: where the
+anchor SHA no longer resolves (garbage-collected after a rewrite), the
+command's failure is treated as a failed ancestry test. **This is the sole
+staleness predicate, and it is sufficient by construction** —
+`/hex-finalize`'s recomposition is explicitly not SHA-stable
+([`finalize.md`](finalize.md#re-entry)) and is explicit-invocation-only rather
+than gated on plan State, so a finalize run **will** invalidate a stored
+anchor with no signal in the plan; a rebase, a reset and a force-push all
+manifest identically as a failed reachability test, and an out-of-range
+anchor as a failed range test, so enumerating causes separately would add
+predicates that can disagree. The `backup/<branch>-…` ref is a
+**diagnostic, never a second predicate**: an *inert* ref for this branch
+explains *why* the ancestry test failed and is named in the fallback
+announcement, while an *armed* ref already forbids acting on the branch at
+all under the shipped hex-state rule, so there is no interaction left to
+design.
+
+### Delta round scope
+
+**The mandatory full pass is what makes it safe.**
+Round N ≥ 2 reads **`<last-reviewed>..HEAD` plus finding-adjacent files** —
+the files named by the prior round's actionable findings, in full, even
+where the delta does not touch them, because a fix's correctness is judged
+against its surroundings. Round 1 reads the anchor's range where one is
+valid, the full diff otherwise — **except at tier `low`, where a valid anchor
+never narrows round 1**: the 1-round cap makes that single round the whole
+loop, so it reads the full scope and *is* the mandatory converged pass. **One
+full pass is mandatory at the converged gate** — after actionable findings
+reach zero and before the exit gate — **never delta-scoped, never skipped, not lowerable by any budget
+column.** It is a pass, not a second read: a converging round that already
+read the full scope **satisfies** it, and a further read is owed only where
+that round was delta-scoped. A `self` WP runs no loop and therefore has no
+WP-level converged gate at all — the mandatory branch-level `/hex-review` is
+its backstop, as the review budget above already states. **"Full" resolves per the two scopes above and is not the feature
+branch in both:** a **WP-scope** loop's converged pass reads
+**the WP branch's own full diff against its recorded base** — the scope that
+loop has reviewed all along — and a **branch-scope** pass reads the
+**whole feature branch**. Reading the feature branch at the end of every
+per-WP loop would re-review every already-merged WP once per subsequent WP,
+which is `O(N²)`. The pass absorbs the three miss classes delta
+scoping cannot: **review non-determinism on unchanged code**; **semantic
+conflicts** (two independently correct changes combining broken with zero
+textual overlap); and **collateral breakage through a shared symbol** — a
+fix that changes a signature, contract or invariant and breaks an
+*unchanged* caller, which is in neither the delta nor the finding-adjacent
+set, since that caller is neither touched nor named by the finding. The
+per-finding oscillation rule above is unchanged, and so is the round-N
+perspective-shrinking rule — **delta scoping shrinks the diff *in addition
+to*, never instead of, shrinking the perspective set**.
+
+### The diminishing-returns stop
+
+**A second exit condition, severity-aware.**
+Let `A(N)` be the count of **actionable findings graded `Block` or `High`**
+at the end of round N, after the per-finding auto-defer rule has been
+applied. Severity is orthogonal to the actionable/deferred class
+([Finding severity](#finding-severity)), so the stop names both axes or it
+counts a naming nit against a data-loss bug. `Warn` and `Suggest` are
+excluded: a round that converts one `Block` into three `Warn`s has
+converged, and a count blind to that would call it oscillation. **At tier
+low the severity ladder is not applied** and the tag is absent, so `A(N)`
+there counts all actionable findings — the same degrade every other
+severity consumer takes. **The stop fires when both hold:**
+`A(N) ≥ A(N−1)` for `N ≥ 2` — the `Block`/`High` count did not **strictly**
+shrink — **and** round N introduced **no new `Block` or `High`** that was
+not present in round N−1. The second clause is what keeps the stop from
+firing on genuine progress: a round that surfaces a *new* serious defect is
+doing its job, and stopping there would escalate a loop that had just found
+something. When it fires the loop **stops and escalates to the user with the
+outstanding list**, byte-for-byte the terminal behaviour hitting the loop
+cap already produces — no new escalation path, no new message shape. The
+strictly-decreasing expectation was derived from the constant-input case,
+where every round re-read the *same* full diff; under delta scoping the
+input shrinks too, so part of any observed decrease is an artifact of the
+scope, and the rule is an **expectation, not a law**. It ships anyway
+because its failure direction is benign: a scope-artifact decrease makes the
+stop fire **late** — the loop runs to its cap, which is the pre-existing
+behaviour — never early, and the severity floor biases it later still.
+`A(N) = 0` is the **exit gate**, not this stop; the stop can only fire
+**earlier** than the loop cap and never raises it, and the
+`hex.md › Preferences` `loop rounds` ceiling is untouched.
+
 ## Worker coordination
 
 The orchestrator decomposes work, dispatches workers using the
@@ -396,6 +525,91 @@ the exception, not the default shape:
   escalates to the next budget and its review re-runs at that breadth
   before the merge — a plan-time estimate never caps review of what was
   actually built.
+- **Every WP declares its merge-verification budget at planning time.** The
+  Parallelization table's `Verify` column holds `scoped | full` and sits
+  **immediately after `Review`** — the two budget columns adjacent so the
+  family reads as one, the positional discipline C-302 applied in fixing
+  `Repo` at the second position. A **budget column** scales one axis of per-WP
+  effort away from the shipped default **in exactly one direction, fixed per
+  column**, and the direction is chosen so the *unsafe* direction is
+  unreachable: a column whose baseline is the maximum may only lower
+  (`Review`, against the tier's panel baseline); a column whose baseline is
+  the minimum may only raise. `Verify` is **raise-only** — there is
+  deliberately no value below `scoped`, because a merge check with neither
+  contract tests nor an assembly proof is not a check. It sets the WP's
+  **merge gate** ([Verification](#verification)) and nothing else: `full`
+  runs the project's full documented verification after this WP's merge and
+  **resets the checkpoint counter like any other full run**; `scoped` is the
+  default and is written only for readability. A missing column or cell means
+  the plan's `Verify-default:`, else `scoped`.
+  **Assignment is plan-time and justified in one line when used** —
+  `full` declares author judgment the merge-time high-risk predicate cannot
+  see: a WP that changes a default, a schema, or a config value nothing
+  textually references. **One plan-level escape, so reverting the policy is
+  one edit rather than N cells:** an optional Status-block line
+  `- Verify-default: full` sets the default every empty `Verify` cell
+  inherits; individual cells still override it, and absence means `scoped`.
+  Both columns and the default line are **plan-artifact fields, not config** —
+  `config.md`'s frozen key vocabulary is untouched.
+- **The schedule log — one append-only plan section, one entry per merge.**
+  The plan carries a `## Schedule log` section (the plan template's, which
+  replaces its `## Progress Log`): append-only, one bullet per merge, never
+  edited or reordered. Grammar, one line:
+  `- <ISO-8601 UTC> · merged <WP> @ <post-merge SHA> · verify <scoped | full(<trigger>)> [<elapsed>] · ready: <ids | —> · blocked: <id (<blocker>), … | —>`,
+  where `<trigger>` is one of `join`, `counter`, `level-clear`, `high-risk`,
+  `column`, `degrade`. **Coincident triggers write one entry**, tagged with
+  the first matching token in that order — the same reason firing on any
+  trigger costs one full run, not two ([Checkpoints](#checkpoints)).
+  **The post-merge SHA is mandatory** — it is what makes
+  the post-merge-failure playbook's bisection free
+  ([Worktree work-package mechanics](#worktree-work-package-mechanics)), and
+  recording it costs the `git rev-parse HEAD` the merge already implies. It
+  is the feature-branch tip **after the merge and after any fix pass** — the
+  state the check actually passed against — so a bisection probe never
+  convicts a WP whose merge was already repaired.
+  **Capture is deliberately cheap and best-effort:** the orchestrator brackets
+  each merge-plus-check with `date -u +%FT%TZ` and `<elapsed>` is the
+  difference — **wall-clock only, never CPU, never a benchmark** — and it is
+  **optional**: a step that lost its start stamp writes the entry without it
+  rather than omitting the entry or inventing a number. Nothing gates on
+  `<elapsed>`. **It lives in the plan, not in a state file**: the plan is
+  already the WP-level state of record and is already mutated per merge by the
+  Status column, so this is the existing writer touching the existing
+  artifact, and being committed is a feature — the drift evidence lands in the
+  PR and survives the session. The five facts are one line on purpose:
+  `ready:` and `blocked:` make a wave barrier visible as drift, and `verify`
+  and `<elapsed>` make the full-run count and phase attribution mechanically
+  checkable from the artifact rather than from a transcript. Bounded by
+  construction: entries = feature-branch merges, and dotted sub-WP rows
+  produce none. **It replaces the plan template's `## Progress Log`** — a
+  free-prose `Date | Update` table no contract has ever written to or read;
+  two logs of the same events, one structured and one not, is the drift the
+  sole-definition rule exists to prevent, so the unwired one is **retired,
+  not kept alongside**. An absent section means a run that predates the log,
+  never an error, and a plan carrying a hand-written progress log keeps it
+  untouched.
+- **Failure cascade — a `failed` WP blocks its dependents without stopping
+  the run.** Dispatch needs no new mechanism: the ready-set rule already makes
+  a WP eligible only when every `Depends-on` is `merged`, so a dependent of a
+  `failed` WP simply never becomes eligible, and independent siblings keep
+  flowing. `failed` also counts as level-cleared for the checkpoint trigger,
+  and only there ([Checkpoints](#checkpoints)). **Strandedness is derived,
+  never stored.** The four statuses
+  (`pending | active | merged | failed`) are unchanged and no fifth is added;
+  a stranded WP is `pending`, which is already true and already correct. The
+  stranded set is computed **once, eagerly, in a single pass over the plan
+  table's own static `Depends-on` edges**, at report time — the direct fix for
+  the bug class every DAG runner that materialized an `upstream_failed` state
+  per node has shipped, and it leaves the parent rollup rule untouched, which
+  a fifth status would have broken. **Report shape:** the failed WP(s) named
+  first, then one line per stranded WP naming its **direct** blocker —
+  `WP7 — blocked by WP4 (stranded) ← WP2 (failed)` — plus what did complete,
+  read from the plan's existing `Shippable after wave` line. **Terminal
+  rule:** a run that ends with a non-empty stranded set **never presents a
+  green final gate as plan completion** and
+  **never reaches the plan's terminal review state — `done`, or `landing`
+  for a plan carrying a `Repo` column** — `/hex-review` remains the sole
+  writer of that state and gains this one precondition.
 - **The counterweight: no WP below its own overhead.** Every WP pays a
   fixed cost — worktree, stub/specify/implement spawns, review, merge,
   verification. A WP whose whole scope is a single trivial concern (~≤50
@@ -539,8 +753,48 @@ Every plan integrates through **one feature branch**; each **work package
 - **Merge back onto the feature branch, serialized, in a valid topological
   order** — one WP at a time, never a batch: each merge changes the base
   under the next.
-  Run the project's documented verification **after every merge** —
-  cross-file interactions surface only post-merge.
+  **The merge gate is a scoped check** —
+  after each WP merge onto the feature branch, run the
+  [scoped check](#scoped-check). The project's **full** documented
+  verification runs on **three policy triggers** and **two override paths**:
+  - **(i)** the merge of a **coordinator-owned WP**, which pays a full
+    post-merge verification rather than a scoped check — the `join` trigger,
+    and the one place a merge's gate is decided by *who owns the WP* rather
+    than by a counter.
+  - **(ii)** a [checkpoint](#checkpoints).
+  - **(iii)** the **final gate** — the Review-Fix Loop's exit gate and the
+    plan's terminal verification — **mandatory, un-lowerable, and reached by
+    every run that completes**.
+  - **(iv)** a `Verify: full` cell or a `Verify-default: full` Status line.
+  - **(v)** a **degrade** to full under the scoped check (no discoverable
+    assembly gate, no runner-addressable WP tests) or the selective-test
+    convention (shallow-clone pre-flight, or a selective command that
+    failed).
+
+  **The merge-triggered ones appear in the schedule log's `<trigger>`
+  vocabulary**
+  ([Parallel-by-default decomposition](#parallel-by-default-decomposition)),
+  (ii) contributing three of its own; **the final gate is not a merge and
+  produces no log entry**, so it appears in that vocabulary not at all.
+  Nothing else changes about merging: serialization, topological order, the
+  frozen base, merge-time file-set re-validation and `(Repo, path)`
+  disjointness are untouched. **The rationale the old rule carried is
+  preserved, not deleted** — cross-file interactions surface only post-merge,
+  which is precisely why (ii) exists and why its cadence is bounded rather
+  than left to the end of the run. **The Implement-phase verification is not
+  this gate and does not change**: the
+  [Review-Fix Loop](#the-review-fix-loop)'s phase 3 already reads "for changed
+  files", and the leaf-under-coordinator compile-only carve-out is unchanged.
+  **Sub-WP merges are not merge-gate sites at all** — a coordinator's dotted
+  sub-WPs merge into the coordinator's own **shared worktree**, never onto the
+  feature branch, so they run neither a scoped check nor a counter increment,
+  and they produce no log entry; the coordinator's own in-worktree join check
+  ([`workers/coordinator.md`](workers/coordinator.md), unchanged) stays the
+  coordinator's business.
+  **The parent WP's merge onto the feature branch is the one gate site the
+  subtree produces**, and trigger (i) makes it a full post-merge verification,
+  since the in-worktree join proves nothing about the feature branch it has
+  not yet merged into.
 - **Merge-time file-set re-validation** — before merging a WP, run
   `git diff --name-only <base>..<wp-branch>` (`<base>` is that WP's
   recorded base — the feature-branch tip it launched from, the frozen
@@ -553,10 +807,49 @@ Every plan integrates through **one feature branch**; each **work package
   or a failed post-merge verification, the orchestrator judges the
   collision semantically (a real design conflict versus a textual
   overlap), applies at most **one** fix pass on the feature branch, and
-  re-verifies. Still failing → halt the wave, mark the WP `failed` in
-  the plan's table, and escalate to the user with a state summary.
-  Never loop past the one pass, never force-push, never rebase a
-  published ephemeral branch.
+  re-verifies. Never loop past the one pass, never force-push, never rebase a
+  published ephemeral branch. What a still-failing state implicates depends on
+  which check failed:
+  - **A scoped-check failure implicates exactly the merge that just ran.**
+    Mark the WP `failed` in the plan's table — the long-standing behaviour,
+    unchanged.
+  - **A failure detected at a full documented verification gets the window
+    variant**, because a scoped merge gate leaves it implicating **any** merge
+    since the last full verification. Still failing after the one fix pass,
+    the orchestrator **bisects the window** — *when there is a window to
+    bisect*. The window is the ordered list of merges since the last full
+    verification, and **every one of them recorded its post-merge
+    feature-branch SHA in the plan's `## Schedule log`**
+    ([Parallel-by-default decomposition](#parallel-by-default-decomposition)),
+    so the bisection needs no new bookkeeping and no `git bisect` invocation:
+    check out an already-recorded intermediate SHA, run the same full
+    verification, and halve. **Cost is bounded at `⌈log₂ M⌉` extra full
+    runs — two, at `M = 3`.** With a known-good base and a known-bad tip, `M`
+    merges leave `M − 1` unknown SHAs to probe, so three candidates take two
+    probes in the worst case and one in the best. The culprit WP is named and
+    marked `failed`; the cascade rule below then governs what happens next,
+    and the escalation it carries names
+    **the culprit, not the window**.
+  - **Two cases have no window and therefore no bisection**, and both route to
+    the ordinary root-cause path the
+    [Review-Fix Loop](#the-review-fix-loop) already owns, rather than claiming
+    a localization this playbook cannot deliver: **(i)** an **empty window** —
+    the failing verification is the final gate and the last full verification
+    already covered the last merge, so nothing merged since; **(ii)** a
+    **post-review-fix failure**, where the change under suspicion is an edit
+    made on the feature branch rather than a merge, so it has no WP to
+    attribute and no recorded SHA to probe.
+  - **A third case has a window but does not localize**: a non-deterministic
+    or order-dependent failure that does not reproduce at an intermediate SHA.
+    That one is reported as *"failure did not bisect"* over the window, which
+    is itself the diagnosis. **No WP is marked `failed` on a non-bisecting
+    failure** — naming the last-merged one would be a guess the four-status
+    column then presents as fact.
+  - **A `failed` WP does not stop the run.** It is marked `failed` as before,
+    and **the run continues while any WP is eligible**, escalating **at the
+    end** rather than immediately; the state summary that escalation carries
+    becomes the
+    [stranded-WP report](#parallel-by-default-decomposition).
 - **Delete the ephemeral branch and remove the worktree after its WP
   merges.** The feature branch is what survives; landing it on the trunk
   is the human's step (their PR or merge flow) — hex never pushes, except
@@ -588,6 +881,21 @@ Every plan integrates through **one feature branch**; each **work package
   fifth status, no `.join` suffix. A parent with zero children (every old
   plan) rolls up to its own literal status — the rule is vacuous, old plans
   unchanged.
+
+**Presence checks, not a version field.** The plan's four newer fields — the
+`Verify` column, the `Verify-default:` Status line, the `Reviewed:` Status
+line, and the `## Schedule log` section — follow the dotted-ID rule above and
+the `Repo` column rule below: **no schema-version marker**, the presence of
+the field is the signal. Every reader branches on presence, never on a
+compared version number — absent `Verify` cell or column ⇒ the plan's
+`Verify-default:`, else `scoped`; absent `Verify-default:` ⇒ `scoped`; absent
+`Reviewed:` ⇒ never reviewed ⇒ a full-branch review; absent schedule log ⇒ a
+run that predates it. None of the four is an error, and **a plan without them
+is a permanently valid shape, not a migration backlog**: a markdown table has
+no storage or index cost, so nothing ever forces a cleanup pass. The day a
+plan-format change is *not* additive — a column renamed or removed, or the
+table restructured — is when a real version marker plus a migration step
+earns its keep.
 
 Ignore `.agents/worktrees/` specifically (transient checkouts); never
 ignore `.agents/` wholesale — `.agents/memory/hex.md` is shared
@@ -707,6 +1015,12 @@ consumption and re-detect on a miss). If none is documented, detect a
 reasonable command **once** for this run and suggest `/hex-init` to persist
 it — do not hardcode a command or re-guess it every phase.
 
+**Where the triggers live.** The merge-gate bullet under
+[Worktree work-package mechanics](#worktree-work-package-mechanics) carries the
+full **(i)–(v)** enumeration of when a gate runs this full documented
+verification rather than a [scoped check](#scoped-check); this section defines
+the checks those triggers name and does not restate the list.
+
 **Federation — a plan carrying a `Repo` column.** "The project's documented
 verification" means the **owning repo's**, read by an explicit `Read` of that
 repo's project context — never a cross-repo aggregate, because no single
@@ -721,6 +1035,151 @@ exact state that repo must be at and the command proving it, each reported
 pass/fail independently (an aggregate "integration green", a missing row, or
 running the command only in the lead does not satisfy it). There is no implicit
 federated verify gate.
+
+### Scoped check
+
+The gate a WP merge onto the feature branch pays — except a
+**coordinator-owned** WP's merge, which pays the project's full documented
+verification instead (trigger (i) of the merge rule,
+[Worktree work-package mechanics](#worktree-work-package-mechanics)).
+
+A scoped check is **two things, both required**: **(a)** the WP's **own
+contract tests** — the Specify-phase tests naming the `C-`/`S-` IDs in that
+WP's `Scope` cell; and **(b)** the project's
+**cheapest documented gate that proves the merged tree assembles** — its
+build, parse, or type check. Both run against the
+**post-merge feature branch**, never against the WP branch: the check exists
+to catch what merging changed.
+
+- **How (a) is invoked, and the one path-passing convention hex may use** —
+  run the project's documented verification **restricted to the WP's declared
+  test files**: the paths its Specify phase created, which the plan's
+  `Expected Files` already names, passed as trailing path arguments where the
+  runner accepts them (`pytest <paths>`, `go test <dirs>`,
+  `npx jest <paths>`). hex appends paths; it
+  **never rewrites the documented command, invents a flag, or maps a path to
+  a runner-specific selector**. A path's **containing directory** is the one
+  permitted derivation, for runners that take packages rather than files.
+- **Where the runner does not accept paths, or the WP's test files cannot be
+  resolved, (a) degrades to the full documented verification for that
+  merge** — the same degrade shape as (b).
+- **Where no build/parse gate can be discovered, (b) degrades to the full
+  documented verification for that merge** and the degrade is announced
+  once — a scoped check with no assembly proof is not a scoped check.
+- **Both degrades are logged as `full(degrade)`** in the schedule log
+  ([Parallel-by-default decomposition](#parallel-by-default-decomposition)),
+  so a run that silently stopped being scoped is visible in the artifact
+  rather than only in a suite bill.
+- **hex never invents either half.** This section's standing discovery rule
+  above binds unchanged.
+- **Scope: only merges onto the feature branch, and not every one of those.**
+  A coordinator's sub-WP merges land in the coordinator's shared worktree and
+  are **not** scoped-check sites at all; a coordinator-owned WP's own merge
+  onto the feature branch **is** a gate site, but pays the full verification
+  rather than this check.
+- **When a merge pays a full verification instead.** A `Verify: full` cell, or
+  the plan-level `- Verify-default: full` Status line every empty cell
+  inherits, replaces this check with the project's full documented
+  verification for that merge. Grammar, defaults and assignment live in
+  [Parallel-by-default decomposition](#parallel-by-default-decomposition), and
+  the counter such a run resets belongs to [Checkpoints](#checkpoints); this
+  section only consumes them.
+
+**The selective-test convention.** Where a project has a selective test
+runner, `/hex-init` records **one opaque shell-command template** in project
+context — Layer 1, because "how to verify" is project knowledge — with a
+`hex.md › Pointers` row to where it landed. hex substitutes **textually and
+never interprets**, and translates nothing into any tool's flag dialect.
+
+- **Two optional named placeholders, and no others:** `{base}` — one git ref,
+  resolved to the WP's recorded base; `{files}` — the WP's changed file list,
+  **shell-quoted**, space-separated. **A template may use zero, one, or
+  both.** Zero-placeholder templates are **valid and expected** —
+  `pytest --testmon` and a warm-cache `go test ./...` are stateful and
+  self-scoping, and hex knows of no way to parameterize them; zero
+  placeholders means "this command manages its own scope; just run it".
+- **Where the project documents such a command, it is run *in addition to*
+  the two-part floor above, never instead of it** — the floor is a floor. A
+  selective runner widens what a merge check catches (it reaches tests the
+  WP's own contract tests do not name); it cannot certify that the WP's own
+  contracts still hold, which is the one thing (a) exists to prove. Where a
+  stateful zero-placeholder tool (`pytest --testmon`) re-runs some of the same
+  tests, **the redundancy is accepted and cheap** — that tool selects on its
+  own dependency data and skips what it can, so the overlap costs near nothing
+  and is not worth a rule to avoid.
+- **Two fallbacks to the project's full documented verification, one before
+  and one after — and neither is conditioned on a claim about the tool.**
+  - **(a) Pre-flight, and only where the template asks for a ref:** where the
+    template references `{base}` and either
+    `git rev-parse --is-shallow-repository` is true or the merge-base does not
+    resolve, run the full command instead — hex cannot hand a ref it does not
+    have, so this is a substitution failure, not a judgment about the runner.
+  - **(b) Post-failure:** where the selective command
+    **exits non-zero for a reason other than a failing test**, or reports that
+    it resolved **no baseline / no affected targets it could trust**, run the
+    full command.
+
+  Reacting to an actual failure needs no flag asserting that a runner
+  self-degrades, and no per-tool knowledge.
+- **Trust class:** the template is
+  **[authoritative-class](finalize.md#trust-classes) only** (C-815) —
+  project context or `hex.md › Pointers`, never `CONTRIBUTING.md`, a PR body,
+  a commit message, or any other narrowing- or untrusted-class surface,
+  because it selects what code runs.
+
+### Checkpoints
+
+A **checkpoint** is a full documented verification run after a merge. It
+fires when **any** of three conditions holds, whichever comes first:
+
+1. **`M = 3` merges have completed since the last full verification of any
+   kind** — a coordinator join resets the counter exactly as a checkpoint
+   does, so a join-dense plan never double-pays.
+2. **The merge just completed cleared a dependency level** — every WP in the
+   level that was the shallowest unfinished one before this merge now has
+   Status `merged` **or `failed`**. `failed` counts as cleared for this
+   trigger and **only** for this trigger: a failed WP never reaches `merged`,
+   so the level would otherwise be permanently unclearable, silently killing
+   this trigger for the rest of the run
+   ([the failure cascade](#parallel-by-default-decomposition)).
+3. **The merge just completed was high-risk** — the predicate below.
+
+**"Dependency level" deliberately avoids the word *wave*** — a wave is a
+plan-time reporting assignment and never gates launch
+([Parallel-by-default decomposition](#parallel-by-default-decomposition)). A
+level-shaped *checkpoint* trigger is defensible only because it gates a
+**check**, never a **launch**: nothing waits for it, and the ready-set is
+untouched.
+
+**Firing on any trigger resets the counter**, so coincident triggers cost one
+full run, not two. **`M = 3` is shipped text, not a knob** — `config.md`
+gains no key for it.
+
+**High-risk is evaluated at merge time against the WP's actual merge diff** —
+the file list `git diff --name-only <base>..<wp-branch>` already produces for
+[merge-time file-set re-validation](#worktree-work-package-mechanics), so this
+adds no command — and holds when that list contains **either**
+
+1. a path the project documents as security-sensitive or hot-path, **or**
+2. a **`(Repo, path)` pair** that appears in **any other WP's**
+   `Expected Files` anywhere in the plan — a file two WPs touch across levels
+   is a hub, and hubs are where merge-order-dependent breakage lives.
+
+**The key is `(Repo, path)`, not the bare path, for the same reason the
+parallelism check uses it** (C-316): satellites routinely declare textually
+identical repo-relative paths (`Cargo.toml`, `src/**`) that are disjoint
+across repos, and a bare-path comparison would mark half a federated plan
+high-risk and run the full suite on every merge. With no `Repo` column every
+pair is `(., p)` and the test is byte-identical to a path comparison. The
+run-count arithmetic is therefore **per repo**, as verification itself already
+is (C-321).
+
+**The high-risk clause 1's source is the `hex.md › Pointers` row `/hex-init`
+records, and until that row exists clause 1 is vacuous.** It is **not** inherited from the
+review-budget heuristic, which names those words but cites no source for them.
+
+**The degenerate case is stated: if every merge fires a trigger, the run
+performs exactly today's behaviour** — correct, merely not faster.
 
 ## Constitution gate
 

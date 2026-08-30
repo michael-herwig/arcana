@@ -34,6 +34,148 @@ preferences, not copies. Team-shared — commit it.
 
 ## Memory
 
+- **Plan done (no active plan):** `plans/plan_adr_0010_execution_performance.md`
+  (State: **done**, tier high, executed 2026-08-30, **Approved round 3
+  2026-08-31**, archived in place; fold target: none — no `## Spec
+  Deltas` block) — implements
+  adr_0010 (Accepted). Branch `hex/adr-0010-execution-performance`, tip
+  `4415839`, base `6d8bba0`; all 6 WPs merged in order (285711b WP1
+  protocol.md +460/−6 · 783e61d WP2 plan template/hex-plan · 04f8268 WP3
+  execute+review qualifiers · 6b99067 WP4 audit item · d6da0f7 WP5
+  DESIGN round 12 + ADR errata · 99297e0 WP6 0.4.0 release; ripple
+  b13a2a8; adversary fix pass bd736d2). Full TDD cycle per WP
+  (stub → verify-arch → worktree-local checklist → implement → budget
+  review); WP1 panel Block traced to the ADR itself ("the run halts"
+  contradicted C-913(b), 2 sites → erratum rows); 11 ADR erratum rows
+  total; pinned Worktrees erratum-pointer re-pinned twice (v3 final).
+  Codex adversary post-merge: 6 findings, 5 fixed in bd736d2 (landing
+  guard both sites, trigger-list findability ¶ in § Verification
+  preamble, tier-low anchored case + erratum, two-step anchor-validation
+  order, ADR C-905 cell), 1 deferred (converged-pass paid-vs-owed not
+  persisted). Deferred docket for review/owner: C-910 continuing-loop
+  discriminator unevaluable; level-clear trigger dies after
+  failure-with-dependents; checklist-style plans pay `full(degrade)`
+  every merge (this plan's own class); memory.md Example lacks the two
+  new pointer kinds; T5 checklist wording; glossary hybrid-row split;
+  column-order reconstructability. Run executed under pre-adr_0010
+  policy throughout (full grim build per merge — the plan's stated
+  caveat). Dogfood docket + `.claude/skills` hex-* refresh chore still
+  Michael's.
+  **/hex-review round 1 (2026-08-30, tier medium artifact target,
+  breadth=full + codex plan-artifact): Needs Work.** Convergence 27/29 —
+  C-907 partial (protocol.md:286-289 ships the line-budget rationale
+  erratum :1114 retracted, false vs template's file-scoped 20-line
+  invariant) + C-916 partial (two hex-review write-set enumerations
+  missing `Reviewed:` parity) → WP7 row appended, plan back to
+  `executing`. 2 High (the C-907 rationale; codex: dogfood "Full-run
+  count" equation double-counts coincident triggers — RHS structural
+  counts not disjoint under the one-entry-first-token rule; shares root
+  with the unbacked C-912 disambiguations), 6 Warn (CHANGELOG:22 outside
+  ADR allowed-set; hex-execute/SKILL.md:508 fourth column-enumeration
+  site w/o Verify; ADR/plan line-pins self-drifted → phrase anchors;
+  tier-high/-medium "runs after every merge" base clause contradicts its
+  own qualifier; template coordinator-parent Verify cell inert under
+  trigger (i) — codex-confirmed; changelog silent on stranded-set
+  approve-block), 5 Suggest actionable. All mechanical gates green
+  (5 builds, dry-run, 13/13 anchors, round-12 byte-fidelity ×3 checks,
+  DESIGN 5-hit prediction exact). Deferred: 12/19 contracts have no
+  static check — dogfood run is the real release gate (owner call);
+  C-902 example latitude; C-912 disambiguation erratum.
+  **WP7 fix pass executed 2026-08-30 (`5e94bc8`, single Opus builder +
+  light review PASS, one fix round):** all 14 docket items + item-5
+  amendment (C-916 site-table pins) + 4 light-review follow-ups applied —
+  both Highs closed (protocol.md placement rationale ordering-only;
+  dogfood check 2 re-derived tag-partitioned, `≤` bounds + coverage
+  half), `layer-clear`→`level-clear`, trigger-links retargeted to
+  `#worktree-work-package-mechanics`, line-pins → phrase anchors both
+  sides, 6 new ADR erratum rows. Convergence partials C-907/C-916
+  closed; builds + dry-run green; round-12 fidelity intact.
+  **/hex-review round 2 (2026-08-30, delta scope 1d529ec..c44ee8d,
+  breadth=minimal fix-verification + codex delta): Needs Work.** All 18
+  round-1 closures verified item-by-item, **Converged** (C-907/C-916
+  delivered), gates green, sweep reconciles 9+2 hits exactly. 5
+  actionable one-liners remain (1 Warn fix-pass-introduced: erratum
+  `degrade =`→`≤`; 2 Warn in pre-existing WP5 erratum rows: "links
+  C-912 rather than re-listing" imprecise — the merge-gate text defers,
+  the C-912 home lists; stale `plan.md:203` pin now a mermaid node; 2
+  plan-side: site-table pre-amendment-pins sentence, allowed-set parity
+  WP5-checklist vs final-sweep). Deferred: check-2 opportunity-ceiling
+  counting rule (write it FROM the dogfood run's evidence, not cold);
+  hex.md layer-clear historical descriptor. Codex round-2 value: caught
+  both pre-existing erratum-row inaccuracies; its 5th finding
+  self-corrected (wrap-split example is DESIGN 849-850). Process note
+  (2nd occurrence, adr_0009 precedent): one-line Warns force full
+  review invocations — severity floor for fix-verification rounds
+  still a design candidate. Plan back to `executing`.
+  **Round-2 fix pass applied 2026-08-30 (inline, FX4 precedent):** all 5
+  one-liners landed (ADR erratum-row `=`→`≤`, merge-gate narrowing,
+  Merge-order phrase pin, site-table pre-`adr_0010` intro, WP5-checklist
+  parity); no shipped file touched.
+  **Round 3 (2026-08-31): Approve** — verify-only inline (5/5 closures
+  grep-verified, delta docs-only, convergence stands from round 2, no
+  shipped byte since last green gates). State: done, Next cleared,
+  archived in place, Fold-Back not performed (no Spec Deltas block).
+  Next (Michael's): land `hex/adr-0010-execution-performance` (tip
+  `f31cbd1` + this terminal-state commit), dogfood docket (5 ADR
+  checks incl. writing check-2's opportunity-ceiling rule from run
+  evidence + forced anchor-fail-safe + slow-run attribution),
+  `.claude/skills` hex-* refresh chore, 0.4.0 publish.
+- **adr_0010 ACCEPTED (Michael, 2026-08-30, at the /hex-plan gate — tier
+  high, fast path from the ratified exec-performance dossier)**
+  (`adrs/adr_0010_execution_performance.md`, 1076 lines, ADR only — owner
+  dropped system-design at the gate; research=3 kept at tier baseline).
+  Claims **C-901–C-919 / S-901–S-910 — next ADR takes C-10xx.** Scoped
+  per-WP verification (WP contract tests via path-append convention +
+  build gate; selective command augments, never replaces), full verify =
+  three policy triggers (coordinator-owned-WP merge · dual-trigger
+  checkpoint M=3/level-clear/high-risk-(Repo,path) · final gate) + two
+  override paths (`Verify: full` cell, degrades); checkpoint failure
+  auto-bisects over schedule-log SHAs (⌈log₂ M⌉ bound, non-empty
+  attributed windows only); delta review rounds anchored `Reviewed:`
+  (valid iff reachable-from-HEAD AND not-reachable-from-base — fail-open
+  closed), full pass per C-907 scope at converged gate; C-911 oscillation
+  stop (Block/High-floored, declared departure 4); failure cascade =
+  derived strandedness, no fifth status; `Verify` column + presence-check
+  compat (no schema version); DESIGN round-12 text drafted in-ADR incl.
+  the live Plan-visualization column-lock amendment. Pipeline: explorer +
+  3 axis researchers (`research/adr0010-{compat,operability,tooling}.md`,
+  expire 2027-02-28) → Opus architect → panel (spec+adversarial-quality
+  Opus + gap-check): 3 Block/13 High/14 Warn all fixed in 2 passes →
+  codex adversary: 1 Block/4 High/2 Warn all real, all fixed (join-log
+  equation, bisect bound 2-not-1, anchor fail-open, federated Status
+  placement) → final spec validation PASS. Key learned: layer-clear
+  trigger makes linear plans save 0% (plan shape is the second governing
+  sensitivity); R=2 review loops are a net loss (win is cross-invocation
+  only, D-1); C-306 merge-parallelism lever is federation-scoped and
+  left unspent. 3 markers carried (slow-run phase attribution → dogfood;
+  M cadence tuning; C-903 clause-1 vacuous until the C-917 Pointers row
+  exists). Deferred: D-2 dependents' tests not run at merge (residual up
+  to M−1 merges), flaky-failure single-rerun → future correctness-policy
+  ADR, Review-column C-ID debt noted. Next (Michael's): accept adr_0010,
+  then `/hex-plan "adr_0010 execution performance, per
+  adrs/adr_0010_execution_performance.md"`.
+- **Discussion drained 2026-08-30: "hex execution performance" → architect**
+  (`discussions/hex-execution-performance.md`, `Ratified: 2026-08-30 →
+  architect`). Mandate: adr_0010 (claims C-9xx) — scoped per-WP
+  verification (WP contract tests + build per merge; full suite only at
+  coordinator joins + periodic checkpoints + final gate;
+  project-documented selective-test command as /hex-init convention),
+  delta-scoped review-fix rounds (last-reviewed-SHA anchor in the plan
+  Status block, full branch once at the converged gate), ready-set
+  compliance hardening (recompute + log ready-set per merge — contract
+  already ready-set, observed behavior waves), failure cascade =
+  dependents block / siblings flow / stranded list, nesting capped at
+  the existing depth-1 coordinators (flat table + computed rollups is a
+  hard requirement; recursion ≥2 rejected by unanimous 3-seat blind
+  council). Key evidence: no surveyed SDD tool runs the full suite per
+  task; selective testing always pairs with a full-run backstop
+  (TAP/Meta/Chromium); Cursor Bugbot reviews incremental-by-default and
+  caps nesting at one level. 10 research artifacts
+  `research/discuss-exec-perf-*.md` (expire 2027-02-28). 4 open markers
+  carried (slow-run phase attribution — check installed-copy drift in
+  the bigger repos first; checkpoint cadence M; ready-set logging
+  shape; oscillation stop). ADR fast path: medium tier floor.
+  Next: `/hex-architect .agents/discussions/hex-execution-performance.md`.
 - **Plan done (no active plan):** `plans/plan_hex_discuss_ux_rework.md`
   (State: **done**, tier medium, archived in place 2026-08-30; fold
   target: none — no `## Spec Deltas` block) — **executed + reviewed to
