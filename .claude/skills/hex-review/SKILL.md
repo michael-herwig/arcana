@@ -501,7 +501,8 @@ proceed question may follow it.
 
 ### Next step
     /hex-execute <plan path> "apply review findings"    <!-- actionable findings exist -->
-    (none — approved)                                    <!-- clean verdict -->
+    /hex-finalize                                       <!-- clean Approve, branch or PR target -->
+    (none — approved)                                   <!-- clean verdict, plan-artifact or working-tree target -->
 ```
 
 Consumers: `/hex-execute` (actionable findings, the Review-Fix Loop); the

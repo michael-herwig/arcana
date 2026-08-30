@@ -28,6 +28,7 @@ is no orchestration flow here and no `$ARGUMENTS`. The orchestrator skills
 | [`references/memory.md`](references/memory.md) | The `.agents/memory/hex.md` memory spec: the three sections and their per-section ownership, resolution order, a complete example file, plus the editing, destination-choice, and staleness rules. |
 | [`references/config.md`](references/config.md) | The `hex.md › Preferences` config vocabulary — keys, defaults, merge rules. **Conditional-load** — read only when `hex.md › Preferences` contains a fenced `yaml` block. |
 | [`references/archive.md`](references/archive.md) | The spec fold-back mechanics — delta grammar, destination resolution, the safety envelope and its four commands, halt semantics, idempotence and the fold receipt, revert, and the plan archive. Sole definition site; `hex-execute`, `hex-review`, and `protocol.md` link here. **Conditional-load** — read only when the plan under review carries a `## Spec Deltas` block. |
+| [`references/finalize.md`](references/finalize.md) | The remote-rights boundary — the act set and its branch scoping, the consent model, the literal force-push form, the backup-ref armed/inert lifecycle, remote verification and its ceilings, re-entry, the degrade ladder, the trust classes, the pre-flight halt texts, and the placeholder-substitution rule. Sole definition site; every bundle-wide remote-rights qualifier links here. **Conditional-load** — read only when finalizing a branch or resolving a remote-rights qualifier. |
 
 ## How sibling skills reference this
 
@@ -44,5 +45,6 @@ If `hex-core` is not installed, add it:
 grim add ghcr.io/michael-herwig/arcana/hex-core:latest
 ```
 
-Cross-skill mentions elsewhere use the command form: `/hex-plan`,
-`/hex-execute`, `/hex-review`, `/hex-architect`, `/hex-init`.
+Cross-skill mentions elsewhere use the command form: `/hex-init`,
+`/hex-discuss`, `/hex-plan`, `/hex-execute`, `/hex-review`,
+`/hex-architect`, `/hex-finalize`.

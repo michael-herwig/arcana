@@ -53,15 +53,22 @@ Exactly **one** approval point, before any work starts. The orchestrator
 never asks mid-flow questions — ambiguity is resolved here or by a
 documented default, never by interrupting a running swarm. **This
 single-gate rule scopes to the four orchestrators** (`hex-plan`,
-`hex-execute`, `hex-review`, `hex-architect`); two skills are exempt,
+`hex-execute`, `hex-review`, `hex-architect`); three skills are exempt,
 each named here with its own stated ground and no criterion to
 interpret — `/hex-init`, a configuration wizard, not an orchestrator,
-which spawns nothing; and `hex-discuss`, which keeps exactly one
+which spawns nothing; `hex-discuss`, which keeps exactly one
 approval gate, positioned at the drain, with workers that are read-only,
 capped by its own contract (C-706), and never on the critical path, so
-there is no swarm to strand. The list is closed — a skill not named here
-is not exempt, whether or not it spawns workers, and a third member is
-added by amending this sentence, never by analogy.
+there is no swarm to strand; and `/hex-finalize`, whose single approval
+gate is positioned at the local/remote boundary on every degrade rung,
+because the concrete commit plan it must disclose does not exist until
+the rewrite is computed, and everything before that gate is local apart
+from one read-only fetch and a credential probe, mutates nothing on any
+remote, spawns nothing, and is undone from the backup ref — so there is
+no swarm to strand and nothing on any remote has changed (see
+[`finalize.md`](finalize.md#consent-model)). The list is closed — a skill
+not named here is not exempt, whether or not it spawns workers, and a
+fourth member is added by amending this sentence, never by analogy.
 
 The gate announces the fully resolved config, each item attributed to its
 source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`):
@@ -491,6 +498,17 @@ shipped behavior is a contract defect). No producer defines a fifth level.
 Nothing to report → no findings lines, just the verdict — the same
 byte-identical-when-clean rule as the Convergence contract.
 
+## Untrusted-text echoes
+
+Every echo of text controlled by anyone other than the invoking human — a
+dossier's controlled text, a narrowing- or untrusted-class surface, whatever
+a consumer's own trust classes name it — **is quoted and length-bounded**, in
+a message or in an authored file alike: interpolated quoted, truncated with
+`…` past 120 characters, and never allowed to break its own line. **This is
+the only copy in the bundle — `hex-architect`, `finalize.md`, and any later
+consumer link here, never restate it.** Which of its own surfaces carry that
+property is each consumer's definition; this section fixes the echo alone.
+
 ## Worktree work-package mechanics
 
 Every plan integrates through **one feature branch**; each **work package
@@ -541,7 +559,10 @@ Every plan integrates through **one feature branch**; each **work package
   published ephemeral branch.
 - **Delete the ephemeral branch and remove the worktree after its WP
   merges.** The feature branch is what survives; landing it on the trunk
-  is the human's step (their PR or merge flow) — hex never pushes.
+  is the human's step (their PR or merge flow) — hex never pushes, except
+  `/hex-finalize`'s force-push of the one feature branch it was invoked
+  on, consented by that invocation and approved at its gate — see
+  [`finalize.md`](finalize.md#scope).
 - **The plan table's Status column is the WP-level state of record**
   (`pending | active | merged | failed`): execution sets `active` when a
   WP's worktree is created, `merged` after its merge, `failed` per the
@@ -848,7 +869,10 @@ the **only** upkeep writes that leave the lead repo: for a plan in `landing`,
 it offers to confirm each `Repos:`-ledger row from locally verifiable evidence
 only — `git -C <repo> merge-base --is-ancestor hex/<plan-slug> <trunk>` (the
 feature branch is contained in that repo's **local** trunk; hex never fetches
-and never infers landing from anything weaker) — advancing the plan to `done`
+— except `/hex-finalize`'s single pre-flight fetch of the branch it finalizes
+and its target, which pins the force-push lease and never informs a landing
+claim (see [`finalize.md`](finalize.md#scope)) — and never infers landing from
+anything weaker) — advancing the plan to `done`
 only when **every** row is confirmed landed (C-324); a row's `landed` flag may
 **also** be set by an explicit human override (C-324), not only by this
 mechanical `--is-ancestor` check, so a satellite permanently unreachable from

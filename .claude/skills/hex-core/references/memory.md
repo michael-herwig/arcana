@@ -76,11 +76,16 @@ presence, unconditionally, for `/hex-plan`, `/hex-execute`, `/hex-review`
 and `/hex-architect` — a satellite mid-federated-change must not
 accumulate a second, competing active plan, and telling "related" from
 "unrelated" local work is the judgement call that produced this split
-brain in the first place. The four are the halt's whole subject: a hex
-skill that is not an orchestrator — one that resolves no plan and writes
-no plan or federation state — sits **outside** the halt rather than
-exempt from it; today that is `hex-discuss`, whose memory writes are
-limited to the post-gate discussion hand-off record and index rows (C-708). Those
+brain in the first place. **`/hex-finalize` is inside the halt too** —
+the first non-orchestrator to be — on its own ground: it resolves no
+plan, but it rewrites and force-pushes a branch that may be a row in a
+lead's `Repos:` ledger, so the plan-state test is not what governs it
+(C-824). A hex skill that is not an orchestrator — one that resolves no
+plan, writes no plan or federation state, **and performs no act on a git
+remote or forge** (the act set `finalize.md` enumerates) — sits
+**outside** the halt rather than exempt from it; today that is
+`hex-discuss`, whose memory writes are limited to the post-gate
+discussion hand-off record and index rows (C-708). Those
 writes land in whatever memory file the ordinary upward search resolves —
 in a satellite, that repo's own — and are **advisory**: no federated run
 reads a satellite's `hex.md` (§ Destination of knowledge › "One `hex.md`,
@@ -94,6 +99,28 @@ relaunch from the lead, or delete the bullet. **Halt, never degrade** — a
 satellite with *no* memory file is the benign case: upward search finds
 nothing, the run falls back to shipped defaults with no active-plan
 pointer, so it stops and asks for a target. Visible, not silent.
+
+**`/hex-finalize` prints its own `Fix:` (C-824).** The `Fix:` block above
+tells the reader to relaunch from the lead, and for finalize that is a
+wrong-repo action — re-running it there finalizes *the lead's* branch, not
+this one. Its halt prints instead:
+
+```
+Error: this repo is a federation satellite (key `mirror`) for active
+       plan(s) `acme-lib-v050`; /hex-finalize is single-repo, and this
+       branch may be a row in the lead's `Repos:` ledger.
+Fix:   finalize this branch by hand — the recomposition and the push are
+       yours until federated finalize exists. Keep a backup ref before
+       the rewrite and pin your own `--force-with-lease`. Do not re-run
+       from the lead; that finalizes the lead's own branch, not this one.
+```
+
+**Two residual limits, stated rather than implied.** The halt keys on the
+`Federation lead:` bullet, which a virgin satellite does not carry and which
+the second escape hatch permits deleting, so for finalize it is a heuristic,
+not a guarantee. And C-323's structural invariant reads the *plan*, which is
+already terminal and pointer-cleared by the time finalize runs, so it is
+unavailable here as a second check.
 
 **Removal lifecycle (C-313).** The bullet is a **lock on running hex
 locally in a satellite**, so it expires with the plan that justified it:

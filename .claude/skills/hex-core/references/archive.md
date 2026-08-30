@@ -472,7 +472,9 @@ uncommitted and both counts are printed.
 ## Revert
 
 hex-review never commits and hex never pushes (see
-[`protocol.md`](protocol.md)). Therefore (C-409):
+[`protocol.md`](protocol.md)), except `/hex-finalize`'s force-push of the one
+feature branch it was invoked on, consented by that invocation and approved at
+its gate — see [`finalize.md`](finalize.md#scope). Therefore (C-409):
 
 - Every spec write lands **unstaged in the working tree**. `git diff` is the
   review of the fold; **`git checkout -- <spec file>`** is the complete undo,
@@ -483,12 +485,21 @@ hex-review never commits and hex never pushes (see
   operation the human performs, and the handoff states it literally. An
   "unfold" would be a second write path into the same human-owned file with
   none of steps 1–5 protecting it.
+- **The `git checkout --` window closes at the commit.** A fold the human
+  commits at `/hex-finalize`'s pre-flight prompt, and finalize then
+  recomposes and publishes, is past that undo: from there it is ordinary
+  committed history, anchored by the backup ref.
 
 ## Plan archive
 
 The plan is **not moved and not renamed** (C-410). The terminal review state
 (`State: done`, or `landing` for a plan carrying a `Repo` column) is the
-archive marker. In its final [Upkeep step](protocol.md#upkeep-step) the run
+archive marker. A terminal plan's Status block may still be **appended to** —
+`/hex-finalize` mirrors its quality status there, the writer role the plan
+template already names — and that post-archive append is **not a second
+archive event**: no second pointer clear, no second index row, and the plan is
+still neither moved nor renamed (C-822). In its final
+[Upkeep step](protocol.md#upkeep-step) the run
 **clears the `hex.md › Memory` active-plan pointer** — the first place in the
 bundle that ever clears it — and records the plan plus its fold target in the
 artifact index (see [`memory.md`](memory.md)). Pointer clear and index write

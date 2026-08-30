@@ -3,9 +3,9 @@ agent = []
 [metadata]
 lock_version = 1
 declaration_hash_version = 1
-declaration_hash = "sha256:673b5d47b3fbd7a8614281a47fd707d511163873c8e119557fc8bc5ef33d72af"
+declaration_hash = "sha256:b4a1fc7c7a1dd14a8551e72091688858552b8ff2b181668a3b897aa90cc52a15"
 generated_by = "grim 0.13.0"
-generated_at = "2026-08-29T12:24:55Z"
+generated_at = "2026-08-30T07:11:27Z"
 
 [[skill]]
 name = "ai-config-authoring"
@@ -28,12 +28,12 @@ bundle_tag = "latest"
 [[skill]]
 name = "hex-architect"
 path = "./hex/hex-architect"
-hash = "sha256:e7f7bf8543c7fdd500e20124ff3fb59b1c04c7c557e12de3e499666460c8387c"
+hash = "sha256:712e713d96b210edb673761910f798a80acffdda81af7c4048a40bb0fecbf460"
 
 [[skill]]
 name = "hex-core"
 path = "./hex/hex-core"
-hash = "sha256:4977fd6cfc3fa22b51ed671a35d335d241e0c5ed968164acfa304352d31d6e86"
+hash = "sha256:b27c2f4e73faf6c448f6b68103aa837a2ff051d563a47781eb16cd63afa5f797"
 
 [[skill]]
 name = "hex-discuss"
@@ -46,9 +46,14 @@ path = "./hex/hex-execute"
 hash = "sha256:6413fbbb355557a6b05d103d4f96c0adf25a31e9006ff3493ce69d502129314b"
 
 [[skill]]
+name = "hex-finalize"
+path = "./hex/hex-finalize"
+hash = "sha256:058ac9a3ab50f9bc35aecc706766004bf06ee7c9e4e5d59de2e224c586232b4d"
+
+[[skill]]
 name = "hex-init"
 path = "./hex/hex-init"
-hash = "sha256:01e64732bce6aa2000d81372ef7b83fbca416262f4b3e9911ed69ed8eaabc1c7"
+hash = "sha256:ef77623feca6058678926c86293440720b543a84b83ea20ea2fef7dfb85cd404"
 
 [[skill]]
 name = "hex-plan"
@@ -58,12 +63,12 @@ hash = "sha256:2f0a08163c6fb654b7d891381ef50a3d854c48538205341c5adddb083dd94dfa"
 [[skill]]
 name = "hex-review"
 path = "./hex/hex-review"
-hash = "sha256:1f1cc3b1cd4da54923c9b08ce0be18bd1b59620f3b68b2f2b148f61c7f6657fc"
+hash = "sha256:8bea529fa95158af553b9c84c76eb2792cbba244229d5d03b8b94abcd19f801a"
 
 [[rule]]
 name = "hex-state"
 path = "./hex/hex-state.md"
-hash = "sha256:3caedfe0331287fcbcab482b3307c48f0248a44393cc870af0ef3e83f88d6c51"
+hash = "sha256:ca4690c27caf092c67d76b0a4f52cd8d9f02e1d3a87da5e2eb63cd0d45b0cb98"
 
 [[bundle]]
 name = "grim-essentials"
