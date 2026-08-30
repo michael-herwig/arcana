@@ -73,10 +73,19 @@ preferences, not copies. Team-shared — commit it.
   enumerations (wrap-tolerant), `grim build hex/hex-core` green,
   Converged (all 11 table rows merged), Fold-Back not performed (no
   Spec Deltas block). State: done, Next cleared, archived in place.
-  Next (Michael's): review commits + land `hex/adr-0009-finalize`
-  (tip `92742dd`, base local `main` `71aa5c2`, never pushed by hex),
-  0.3.0 publish, then the dogfood `/hex-finalize` run on this branch
-  (33-item docket + V40's 13-row map). Process note for next design
+  **Dogfooded 2026-08-30: `/hex-finalize` ran on this very branch**
+  (local-only by owner directive — no push, no dispatch, no PR):
+  26 commits → 3 signed (`38dec67` feat, `6fffd85` docs, `b660620`
+  chore dev-sync), tree byte-identical, author-set equal, verification
+  exit 0 pre-rewrite (base unmoved, no re-run), gate approved; backup
+  `backup/hex/adr-0009-finalize-cbd2aa2` (inert — pruning is
+  Michael's, post-merge). Run observations: fetched `origin/main`
+  `ef566de5` is 4 behind local `main` `71aa5c2` (unpushed adr_0008
+  land) — contract-literal fetched-target base would conflate landed
+  trunk work into the series (docket-relevant); virgin branch = no
+  lease pin, eventual publish is a plain first push.
+  Next (Michael's): push `main`, push the branch, 0.3.0 publish,
+  V40's docket mapping from this run. Process note for next design
   round: no verify-only re-entry — two one-line Warns forced a full
   review invocation to flip Approve; severity floor for
   fix-verification rounds is a candidate.

@@ -17,6 +17,7 @@ system design stay authoritative.
 - Tier:    high
 - Updated: 2026-08-30
 - Next:    —
+- Finalize: 2026-08-30 — recomposed 26→3 signed commits (38dec67 feat, 6fffd85 docs, b660620 chore), tree byte-identical; verification exit 0; local-only by owner directive (no push, no PR); backup `backup/hex/adr-0009-finalize-cbd2aa2`
 
 ---
 
