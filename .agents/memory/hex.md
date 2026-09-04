@@ -6,7 +6,9 @@ preferences, not copies. Team-shared — commit it.
 ## Pointers
 
 - Verification: `CLAUDE.md` › "Verification" — `grim build <skill-dir>`
-  per changed skill; full sweep `task publish -- --dry-run`.
+  per changed skill; Python under `nox/` is `task nox:verify` (selective:
+  `task nox:test -- <nox-relative paths>`); full sweep
+  `task publish -- --dry-run` **and** `task nox:verify`.
 - Plan / ADR conventions: `CLAUDE.md` › "Spec / plan / ADR conventions" —
   plans `.agents/plans/`, ADRs `.agents/adrs/` (MADR),
   research `.agents/research/`; hex shipped templates are the
@@ -648,3 +650,181 @@ preferences, not copies. Team-shared — commit it.
 - Preference to propose at the next `/hex-init`: research axes of interest
   already cover registry ecosystems; add "agent-orchestration competitive
   landscape" — it carried the adr_0003 evidence.
+- **Discussion handed off 2026-08-31 → architect:**
+  `discussions/nox-multi-harness-adversary.md` (State: `handed-off →
+  architect`, Ratified 2026-08-31). **nox** — a multi-harness adversarial
+  review tool generalising `openai/codex-plugin-cc` beyond its single
+  Claude-Code→Codex direction. Settled: own repository (not arcana — a
+  uv/ruff/pyright/pytest project does not belong in a pure-markdown
+  grimoire), modelled on `ocx-sdk-python`; zero runtime dependencies;
+  shipped as a CI-built `zipapp` `.pyz` script asset inside a grim skill
+  that lives in the same repo (one tag, one version — this dissolves the
+  publish-then-bump-the-pin coupling); auth via the user's own installed,
+  logged-in harness CLIs; read-only against the shared working tree, no
+  worktree or container; full N×N review directions, owner's call.
+  **hex needs no changes** — its `adversary: <skill-name>` seam
+  (`hex-core/references/protocol.md:1210`) is already vendor-neutral and nox
+  is simply a valid value. Carried to the ADR: v1 harness scope
+  (recommended Codex + Claude Code shipping, Copilot + Cursor as documented
+  adapter contracts — `cursor-agent` is not installed here and its flags are
+  unverified); the arXiv:2607.21656 asymmetry result (Codex reviewing Claude
+  *lowered* pass rate 91.4%→82.8%) as a documented risk, not a gate; ToS
+  exposure from Anthropic's Jan 2026 enforcement; Python becoming arcana's
+  first executable-asset precedent.
+- **Research 2026-08-31 (nox discussion):**
+  `research/discuss-nox-priorart.md` — headless flag/output surfaces for
+  Claude Code, Codex, Copilot and Cursor, plus cross-model-review evidence
+  and failure modes. `research/discuss-nox-vendor.md` — multi-model review
+  across Amp/Aider/Copilot/Cursor/Devin, vendor ToS on programmatic driving,
+  isolation and metering. Both expire 2027-02-28 — headless CLI surfaces
+  churn release-to-release and none are versioned public APIs.
+- Learned: `grim` installs `scripts/` and `assets/` verbatim per client and
+  re-renders only `SKILL.md`, **but explicitly does not guarantee a stable
+  on-disk path across clients** (`grim-usage/references/consume.md:239`).
+  A skill shelling to a *sibling* skill's script by relative path is
+  therefore unsafe — the `hex-core` markdown-link precedent does not extend
+  to executable assets. Any shared script must live in the skill that runs
+  it.
+- **Plan done (no active plan):** `plans/plan_adr_0011_nox_adversary.md`
+  (State: **done**, tier high, executed 2026-09-02…09-04, archived in place;
+  fold target: none — no `## Spec Deltas` block. **17 WPs merged**, 3
+  `/hex-review` turns at tier high (rounds 1/2/3 each Needs Work → WP13, WP15,
+  WP17 convergence-gap packages; the round-3 cross-model gate came back clean),
+  plus WP14/WP16 owner-ruling and diagnosability packages. Errata **E1–E70**,
+  contracts C-1001–C-1044, decisions D-a–D-ad. Gates at the tip: `task
+  nox:verify` exit 0 with **100%** branch coverage (2652 stmts / 558 branches,
+  pragma budget 1), 3.11 floor and 3.14 leg green, `task nox:test:contract`
+  91/0 live against claude 2.1.260 · codex 0.144.1 · copilot 1.0.82 ·
+  opencode 1.18.22, `task nox:manual:matrix` **16/16** live 4×4, `task publish
+  -- --dry-run` exit 0 at 0.3.0. Finalized 2026-09-04 — 167 commits recomposed
+  to 9, branch `hex/adr-0011-nox-adversary` force-pushed, backup ref
+  `backup/hex/adr-0011-nox-adversary-440100a`,
+  [PR #2](https://github.com/michael-herwig/arcana/pull/2) ready. **Next
+  (Michael's): merge PR #2, then cut `v0.3.0`** — the tag publishes hex and nox
+  together (D-aa), and the release needs a one-time hand-flip of the nox GHCR
+  package to public. (The signed-tag gate that also wanted
+  `NOX_RELEASE_ALLOWED_SIGNERS` was removed on the owner's ruling — plan E72.)
+  Superseded pre-execution detail follows.) Originally recorded as: State
+  **plan-approved**, 2026-09-02; **single repo — nox lives at
+  `nox/` beside `hex/`** by owner decision after the first handoff,
+  superseding the ADR's separate repository (plan D-aa/E13; the federated
+  shape was fully planned, reviewed, then withdrawn — adr_0004's first
+  dogfood is deferred); slug `hex/adr-0011-nox-adversary`). Implements
+  adr_0011 (**Accepted by Michael 2026-09-02 at the `/hex-plan` gate**;
+  gate decisions: local release gate — arcana's `task release:prepare`
+  gains `nox:release-gate` (real-binary suites on the owner's machine),
+  `publish.yml` verifies the signed tag and the `.pyz` digest before
+  publishing both bundles on one `v*` tag; C-1033's audit item ships as
+  WP9). Verification for nox: `task nox:verify` (root `Taskfile.yml`
+  include — WP1 documents it in `CLAUDE.md` › Verification; re-point the
+  Verification pointer above when it lands).
+  43 contracts (C-1001–C-1033 carried; C-1034–C-1037 per the ADR's
+  Deferred delegation; C-1038–C-1043 plan-authored), 14 scenarios, 12
+  errata/spelled points, 12 WPs / 6 waves (WP9 arcana audit item ∥ WP1
+  scaffold+leaf types → WP2 workspace spike ∥ WP3 runner ∥ WP4 config ∥ WP5
+  prompt → WP6 harness → WP7a/b/c adapters ∥ WP8 api/cli → WP10 skill+
+  release → WP11 assembly proof); critical path WP1→WP2→WP6→WP7b→WP10→
+  WP11; shippable after wave 5; merge order WP9 first. Pipeline: 4
+  discover + 3 researchers (`research/plan0011-{tooling,patterns,domain}.md`;
+  domain expires 2026-11-30) → Opus architect brief (found two import
+  cycles in the ADR's module assignment → E9a) → 3-seat panel (spec 2
+  Block/7 High; architect 1 Block/7 High; gap 1 High refuted by a live
+  opencode probe) → one fix pass → revalidation **Approve** (46 fixed) →
+  `codex:rescue` plan-artifact pass **2 Block / 12 High / 3 Warn, all
+  actionable, all applied** (unpinned synthetic commits in the gc window →
+  `refs/nox/<token>/*`; escaping symlinks → C-1043 by-mode drop; probe
+  attempt evidence; checkout→key→verify-tag order; digest in the signed tag
+  message; skill path portability) → final spec validation **Approve**
+  (join 57/57 both sides; its 7 Warn one-liners applied inline afterwards,
+  no further round — loop cap). Owner ratification requested: D-j
+  POSIX-only v1, D-i `next_steps` kept with no `Review` home. Zero markers. Live probes this run: `codex exec review`
+  flag set identical at 0.144.1 and 0.152.1; opencode 1.18.22 via the ocx
+  launcher has `providers list` (alias `auth`), `--variant`, `--pure`,
+  and an **empty credential store** (R10 — owner runs `opencode providers
+  login`). Reshape review (Opus, narrow): 1 Block / 6 High / 5 Warn on the
+  release path, all applied inline (manifest `version`, tag-only guard on
+  the `publish.yml` chain, `setup-task`, `gpg.ssh.allowedSignersFile`,
+  documented selective command `task nox:test -- <nox-relative paths>`,
+  skill name in the `<skill-dir>` fallback, commit-the-working-set
+  precondition). Its pre-execution "Next" — commit the untracked set, ratify
+  D-aa/D-j/D-i, user-level `nox.toml` + `opencode providers login`, then
+  `/hex-execute` — is **discharged**; the live one is the merge-and-tag line
+  at the top of this entry.
+- **ADR 0011 designed 2026-09-02, Accepted 2026-09-02 (at the `/hex-plan` gate):**
+  `adrs/adr_0011_nox_multi_harness_adversary.md` (contracts C-1001–C-1033;
+  **0 open markers** — all three resolved by the owner 2026-09-02: Python
+  runtime accepted, `nox` kept with the PyPI channel removed entirely,
+  instruction files deleted with the neutralization set) + `adrs/adr_0011_system_design.md`
+  (1400 lines, C4 ×4, threat model T1–T6, per-adapter failure matrix
+  §7.1a). Input: dossier `discussions/nox-multi-harness-adversary.md`
+  (fast path; tier **high** — one-way-door, external contract, novel,
+  security touch; dossier floor inert). **Decision:** Option C — every
+  harness reviews from an ephemeral git worktree checked out from
+  **synthetic commits** in which repo-supplied harness config
+  (`.claude/`, `.mcp.json`, `.opencode/`, `opencode.json`, `.codex/`,
+  `AGENTS.md`, `CLAUDE.md`, `.gitattributes`, `.gitmodules`, every mode-
+  `160000` gitlink; matched by path component at any depth, any entry
+  mode) is filtered at the git-object level on both base and target —
+  never `rm`'d on disk, absent from every diff any harness computes.
+  Reverses the dossier's ratified "no worktree" on security-lane evidence
+  (a hostile *branch* poisons the harness's own config in-tree; `-p`
+  disables Claude Code trust verification; OpenCode auto-loads
+  `.opencode/plugins/` with no off-switch). v1 = Claude Code + OpenCode +
+  Codex (owner mandate, non-negotiable). Passthrough is a per-adapter
+  **allowlist** (`PASSTHROUGH_ALLOW`); containment stamp derived from
+  final argv + digest-keyed probe (C-1025); model by capability class per
+  adr_0001, mapped per adapter, typed `{model, effort}` never argv
+  (C-1030); child-git config boundary via `GIT_CONFIG_*` env (C-1031);
+  real-binary contract tests release-blocking, absent binary blocks not
+  skips (C-1032). Codex transport is `codex exec review` with a
+  `refs/nox/base/<token>` temp ref as primary — app-server deferred
+  (C-1024). Matrix C 96 / B 77 / D 73 / A 66; B overtakes C only when
+  `w(C3)+2·w(C7) > 26` (today 7).
+  **Review:** 3-reviewer panel (spec/quality/security, Opus) + SOTA gap
+  check → 10 Blocks, all closed; revalidation ×2 (owner authorized one
+  narrow pass past the artifact-loop cap); `codex:rescue` cross-model
+  pass → 2 Block / 4 High / 2 Warn, all 8 closed, final spec revalidation
+  clean. Cross-model pass found what the same-family panel missed:
+  `.gitattributes` filter execution at checkout and submodule escape.
+  **Deferred to /hex-plan** (ADR "Deferred" table): env-key handling
+  (`ANTHROPIC_API_KEY`, `PATH`), selection-time warning on the measured-
+  negative direction, severity mapping table, CI as a consumer under
+  subscription auth, explicit decision scenarios for the matrix. Trivia
+  open: C-1032 credits "C-1031's CI job" (cross-ref typo).
+  **Unverified, labelled as such in the ADR:** no harness review was ever
+  executed; Codex sandbox scope and auth/quota event shapes unobserved;
+  OpenCode security claims from docs only (binary not installed; runnable
+  via `ocx package exec ocx.sh/anomalyco/opencode:1.18.22 -- <cmd>`).
+- **Research 2026-08-31/09-02 (adr_0011):** `research/nox-security.md`
+  (two addenda; Expires 2026-11-30 — Codex pre-1.0),
+  `research/nox-tech-tooling.md`, `research/nox-pattern-precedent.md`
+  (Expires 2027-02-28). `research/discuss-nox-priorart.md:87` — the
+  arXiv:2606.19544 18%/39% figure is **retracted** (paper fetched; figure
+  absent). arXiv:2607.21656 now accepted at Agentic SE @ KDD'26, still
+  unreplicated.
+- Preference to propose at the next `/hex-init`: research axis of
+  interest **security & compliance** — on adr_0011 it was the decisive
+  axis (surfaced the repo-config-poisoning class that overturned a
+  ratified decision) and the one whose escalation to deep-reasoning paid
+  for itself.
+- Learned: at plan-artifact scope the cross-model adversary should be
+  aimed explicitly at **mechanisms the native design does not name**
+  (here: git internals outside the path matcher). Three same-family Opus
+  reviewers plus two revalidations converged on the same blind spot.
+  Confirmed again on the plan (2026-09-02): aimed at git internals,
+  signals, and release mechanics, Codex found the gc window between
+  `commit-tree` and `worktree add` and the out-of-tree symlink escape —
+  both invisible to a panel reading the plan's own vocabulary.
+- Learned: CLI-surface claims for Codex/OpenCode must be verified against
+  `--help` of the pinned binary, never against docs or AI summaries — the
+  gap seat's one High (`opencode providers list` "does not exist") came
+  from docs and was refuted by running the binary through the launcher.
+  The launcher form is `ocx package exec <coord> -- opencode …` (the
+  executable name follows the `--`).
+- Promotion candidate for the next `/hex-init` re-audit (adr_0011 C-1033):
+  add audit item **"Cross-model adversary skill installed?"** to
+  `hex/hex-init/references/audit.md` — scan installed `SKILL.md`s for the
+  plain metadata key `hex-adversary-scopes`; when found and `Preferences`
+  has no live `adversary:` pin, propose `adversary: <skill-name>` with
+  consent; silent otherwise. nox and hex stay independent — either runs
+  alone; the item only proposes, never pins.

@@ -168,7 +168,8 @@ scope on the plan file. One-shot, no loop; 4-way triage (actionable /
 deferred / stated-convention / trivia); actionable fixes re-validated by a
 single `reviewer` (focus `spec`) pass
 ([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
-If the skill is unavailable, log
+If the adversary produces no review — the skill is unavailable, or it ran and
+did not complete one — log
 `Cross-model plan review skipped: <reason>` and continue — but **surface the
 skip prominently in the handoff**, since one review layer was missed.
 

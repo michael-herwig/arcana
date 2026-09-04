@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+#
+# Included from the repo-root Taskfile.yml as `nox:*` with `dir: ./nox`, so
+# every path argument is relative to this directory, not the repo root.
+
+version: '3'
+
+includes:
+  # The live cross-harness matrix (WP12, D-ab). Its own file because nothing
+  # in it belongs to `task nox:verify`: every target here spends real tokens.
+  manual: ./taskfiles/manual.taskfile.yml
+
+tasks:
+  default:
+    desc: Fast feedback loop — the full quality gate
+    cmds:
+      - task: verify
+
+  verify:
+    desc: Full quality gate (format check, lint, types, tests, coverage)
+    cmds:
+      - task: check
+      - task: cov:report
+
+  # The gate minus the coverage threshold. CI's non-Linux legs run this and
+  # skip `cov:report`: platform-conditional branches make fail_under=100
+  # unattainable off Linux (D-x).
+  check:
+    desc: Format check, lint, types, tests — no coverage threshold
+    cmds:
+      - task: format:check
+      - task: lint
+      - task: types
+      - task: test
+
+  format:
+    desc: Apply formatting
+    cmds:
+      - uv run --extra dev ruff format src tests scripts
+
+  format:check:
+    desc: Check formatting without applying
+    cmds:
+      - uv run --extra dev ruff format --check src tests scripts
+
+  lint:
+    desc: Lint source
+    cmds:
+      - uv run --extra dev ruff check src tests scripts
+
+  types:
+    desc: Type-check source
+    cmds:
+      - uv run --extra dev pyright
+
+  test:
+    desc: 'Run pytest under coverage; extra args are paths relative to nox/'
+    cmds:
+      - uv run --extra dev coverage run -m pytest {{.CLI_ARGS}}
+
+  test:contract:
+    desc: Run the contract tier against real harness binaries (owner's machine only)
+    cmds:
+      - NOX_CONTRACT=1 uv run --extra dev pytest tests/contract {{.CLI_ARGS}}
+
+  cov:report:
+    desc: Print coverage report (enforces fail_under from pyproject.toml)
+    cmds:
+      - uv run --extra dev coverage report
+
+  cov:xml:
+    desc: Emit coverage.xml for CI upload
+    cmds:
+      - uv run --extra dev coverage xml
+
+  # --- release path (WP10) --------------------------------------------------
+
+  # Two builds into different paths, digests compared (C-1038). The script
+  # prints the digest, so there is no sha256sum/shasum portability bet. It runs
+  # under `uv run --extra dev` for the same reason every other task does: a bare
+  # `uv run` re-syncs the venv without the dev extra and evicts the toolchain.
+  build:
+    desc: 'Build the deterministic nox.pyz twice and compare digests (C-1038)'
+    cmds:
+      - |
+        mkdir -p nox-review/scripts
+        scratch="$(mktemp -d)"
+        first="$(uv run --extra dev python scripts/build_pyz.py src/nox "$scratch/nox.pyz")"
+        second="$(uv run --extra dev python scripts/build_pyz.py src/nox nox-review/scripts/nox.pyz)"
+        rm -rf "$scratch"
+        if [ "$first" != "$second" ]; then
+          echo "nox.pyz is not reproducible: $first != $second" >&2
+          exit 1
+        fi
+        echo "nox.pyz sha256: $second"
+
+  release-gate:
+    desc: 'The local release gate chain (C-1037(4)); DRY_RUN=1 prints the steps without running them'
+    cmds:
+      - bash scripts/release_gate.sh

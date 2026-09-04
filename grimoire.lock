@@ -4,24 +4,24 @@ agent = []
 lock_version = 1
 declaration_hash_version = 1
 declaration_hash = "sha256:b4a1fc7c7a1dd14a8551e72091688858552b8ff2b181668a3b897aa90cc52a15"
-generated_by = "grim 0.13.0"
-generated_at = "2026-08-30T14:19:51Z"
+generated_by = "grim 0.14.0"
+generated_at = "2026-09-03T10:35:36Z"
 
 [[skill]]
 name = "ai-config-authoring"
-pinned = "ghcr.io/grimoire-rs/skills/ai-config-authoring@sha256:88176b0b03c6fc45b8a320c2ccebae864e0a760f6a31a5ebd110dae2e38f228b"
+pinned = "ghcr.io/grimoire-rs/skills/ai-config-authoring@sha256:f89a210d77918758f5fbc6b18eb11dbc5d7a5018e8531be0cb6665e6a9568a68"
 bundle = "ghcr.io/grimoire-rs/bundles/grim-essentials"
 bundle_tag = "latest"
 
 [[skill]]
 name = "grim-authoring"
-pinned = "ghcr.io/grimoire-rs/skills/grim-authoring@sha256:115c4eff472fd969e5e8f3c5aae71b2e6b28d6cf736543d0fb1f2c2ceb45faea"
+pinned = "ghcr.io/grimoire-rs/skills/grim-authoring@sha256:52b23ce303346fec753d08247a7e5508a89366de52d2e7c0903af304bc9752d7"
 bundle = "ghcr.io/grimoire-rs/bundles/grim-essentials"
 bundle_tag = "latest"
 
 [[skill]]
 name = "grim-usage"
-pinned = "ghcr.io/grimoire-rs/skills/grim-usage@sha256:b71c164a23625bd519ccf3fde8fdcf443bcf7520192d8ef4fe19c4c7b2846c46"
+pinned = "ghcr.io/grimoire-rs/skills/grim-usage@sha256:f9746a9e2239c1e53a4b1f58fb2b8ec7d1e01515fb58383f44d72997d7bb12e1"
 bundle = "ghcr.io/grimoire-rs/bundles/grim-essentials"
 bundle_tag = "latest"
 
@@ -33,7 +33,7 @@ hash = "sha256:712e713d96b210edb673761910f798a80acffdda81af7c4048a40bb0fecbf460"
 [[skill]]
 name = "hex-core"
 path = "./hex/hex-core"
-hash = "sha256:b27c2f4e73faf6c448f6b68103aa837a2ff051d563a47781eb16cd63afa5f797"
+hash = "sha256:fe1d37281f9e112ffa3a9bd48a14b23b29170eeba845190030dd21f3495315e2"
 
 [[skill]]
 name = "hex-discuss"
@@ -43,7 +43,7 @@ hash = "sha256:c2f8a4d948b7bd7037e125c0ea497587fe1edc2ace5df240f37e2dbfb195a041"
 [[skill]]
 name = "hex-execute"
 path = "./hex/hex-execute"
-hash = "sha256:6413fbbb355557a6b05d103d4f96c0adf25a31e9006ff3493ce69d502129314b"
+hash = "sha256:6a1fcd778e7bf872f9a602fd98b4f18a8e5ae6e9ee970baeb6b1c82568bc7005"
 
 [[skill]]
 name = "hex-finalize"
@@ -53,17 +53,17 @@ hash = "sha256:058ac9a3ab50f9bc35aecc706766004bf06ee7c9e4e5d59de2e224c586232b4d"
 [[skill]]
 name = "hex-init"
 path = "./hex/hex-init"
-hash = "sha256:ef77623feca6058678926c86293440720b543a84b83ea20ea2fef7dfb85cd404"
+hash = "sha256:2ad3930a662f7ff24e9264fb132e9c70729b61ea803695d88a2b1ef034506ef8"
 
 [[skill]]
 name = "hex-plan"
 path = "./hex/hex-plan"
-hash = "sha256:2f0a08163c6fb654b7d891381ef50a3d854c48538205341c5adddb083dd94dfa"
+hash = "sha256:087022829db14ffc75df50f7356f819df0f9d9fc97faf57f86e3c4551d8661de"
 
 [[skill]]
 name = "hex-review"
 path = "./hex/hex-review"
-hash = "sha256:8bea529fa95158af553b9c84c76eb2792cbba244229d5d03b8b94abcd19f801a"
+hash = "sha256:0c203f3554b50978f3d2679de567c0065b382537cba1abe46e87ff1c778b1d79"
 
 [[rule]]
 name = "hex-state"
@@ -74,7 +74,7 @@ hash = "sha256:ca4690c27caf092c67d76b0a4f52cd8d9f02e1d3a87da5e2eb63cd0d45b0cb98"
 name = "grim-essentials"
 repo = "ghcr.io/grimoire-rs/bundles/grim-essentials"
 tag = "latest"
-pinned = "ghcr.io/grimoire-rs/bundles/grim-essentials@sha256:98e3f5abc7d9de4c4c68f44f0686112da78ab15518e15b5d7bfd8fc0a2dca213"
+pinned = "ghcr.io/grimoire-rs/bundles/grim-essentials@sha256:d376f3f76d7f05ea2b5065b84435d6ad7450992f8324ba84c5b2cdc3d47ea118"
 
 [[bundle.member]]
 kind = "skill"

@@ -196,6 +196,33 @@ anything is asked nothing, and hex never raises the question on its own.
   the team-shared `.agents/memory/hex.md` from version control and
   must be narrowed to `.agents/worktrees/` specifically.
 
+### Cross-model adversary skill installed?
+
+- **Look for:** an installed skill's `SKILL.md` frontmatter carrying a
+  `metadata` map with a `hex-adversary-scopes` key; whether
+  `hex.md › Preferences` already names an `adversary:` skill.
+- **Where:** `grim status --format json`'s top-level `items[]` array — each
+  entry's `outputs[]` carries the installed paths (`outputs_pending[]`
+  before install) — when the project uses grim: the supported way to script
+  against install locations, because the on-disk vendor layout is not a
+  stable contract.
+  Without grim, the client's own skill install roots — for Claude Code,
+  `.claude/skills/*/SKILL.md` and `~/.claude/skills/*/SKILL.md`. This item
+  performs **no network read**, and executes nothing — frontmatter only.
+- **Documented looks like:** an explicit `adversary: <skill-name>` line
+  naming an installed skill.
+- **De facto discovery:** a marker found with **no pin** proposes
+  `adversary: <skill-name>` for **adoption via pointer**, folded into Step
+  4½'s single consent-gated diff. Never writes unasked, and never removes or
+  overwrites a user-typed pin. A marker-less skill such as `codex:rescue` is
+  untouched.
+- **Drift:** a pin naming a skill that is **not installed** is reported, not
+  repaired — the no-overwrite rule above owns that pin, so there is nothing
+  to propose. Report it, because a dangling pin makes every adversary pass
+  log a skip forever and no one sees why.
+- **Optional** — no marker found, no pin proposed, and the item stays
+  silent.
+
 ### Existing `hex.md › Pointers` and index lines still resolve?
 
 - **Look for:** every pointer in the `hex.md › Pointers` section

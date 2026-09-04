@@ -1,0 +1,20 @@
+[metadata]
+lock_version = 3
+declaration_hash_version = 1
+declaration_hash = "sha256:37c84d7354c04f314b239da99612cbf17b2c96fbcb5574ae0d59fe2849d9f1db"
+generated_by = "ocx 0.6.0"
+generated_at = "2026-09-02T20:36:35Z"
+
+[[tool]]
+name = "opencode"
+group = "default"
+repository = "ocx.sh/anomalyco/opencode"
+
+[tool.platforms]
+"darwin/arm64" = "sha256:141aa258ffbe0b23b7b49f0371d09a9aa393fd1c5ecbbe5d408f5eb6d43c47e8"
+"linux/amd64+libc.glibc" = "sha256:f8f3ce56bda5e483d6970eefd73a3e280d7ef3536999d73b118b83eeec9925c3"
+"linux/amd64+libc.musl" = "sha256:c914dbdea20f53e449a3d140f5a0a544151ef1dc273aaa3ef263fcbc1c27bef2"
+"linux/arm64+libc.glibc" = "sha256:8413273d3599640938cb5e03956047db4a54aa98ded7e3e55c75eb2ac40b9231"
+"linux/arm64+libc.musl" = "sha256:67ad1dcefdccf9072a98f284b28e70952c1fcfd622e08481c4209ac862a3b374"
+"windows/amd64" = "sha256:17b48e6e97d310bce226ed0e1aa099a5f8b8649e9620810c4e1f5a6f0323fbc6"
+"windows/arm64" = "sha256:a299ddd859cdc37cac869be22e35a1a0a3533d00fb523d3f946ca44b821021c4"

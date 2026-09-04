@@ -122,6 +122,13 @@ propose adopting what exists via pointer before proposing anything new:
   absent is fine.
 - Is the worktree path (default `.agents/worktrees/`) gitignored — and
   does this project use a different one?
+- Is a cross-model adversary skill installed but not pinned — a skill
+  carrying the `hex-adversary-scopes` marker with no matching `adversary:`
+  line in `hex.md › Preferences`? And the reverse: does an existing
+  `adversary:` pin name a skill that is not installed (report-only drift —
+  a user-typed pin is never overwritten)? Reads installed frontmatter only;
+  executes nothing. See
+  [`references/audit.md`](references/audit.md#cross-model-adversary-skill-installed).
 - If `.agents/memory/hex.md` already exists: does every pointer in
   its Pointers section, and every index line it seeded in the context
   file, still resolve? (a re-audit item, not first-run-only)

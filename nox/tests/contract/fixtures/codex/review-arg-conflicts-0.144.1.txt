@@ -1,0 +1,15 @@
+$ codex exec review --base refs/nox/probe/base "hello"
+exit=2
+error: the argument '--base <BRANCH>' cannot be used with '[PROMPT]'
+
+$ codex exec review --commit HEAD "hello"
+exit=2
+error: the argument '--commit <SHA>' cannot be used with '[PROMPT]'
+
+$ codex exec review --uncommitted "hello"
+exit=2
+error: the argument '--uncommitted' cannot be used with '[PROMPT]'
+
+$ codex exec review --json (no selector, no prompt)
+exit=1
+Error: Specify --uncommitted, --base, --commit, or provide custom review instructions

@@ -124,7 +124,8 @@ Triage 4-way:
 - **stated-convention** — dropped, count mentioned.
 - **trivia** — dropped, count mentioned.
 
-When the skill is unavailable, log `Cross-model review skipped: <reason>`
+When the adversary produces no review — the skill is unavailable, or it ran and
+did not complete one — log `Cross-model review skipped: <reason>`
 and continue.
 
 **Gate** — triage is complete (or the skip is logged).

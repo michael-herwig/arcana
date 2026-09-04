@@ -13,18 +13,48 @@ tasks:
   # the whole repo; each bundle group (top-level dir with a <dir>/<dir>.toml
   # manifest) gets its own scoped one. Pass TAG=vX.Y.Z to cut a release
   # section; omit it for a rolling `Unreleased` section.
+  #
+  # PREPEND, never regenerate. Released sections are hand-authored — hex 0.3.0's
+  # notes say what shipping nox means, and nothing built from commit subjects
+  # would say it — so `--unreleased` renders one section and everything already
+  # in the file is frozen. git-cliff's own `--prepend` is not used: it re-emits
+  # the [changelog] header on every render and glues the section above the file's
+  # title, so `--strip header` plus taskfiles/changelog.py puts it where it goes.
+  # That script also drops an empty section, replaces a rolling `Unreleased`
+  # rather than stacking it, and no-ops on a heading the file already carries.
+  #
+  # CLIFF_BUNDLE names the bundle to cliff.toml's header template, which is how
+  # a bundle gets its own preamble out of the shared config (nox's release-train
+  # note). Unset for the root changelog. The header is still what writes a
+  # bundle's FIRST changelog, which is the one case with no file to prepend to.
   changelog:
-    desc: 'Regenerate CHANGELOG.md (root + per-bundle); TAG=vX.Y.Z tags a release, else Unreleased'
+    desc: 'Add an unreleased CHANGELOG.md section (root + per-bundle); TAG=vX.Y.Z cuts it as a release'
     cmds:
       - |
+        set -eu
         tag_flag=""
-        [ -n "{{.TAG}}" ] && tag_flag="--tag {{.TAG}}"
-        git-cliff $tag_flag -o CHANGELOG.md
+        if [ -n "{{.TAG}}" ]; then tag_flag="--tag {{.TAG}}"; fi
+        section="$(mktemp)"
+
+        cut() {
+          file="$1"
+          shift
+          if [ -f "$file" ]; then
+            git-cliff --unreleased $tag_flag --strip header "$@" -o "$section"
+            python3 taskfiles/changelog.py "$file" "$section"
+          else
+            git-cliff $tag_flag "$@" -o "$file"
+          fi
+        }
+
+        cut CHANGELOG.md
         for manifest in */*.toml; do
           dir="${manifest%%/*}"
           [ "$dir/$dir.toml" = "$manifest" ] || continue
-          git-cliff $tag_flag --include-path "$dir/**" -o "$dir/CHANGELOG.md"
+          export CLIFF_BUNDLE="$dir"
+          cut "$dir/CHANGELOG.md" --include-path "$dir/**"
         done
+        rm -f "$section"
 
   # Full release preparation: compute next version, regenerate the changelogs
   # tagged at it (via release:changelog), run the publish dry-run gate. After
@@ -58,6 +88,10 @@ tasks:
           fi
     cmds:
       - echo "Next version:{{.NEXT_VERSION}}"
+      # The C-1037(4) nox release gate runs here, on a clean tree, before the
+      # changelog dirties it. It also refuses a version the nox subtree does not
+      # already agree on — nothing auto-bumps inside a release about to be cut.
+      - NOX_RELEASE_VERSION={{.NEXT_VERSION}} task nox:release-gate
       - task: changelog
         vars: { TAG: '{{.NEXT_VERSION}}' }
       - task publish -- --dry-run

@@ -46,11 +46,37 @@ The full story — tier grammar, two-layer swarm memory, and how hex
 compares to [spec-kit](https://github.com/github/spec-kit) and
 [OpenSpec](https://openspec.dev) — lives in [`hex/README.md`](hex/README.md).
 
+## nox — cross-model adversarial review
+
+A change reviewed by the model that wrote it is not reviewed. `nox` runs
+the review under a *different* AI harness — Claude Code, Codex, Copilot CLI
+or OpenCode — headlessly, from an ephemeral git worktree built out of
+synthetic commits with every instruction file, hook and agent-config file
+neutralized. The reviewer sees the change, not your repository's
+instructions.
+
+```sh
+grim add ghcr.io/michael-herwig/arcana/nox
+```
+
+One skill, `nox-review`, plus the zero-dependency Python zipapp it shells
+to; scopes are `code-diff` and `plan-artifact`, so it satisfies hex's
+[adversary contract](hex/hex-core/references/protocol.md#adversary-contract)
+as `/hex-review`'s cross-model gate. Findings come back as prose, stamped
+untrusted, under a `containment:` line saying what the run actually
+established rather than what it assumed. Details in
+[`nox/README.md`](nox/README.md).
+
+nox rides arcana's single release train: one `v*` tag publishes hex and nox
+together, so nox's version is the arcana tag rather than a cadence of its
+own.
+
 ## Layout
 
 ```
 assets/   arcana logo (SVG source, rendered PNGs, favicon)
 hex/      the hex bundle — eight skills, one rule + bundle manifest
+nox/      the nox bundle — the nox-review skill + the Python it ships
 .agents/  hex dogfooding hex: the ADRs, plans, and research behind it
 ```
 

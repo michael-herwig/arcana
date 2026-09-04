@@ -1,0 +1,3 @@
+{"type":"session.mcp_server_status_changed","data":{"serverName":"github-mcp-server","status":"pending"},"ephemeral":true,"id":"1fdaa7da-5081-4b8b-926d-e15f49ff48f3","timestamp":"2026-09-03T00:51:50.063Z","parentId":"29fd4ef9-445f-4a2f-9997-11ea352a1d32"}
+{"type":"session.mcp_server_status_changed","data":{"serverName":"github-mcp-server","status":"connected"},"ephemeral":true,"id":"bf1a17e0-6b0a-4773-b67c-7166936b373b","timestamp":"2026-09-03T00:51:50.396Z","parentId":"29fd4ef9-445f-4a2f-9997-11ea352a1d32"}
+Error: Model "definitely-not-a-model" from --model flag is not available.

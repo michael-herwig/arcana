@@ -2,6 +2,9 @@ version: "3"
 
 includes:
   release: ./taskfiles/release.taskfile.yml
+  # `dir` makes every nox task run inside nox/, so path arguments to
+  # `task nox:test -- <paths>` are relative to nox/, not the repo root.
+  nox: { taskfile: ./nox/Taskfile.yml, dir: ./nox }
 
 tasks:
   default:

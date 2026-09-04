@@ -75,7 +75,8 @@ Per-tier defaults:
 | medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
 | high | `on` (a default part of the flow; a skip is surfaced prominently) |
 
-When the named skill is unavailable, log
+When the adversary produces no review — the named skill is unavailable, or it
+ran and did not complete one — log
 `Cross-model plan review skipped: <reason>` and continue — a gate, not a
 blocker ([`protocol.md`](../hex-core/references/protocol.md#adversary-contract)).
 

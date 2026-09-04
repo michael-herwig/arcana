@@ -131,7 +131,7 @@ stays read-only), deferred (added to Deferred Findings with a reason),
 stated-convention (dropped, count mentioned), trivia (dropped, count
 mentioned).
 
-Unavailable path: at this tier the pass is a **gate, not a blocker** —
+No-review path: at this tier the pass is a **gate, not a blocker** —
 surface the skip prominently in the verdict summary so the reader knows one
 review layer was missed. Log
 `Cross-model review skipped: <reason>` and include it in the Summary line.

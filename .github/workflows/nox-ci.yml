@@ -1,0 +1,100 @@
+name: nox
+
+# The Python subtree only. Root files are in `paths` because the release gate
+# parses them and the nox tasks are reached through the root Taskfile include.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'nox/**'
+      - 'Taskfile.yml'
+      - 'taskfiles/**'
+      - '.github/workflows/nox-ci.yml'
+      - '.github/workflows/publish.yml'
+  pull_request:
+    paths:
+      - 'nox/**'
+      - 'Taskfile.yml'
+      - 'taskfiles/**'
+      - '.github/workflows/nox-ci.yml'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # Format, lint and types gate first; the matrix legs re-run them per
+  # interpreter (cheap next to the suite) and are what proves the code runs
+  # on 3.12-3.14, since ruff and pyright are both pinned to py311 semantics.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # The job then runs PR-authored code (`uv sync` executes the PR's
+          # build backend, `task nox:*` its pytest); checkout otherwise leaves
+          # GITHUB_TOKEN readable in .git/config for the whole job.
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          python-version: '3.11'
+          working-directory: nox
+      - uses: arduino/setup-task@v3.0.0
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sync
+        run: uv sync --locked --extra dev
+        working-directory: nox
+      - name: Verify
+        run: task nox:verify
+      - name: Coverage XML
+        if: ${{ !cancelled() }}
+        run: task nox:cov:xml
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./nox/coverage.xml
+          fail_ci_if_error: false
+
+  matrix:
+    needs: verify
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.11', '3.12', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # The job then runs PR-authored code (`uv sync` executes the PR's
+          # build backend, `task nox:*` its pytest); checkout otherwise leaves
+          # GITHUB_TOKEN readable in .git/config for the whole job.
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          python-version: ${{ matrix.python }}
+          working-directory: nox
+      - uses: arduino/setup-task@v3.0.0
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sync
+        run: uv sync --locked --extra dev
+        working-directory: nox
+      - name: Check
+        run: task nox:check
+      # D-x: platform-conditional branches (DYLD_* handling, os.killpg
+      # semantics) make fail_under=100 unattainable off Linux. The Linux legs
+      # carry the threshold; the macOS legs prove functional correctness.
+      - name: Coverage report
+        if: runner.os == 'Linux'
+        run: task nox:cov:report

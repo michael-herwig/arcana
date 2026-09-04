@@ -5,3 +5,18 @@
 
 # user
 TODO.md
+
+# nox (Python subtree)
+nox/nox-review/scripts/nox.pyz
+nox/.venv/
+nox/.coverage
+nox/htmlcov/
+nox/.coverage.*
+nox/coverage.xml
+nox/**/__pycache__/
+nox/**/*.py[cod]
+nox/.pytest_cache/
+nox/.ruff_cache/
+nox/.task/
+# the live matrix's per-run transcripts (WP16); evidence, never a build product
+nox/.manual-runs/

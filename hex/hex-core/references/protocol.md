@@ -1223,10 +1223,21 @@ points at an adversary skill from another.
   - **deferred** — handed off with context;
   - **stated-convention** — dropped, counted;
   - **trivia** — dropped, counted.
-- **Graceful skip** when the named skill is unavailable: log
-  "Cross-model review skipped: `<reason>`" and continue — it is a gate, not
-  a blocker. The skip is surfaced **prominently at tier `high`**, where the
-  adversary pass is a default part of the flow.
+- **Graceful skip whenever the adversary produced no review.** Two cases,
+  one rule: the named skill is **unavailable**, or it **ran and did not
+  complete a review** — it could not reach its harness, was refused
+  credentials or quota, ran out of time, or returned something it could not
+  itself classify. Each adversary skill states its own outcome vocabulary;
+  read it there rather than guessing at one here. In **both** cases log
+  "Cross-model review skipped: `<reason>`", carrying the reason the skill
+  itself gave, and continue — it is a gate, not a blocker. The skip is
+  surfaced **prominently at tier `high`**, where the adversary pass is a
+  default part of the flow.
+- **An empty finding list is never a clean pass.** An adversary that did not
+  review has nothing to report, so zero findings is the *expected* shape of
+  a failure, not evidence of agreement. A "triage is complete" gate is
+  therefore satisfied by exactly two things — the triage of a review that
+  completed, or the skip logged above — and never by an untriaged emptiness.
 
 ## Convergence contract
 

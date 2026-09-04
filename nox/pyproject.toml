@@ -1,0 +1,116 @@
+[project]
+name = "nox"
+version = "0.3.0"
+description = "Multi-harness adversarial review — review a diff or plan artifact under a different AI harness, from an ephemeral git worktree"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Michael Herwig" }]
+keywords = ["review", "adversarial", "claude", "codex", "copilot", "opencode", "git", "worktree"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Quality Assurance",
+    "Typing :: Typed",
+]
+# Zero runtime dependencies is a contract, not a preference (C-1001): nox ships
+# as a zipapp built from this tree alone.
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/michael-herwig/arcana"
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.6",
+    "pyright>=1.1",
+    "pytest>=8",
+    "ruff>=0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nox"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "ANN", # flake8-annotations (public-API annotations)
+    "RUF", # ruff-specific
+    "D",   # pydocstyle
+]
+ignore = [
+    "ANN401", # allow Any in narrow cases
+    "D105",   # magic methods — merged into the class doc
+    "D107",   # __init__ — merged into the class doc
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN", "D"] # tests don't need full annotations or docstrings
+
+[tool.pyright]
+include = ["src", "tests"]
+strict = ["src"] # shipped code is strict; tests stay standard
+pythonVersion = "3.11"
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]
+# `tests.fixtures.repo` and `tests.unit.stubs` are shared across both tiers, and
+# only `coverage run -m pytest` (the unit tier) puts this directory on
+# `sys.path` for free. The contract tier runs bare `pytest`, which does not, so
+# without this every adapter's contract suite either grows a `sys.path` insert
+# of its own or cannot import the § 9.4 fixture at all.
+pythonpath = ["."]
+
+[tool.coverage.run]
+branch = true
+source = ["nox"]
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 100
+# The exhaustiveness-assert row is deliberately absent (D-l): typing's
+# never-assert helper is used nowhere in nox. Internal exhaustiveness rides
+# pyright strict's reportMatchNotExhausted; a match over an external JSON value
+# takes `case _:` and resolves `indeterminate`, which is a real runtime answer
+# and therefore must stay covered.
+# `raise NotImplementedError` is deliberately NOT excluded: every WP in this
+# plan ships stubs first, and excluding it would let a forgotten stub body pass
+# `fail_under = 100` — the same never-verified-line hole D-l removed the
+# never-assert row for. A stub phase is red here, which is the point.
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "@(typing\\.)?overload",
+    "class .*\\bProtocol\\):",
+    ": \\.{3}",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.coverage.html]
+directory = "htmlcov"
