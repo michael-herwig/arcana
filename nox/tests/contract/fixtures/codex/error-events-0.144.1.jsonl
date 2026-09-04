@@ -1,0 +1,3 @@
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Model metadata for `definitely-not-a-model` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."}}
+{"type":"error","message":"{\"type\":\"error\",\"status\":400,\"error\":{\"type\":\"invalid_request_error\",\"message\":\"The 'definitely-not-a-model' model is not supported when using Codex with a ChatGPT account.\"}}"}
+{"type":"error","message":"Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses, cf-ray: a350d472ed96e7b8-FRA)"}

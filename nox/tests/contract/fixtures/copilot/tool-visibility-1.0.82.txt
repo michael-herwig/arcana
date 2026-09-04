@@ -1,0 +1,18 @@
+# run	toolCount	tools offered to the model	permission argv
+no restriction	17	bash,read_bash,stop_bash,list_bash,apply_patch,view,web_fetch,fetch_copilot_cli_documentation,skill,sql,session_store_sql,read_agent,list_agents,write_agent,rg,glob,task	(none)
+deny only	17	bash,read_bash,stop_bash,list_bash,apply_patch,view,web_fetch,fetch_copilot_cli_documentation,skill,sql,session_store_sql,read_agent,list_agents,write_agent,rg,glob,task	--deny-tool=<14 names>
+allowlist	3	view,rg,glob	--available-tools=view,rg,glob --deny-tool=<14 names>
+shipped shape	3	view,rg,glob	--available-tools view,rg,glob --deny-tool <14 names, comma-joined>
+# The four rows above were recorded with NO MCP server configured, which is why
+# `PINNED_TOOLS` carries no `<server>-<tool>` row and `DENIED_TOOLS` can never
+# name one. The three below add a user-configured stdio MCP server offering one
+# tool, `nox_canary`, through `--additional-mcp-config`. Every run below also
+# carries `--disable-builtin-mcps --no-custom-instructions`, so the eighteenth
+# tool is present DESPITE the flag whose name suggests it would not be:
+# `--disable-builtin-mcps` disables the built-ins (currently github-mcp-server)
+# and 1.0.82 has no `--strict-mcp-config` analogue. `--available-tools` is the
+# word that removes it, and it is the word `network_enforcement="harness"` rests
+# on.
+mcp: no restriction	18	bash,read_bash,stop_bash,list_bash,apply_patch,view,web_fetch,fetch_copilot_cli_documentation,skill,sql,session_store_sql,read_agent,list_agents,write_agent,rg,glob,task,noxcanary-nox_canary	(none)
+mcp: deny only	18	bash,read_bash,stop_bash,list_bash,apply_patch,view,web_fetch,fetch_copilot_cli_documentation,skill,sql,session_store_sql,read_agent,list_agents,write_agent,rg,glob,task,noxcanary-nox_canary	--deny-tool <14 names, comma-joined>
+mcp: shipped shape	3	view,rg,glob	--available-tools view,rg,glob --deny-tool <14 names, comma-joined>

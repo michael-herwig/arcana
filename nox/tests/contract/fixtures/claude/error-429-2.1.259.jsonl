@@ -1,0 +1,2 @@
+{"type":"system","subtype":"api_retry","attempt":1,"max_retries":10,"retry_delay_ms":60000,"error_status":429,"error":"rate_limit","session_id":"9dbb5206-a8b3-40f0-a975-196e8a9397b1","uuid":"fb38a5d1-18b2-4096-a8ea-b7702768015e"}
+{"type":"system","subtype":"api_retry","attempt":2,"max_retries":10,"retry_delay_ms":60000,"error_status":429,"error":"rate_limit","session_id":"9dbb5206-a8b3-40f0-a975-196e8a9397b1","uuid":"1a7c28a5-ca55-4d4f-89f0-5ebe1f719ab6"}

@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+#
+# The live cross-harness matrix. Never in CI: every cell needs real provider
+# credentials and reaches the network twice. See tests/manual/README.md.
+#
+# Every cell writes its own transcript - argv, exit status, the report nox
+# wrote and the driver's full output - into a per-run directory under
+# `nox/.manual-runs/`, which the run prints before its first cell and which a
+# re-run never overwrites. That directory is the answer to a red cell whose
+# output has scrolled; `NOX_MANUAL_RUNS_DIR` moves it elsewhere.
+
+version: '3'
+
+tasks:
+  matrix:
+    desc: 'LIVE, COSTS TOKENS - NxN cross-harness smoke over every adapter'
+    cmds:
+      - uv run --extra dev python scripts/manual_smoke.py {{.CLI_ARGS}}
+
+  # `--cell` is what fixes the exit contract: only this target may report a
+  # skip through its status (77), and a forgotten `--` here runs one refusal
+  # rather than sixteen live cells.
+  cell:
+    desc: 'LIVE, COSTS TOKENS - one cell: task nox:manual:cell -- <driver> <adversary>'
+    cmds:
+      - uv run --extra dev python scripts/manual_smoke.py --cell {{.CLI_ARGS}}

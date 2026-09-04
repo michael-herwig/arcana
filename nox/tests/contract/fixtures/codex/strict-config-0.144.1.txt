@@ -1,0 +1,9 @@
+$ codex exec review --strict-config -c definitely_not_a_real_key_xyz=1 "Reply with exactly: X"
+Error loading config.toml: unknown configuration field `definitely_not_a_real_key_xyz` in -c/--config override
+
+$ codex exec review --strict-config -c sandbox_mode=totally-bogus-value "Reply with exactly: X"
+Error loading config.toml: unknown variant `totally-bogus-value`, expected one of `read-only`, `workspace-write`, `danger-full-access`
+in `sandbox_mode`
+
+$ codex exec review --strict-config -c sandbox_mode=read-only "Reply with exactly: X"
+accepted; the turn ran

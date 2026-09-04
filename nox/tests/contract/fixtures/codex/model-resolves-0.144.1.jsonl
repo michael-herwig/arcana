@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0663b-c6a1-7121-bb83-bd3879400aae"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"MODELOK"}}
+{"type":"turn.completed","usage":{"input_tokens":11914,"cached_input_tokens":8960,"output_tokens":7,"reasoning_output_tokens":0}}

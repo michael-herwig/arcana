@@ -1,0 +1,12 @@
+# The grim BUNDLE manifest — not a nox runtime config, despite sharing the
+# name `nox.toml` with `config.CONFIG_NAME`. No collision is reachable:
+# `config.load_config()` starts at the git top level and walks UPWARD, and
+# this file sits one level below it.
+summary = "Adversarial review of a diff or a plan artifact under a second AI harness"
+description = "nox reviews a code diff — or a plan artifact — under a different AI harness than the one that wrote it, headlessly. The review never runs in your checkout. nox builds a pair of synthetic commits with every instruction file, hook, credential and agent-config file neutralized in the tree, checks the target out into an ephemeral git worktree it owns, and spawns the reviewing harness there under a minimal environment — so the reviewer sees the change and not the repository's own instructions. Ships the skill plus a zero-dependency Python zipapp it shells to; findings come back as prose, stamped untrusted."
+keywords = "review,adversarial,cross-model,second-opinion,diff,plan,worktree,isolation"
+license = "Apache-2.0"
+repository = "https://github.com/michael-herwig/arcana"
+
+[skills]
+"nox-review" = "./nox-review:latest"

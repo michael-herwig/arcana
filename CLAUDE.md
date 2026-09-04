@@ -9,7 +9,13 @@ is, users, related repos, research keywords, comparable tools.
 
 Run `grim build <skill-dir>` for every changed skill/rule before considering
 a change complete (validates + packs, no push; exit 65 on validation
-failure). Full sweep: `task publish -- --dry-run`.
+failure).
+
+Python (`nox/`): `task nox:verify`; selective:
+`task nox:test -- <paths relative to nox/>` — the include runs with
+`dir: ./nox`, so repo-root paths miss.
+
+Full sweep: `task publish -- --dry-run` (all bundles) and `task nox:verify`.
 
 ## Publishing
 

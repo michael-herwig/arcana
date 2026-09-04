@@ -1,0 +1,16 @@
+$ codex sandbox -c sandbox_mode=read-only -- touch ./sbx-marker
+touch: cannot touch './sbx-marker': Read-only file system
+exit=1
+(./sbx-marker does not exist afterwards)
+
+$ codex sandbox -c sandbox_mode=read-only -- bash -c 'exec 3<>/dev/tcp/127.0.0.1/22'
+bash: socket: Operation not permitted
+bash: line 1: /dev/tcp/127.0.0.1/22: Operation not permitted
+exit=1
+
+$ codex sandbox -c sandbox_mode=read-only -- ls -1a .
+.
+..
+.git
+g.py
+exit=0
