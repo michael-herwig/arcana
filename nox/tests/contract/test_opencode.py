@@ -106,11 +106,19 @@ def _hostile_cwd(tmp_path: Path) -> Path:
     return cwd
 
 
-def _run(info, env: dict[str, str], cwd: Path, *args: str, timeout: float = 240.0):
+def _run(info, env: dict[str, str], cwd: Path, *args: str, timeout: float = 600.0):
     """Spawn one real harness invocation through the probed launcher and collect it.
 
     Returns:
         `(exit_code, lines)` — the merged stream in arrival order.
+
+    **600 s, not 240 s (E71).** The old ceiling sat inside the spread of a
+    non-`--pure` run: measured over eleven runs of one invocation on one
+    machine, 7.7-213 s passing and a 242 s run killed by the deadline itself.
+    A ceiling under a heavy-tailed distribution fires on a slow run rather than
+    a stuck one, which is the opposite of its job; and moving it to just past
+    the worst observation reproduces the defect one sample later. 600 s is
+    ~2.5x the slowest passing run and still bounds a genuine hang.
     """
     proc = SubprocessRunner().spawn(Invocation(argv=launch_argv(info.launcher, env, *args), cwd=cwd, env=env))
     collected: list[str] = []
@@ -124,7 +132,19 @@ def _run(info, env: dict[str, str], cwd: Path, *args: str, timeout: float = 240.
         if time.monotonic() > deadline:  # pragma: no cover - contract tier only
             os.killpg(proc.pid, signal.SIGKILL)
             proc.wait(5.0)
-            pytest.fail(f"{' '.join(args)} did not finish within {timeout}s")
+            pure = "--pure" in args
+            pytest.fail(
+                f"{' '.join(args)} did not finish within {timeout}s "
+                f"({len(collected)} lines seen, --pure={pure}).\n"
+                + (
+                    ""
+                    if pure
+                    else "A non-`--pure` run loads the operator's own ~/.config/opencode "
+                    "(global plugins, agents, skills) — C-1008 forwards the real HOME and "
+                    "sets no XDG_CONFIG_HOME — and runs 10-60x slower than the `--pure` "
+                    "sibling. Check that config and the machine's load BEFORE the fixture."
+                )
+            )
 
 
 def _denials(lines: tuple[str, ...]) -> int:
@@ -276,15 +296,38 @@ def test_the_pure_flag_does_not_stop_a_branch_authored_plugin(require_harness, t
 def test_an_ordinary_review_executes_it_too_which_is_what_c1005_is_for(require_harness, tmp_path):
     """R9: the control, and the reason the residual is closed in core rather than in argv.
 
-    A failure here does NOT mean the adapter is unsafe; it means the plugin
-    fixture stopped being a live one and the test above proves nothing. What
-    keeps a real review out of this state is `NEUTRALIZE_DIRS`, asserted
+    A failure here does NOT mean the adapter is unsafe. Nor does it
+    necessarily mean the plugin fixture stopped being live — that was this
+    docstring's claim, it was wrong, and it sent the first reader to check a
+    fixture that was working (E71).
+
+    **This is the slowest test in the file by an order of magnitude, and the
+    only full run that omits `--pure`.** One machine, one invocation: 3.3-4.4 s
+    for the `--pure` sibling above, 7.7-213 s here across eleven runs, plus one
+    killed at the old 240 s ceiling. The gap is not the model call — both make
+    one — but everything a non-`--pure` startup loads.
+
+    So a failure has two shapes, told apart by the message rather than by
+    inspection: a `_run` deadline (the run never finished) or a missing marker
+    carrying the exit status and output (it finished and the plugin did not
+    run). Only the second means the fixture died and the `--pure` test above
+    proves nothing. The marker is written LATE — measured at 53.18 s of a
+    55.22 s run, ~2 s before exit — so a killed run leaves no marker for
+    reasons that say nothing about plugin loading.
+
+    What keeps a real review out of this state is `NEUTRALIZE_DIRS`, asserted
     alongside so the two facts are read together.
     """
     info = require_harness(HARNESS)
     cwd = _hostile_cwd(tmp_path)
-    _run(info, _env(tmp_path), cwd, "run", "--format", "json", SAMPLE_PROMPT)
-    assert (cwd / PLUGIN_MARKER).exists()
+    status, lines = _run(info, _env(tmp_path), cwd, "run", "--format", "json", SAMPLE_PROMPT)
+    if not (cwd / PLUGIN_MARKER).exists():
+        strays = sorted(str(found) for found in tmp_path.rglob(PLUGIN_MARKER))
+        pytest.fail(
+            f"the SD 9.4 plugin left no marker in {cwd}.\n"
+            f"opencode exited {status}; markers elsewhere under tmp: {strays or 'none'}.\n"
+            f"last of {len(lines)} lines:\n" + "\n".join(lines[-40:])
+        )
     assert ".opencode" in NEUTRALIZE_DIRS
 
 
