@@ -208,7 +208,12 @@ prefix family rather than as three separate guesses.
 `eyJ` is three characters — base64 for `{"` — so it flags any base64-encoded
 JSON, not only a JWT. Accepted deliberately: C-1018 raises a flag and never
 redacts, so a false positive costs a sentence in the review, while the miss it
-replaces cost the whole signal on a live token.
+replaces cost the whole signal on a live token. The one false positive that
+occurs routinely in the wild is an inline JavaScript source map
+(`//# sourceMappingURL=data:application/json;base64,eyJ…`); it is named here so
+a reader meeting `secrets_suspected` on a bundled front end knows the shape
+before going looking. It costs nothing beyond that sentence — the flag is
+report-only and gates neither `status:` nor `verdict:`.
 
 **`sk-proj-` was considered and rejected.** `OPENAI_API_KEY` is unset where that
 literal would have had to match, and the JWT is the shape actually present; a
