@@ -18,7 +18,7 @@ spelled in place. S-1001–S-1015 are this plan's. Plan slug:
 - State:   done      <!-- planning → plan-approved → executing → review → done -->
 - Tier:    high
 - Updated: 2026-09-04
-- Reviewed: cc8f88dc6509491689f920c1acc418684fb71175   <!-- turn 3 panel ran against d0e4067; WP16 landed mid-review, but `git diff --name-only d0e4067..cc8f88d -- nox/src/ hex/` is EMPTY — the source under review is byte-identical at this tip, so the verdict covers it -->
+- Reviewed: 8f5038c   <!-- turn 3's panel ran against d0e4067 and its verdict carries to cc8f88d (`git diff --name-only d0e4067..cc8f88d -- nox/src/ hex/` is EMPTY). /hex-finalize then caught that WP17 had landed AFTER that anchor with no panel behind it, so a scoped delta review covered cc8f88d..d9dd12c and returned clean; every commit since is doc-only or this line. -->
 - Next:    merge [PR #2](https://github.com/michael-herwig/arcana/pull/2) — Michael's; `/hex-finalize` emits no command for it
 - Finalized: 2026-09-04 (`/hex-finalize`) — 167 commits recomposed to 9 on
   `main`; `task nox:verify` exit 0 (2375 passed, 91 skipped, **100%** branch
