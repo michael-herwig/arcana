@@ -17,11 +17,137 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # The annotated tag object and its signature must be present locally
+          # for the verification step below; a shallow checkout carries neither.
+          fetch-depth: 0
+          # The job holds `packages: write`, and the announce authenticates
+          # through `gh auth setup-git`'s global credential helper against a
+          # different repository (the fork), so nothing here needs the checkout
+          # token left readable in .git/config for the whole job.
+          persist-credentials: false
 
-      - uses: grimoire-rs/setup-grimoire@v1.2.0   # floating @v1 tag is stale/broken
+      # C-1037(5), E12: nothing is built, uploaded or published until the tag is
+      # proven to be the owner's, to point at this commit, and to name a digest.
+      - name: Verify the release tag
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        env:
+          ALLOWED_SIGNERS: ${{ vars.NOX_RELEASE_ALLOWED_SIGNERS }}
+          SIGNING_PUBKEY: ${{ vars.NOX_RELEASE_SIGNING_PUBKEY }}
+        run: |
+          set -euo pipefail
+          if [ -n "${SIGNING_PUBKEY:-}" ]; then
+            printf '%s\n' "$SIGNING_PUBKEY" | gpg --import
+            git config gpg.format openpgp
+          else
+            if [ -z "${ALLOWED_SIGNERS:-}" ]; then
+              echo "::error::Set the repository variable NOX_RELEASE_ALLOWED_SIGNERS to the owner's SSH signing key (or NOX_RELEASE_SIGNING_PUBKEY for a GPG one). Revoking the key by emptying the variable fails every subsequent tag, which is the intended behaviour."
+              exit 1
+            fi
+            signers="$RUNNER_TEMP/allowed_signers"
+            printf '%s\n' "$ALLOWED_SIGNERS" > "$signers"
+            # <principal> [options] <key-type> <base64 key>
+            if ! grep -Eq '^[^[:space:]]+[[:space:]]+(.*[[:space:]]+)?(ssh-|sk-|ecdsa-)[^[:space:]]+[[:space:]]+[A-Za-z0-9+/=]{40,}' "$signers"; then
+              echo "::error::NOX_RELEASE_ALLOWED_SIGNERS is not a well-formed allowed-signers line."
+              exit 1
+            fi
+            git config gpg.ssh.allowedSignersFile "$signers"
+          fi
+
+          # Fully qualified: a bare tag name is DWIM-resolved and could pick up
+          # a same-named branch or remote ref.
+          git verify-tag "refs/tags/$GITHUB_REF_NAME"
+
+          # A tag ref repointed at an older, legitimately signed object would
+          # otherwise verify and then publish something else entirely.
+          tagged="$(git rev-parse "refs/tags/$GITHUB_REF_NAME^{commit}")"
+          if [ "$tagged" != "$GITHUB_SHA" ]; then
+            echo "::error::refs/tags/$GITHUB_REF_NAME resolves to $tagged, not the checked-out commit $GITHUB_SHA."
+            exit 1
+          fi
+
+          # `git tag -l --format` exits 0 with empty output for a tag that does
+          # not exist, and `%(contents)` also carries the signature block, so
+          # anything other than exactly one match is a hard failure.
+          contents="$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME")"
+          expected="$(printf '%s\n' "$contents" | sed -n 's/^nox\.pyz sha256: \([0-9a-f]\{64\}\)$/\1/p')"
+          matches="$(printf '%s\n' "$expected" | grep -c '^[0-9a-f]\{64\}$' || true)"
+          if [ "$matches" != "1" ]; then
+            echo "::error::The signed tag message must carry exactly one 'nox.pyz sha256: <64 hex>' line; found $matches. Re-cut the tag with the line 'task release:prepare' printed."
+            exit 1
+          fi
+          echo "NOX_EXPECTED_DIGEST=$expected" >> "$GITHUB_ENV"
+
+      # A toolchain download, so it runs after verification. It must also precede
+      # `task nox:verify`: tests/unit/test_skill_contract.py proves the .pyz is
+      # packed by invoking this pinned grim, not whatever is on the box.
+      - uses: grimoire-rs/setup-grimoire@a1c530c44cbf7722731a756fcfe3a28b527c85c3 # v1.2.0
         with:
           version: v0.11.1
+
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        with:
+          python-version: '3.11'
+          working-directory: nox
+
+      - uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag agrees with nox/pyproject.toml
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          project="$(awk -F'"' '/^version = /{print $2; exit}' nox/pyproject.toml)"
+          if [ "$tag" != "$project" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match nox/pyproject.toml version $project."
+            exit 1
+          fi
+
+      - name: Sync
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: uv sync --locked --extra dev
+        working-directory: nox
+
+      - name: Verify
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: task nox:verify
+
+      - name: Build nox.pyz
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          task nox:build
+
+      - name: Assert the published file set
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          test -s nox/nox-review/scripts/nox.pyz
+          # grim packs the whole directory and is gitignore-blind, so anything
+          # stale in it ships. `! -type d` because `-type f` sees neither a
+          # symlink nor anything behind a symlinked directory.
+          found="$(cd nox/nox-review && find . -mindepth 1 ! -type d -print | sed 's|^\./||' | LC_ALL=C sort)"
+          expected="$(printf 'SKILL.md\nscripts/nox.pyz')"
+          if [ "$found" != "$expected" ]; then
+            echo "::error::nox/nox-review must hold exactly SKILL.md and scripts/nox.pyz; found: $(echo $found)"
+            exit 1
+          fi
+
+      - name: Compare the built digest with the signed tag message
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          built="$(python3 -c 'import hashlib, pathlib; print(hashlib.sha256(pathlib.Path("nox/nox-review/scripts/nox.pyz").read_bytes()).hexdigest())')"
+          if [ "$built" != "$NOX_EXPECTED_DIGEST" ]; then
+            echo "::error::nox.pyz digest mismatch — nothing published. Signed tag: $NOX_EXPECTED_DIGEST. Built here: $built. First cause to check: SOURCE_DATE_EPOCH set on one side and not the other; after that, an unclean tree at tag time."
+            exit 1
+          fi
 
       # Isolate the Docker credential store to the job (runner.temp is only
       # available inside steps, not in job-level env).
@@ -41,13 +167,28 @@ jobs:
       # `canary` is a non-semver channel tag so it never cascades or skip-exists.
       - name: Dry run (manual)
         if: github.event_name == 'workflow_dispatch'
-        run: grim publish --manifest hex/publish.toml --version canary --dry-run
+        run: |
+          grim publish --manifest hex/publish.toml --version canary --dry-run
+          grim publish --manifest nox/publish.toml --version canary --dry-run
+
+      # nox is not announced to the public index in v1 (C-1037(5)), so it goes
+      # first: one tag ships hex and nox together (D-aa) and neither push is
+      # transactional, so the ordering is chosen to keep the one *irreversible*
+      # act — the announce — last. A failure here publishes nothing and
+      # announces nothing; a failure in the step below leaves nox's bytes on
+      # ghcr.io with no announce claiming a release, and re-running the workflow
+      # is safe because a publish skips-existing by default.
+      - name: Publish nox
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          grim publish --manifest nox/publish.toml --version "$GITHUB_REF_NAME"
 
       # Tag push = real release: bytes to ghcr.io, then announce (fork → PR to public index).
-      # --version <tag> overrides the stale static `version = "0.1.0"` in publish.toml
+      # --version <tag> overrides the static placeholder `version` in publish.toml
       # and cascades X.Y / X / latest for all 7 entries.
       - name: Publish + announce
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         env:
           # A classic PAT (or the gh token) that can read grimoire-rs/index —
           # a fine-grained token scoped to the fork 403s there and can't fork.
@@ -56,8 +197,11 @@ jobs:
         run: |
           if [ -n "$GH_TOKEN" ]; then gh auth setup-git; fi
           set +e
+          # The env var, never the expression form: an Actions expression is spliced
+          # into the script text before bash sees it, and a git ref name may legally
+          # carry shell metacharacters — in a job holding packages: write.
           grim publish --manifest hex/publish.toml \
-            --version "${{ github.ref_name }}" --announce --format json \
+            --version "$GITHUB_REF_NAME" --announce --format json \
             2> "$RUNNER_TEMP/publish.err" | tee "$RUNNER_TEMP/publish.json"
           rc=${PIPESTATUS[0]}
           set -e
