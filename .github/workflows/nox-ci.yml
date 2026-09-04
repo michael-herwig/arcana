@@ -34,7 +34,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # The job then runs PR-authored code (`uv sync` executes the PR's
           # build backend, `task nox:*` its pytest); checkout otherwise leaves
@@ -73,7 +73,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         python: ['3.11', '3.12', '3.13', '3.14']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # The job then runs PR-authored code (`uv sync` executes the PR's
           # build backend, `task nox:*` its pytest); checkout otherwise leaves
