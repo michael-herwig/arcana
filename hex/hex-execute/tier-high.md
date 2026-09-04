@@ -125,7 +125,8 @@ get one `builder` (focus `implement`) fix pass, re-verified. If that one-shot
 fix pass fails verification, **revert it** and promote all cross-model
 findings to deferred rather than looping
 ([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
-If the skill is unavailable, log
+If the adversary produces no review — the skill is unavailable, or it ran and
+did not complete one — log
 `Cross-model review skipped: <reason>` and continue — but **surface the skip
 prominently in the handoff**, since one review layer was missed.
 

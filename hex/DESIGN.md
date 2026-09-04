@@ -242,8 +242,10 @@ across clients (a Codex-client user points at a Claude-adversary skill):
 - Scopes: `code-diff` (branch diff vs base) and `plan-artifact` (markdown file).
 - One-shot, never loops (prevents two-family stylistic thrash).
 - 4-way triage: actionable / deferred / stated-convention / trivia.
-- Graceful skip when unavailable — gate, not blocker; skip surfaced
-  prominently at tier=high.
+- Graceful skip whenever the adversary **produced no review** — the named
+  skill is unavailable, or it ran and did not complete one; gate, not
+  blocker; skip surfaced prominently at tier=high. An empty finding list is
+  never a clean pass (amended in place by round 13, 2026-09-04).
 
 ## De-OCX-ification checklist (applies across skills)
 
@@ -977,3 +979,91 @@ the scoped check verbatim. **Thin dispatchers + per-tier phase files** —
 no tier file gains a rule; two take a one-clause qualifier and the rest
 are untouched. **`config.md` gains no key** and its `<skill>` enumeration
 is not reopened.
+
+## Adversary no-review round (2026-09-04, round 13)
+
+`adr_0011` (nox — multi-harness adversarial review) amends **one position
+in § Adversary contract**, in place. The bullet's enumeration is a live
+lock — every tier file and overlay in the bundle restates it — so this is
+an in-place amendment rather than an erratum pointer, following round 12's
+adjudication for the *Plan visualization* lock.
+
+The change was **already shipped** by that plan's WP13 and is recorded here
+retroactively; § Process defect below is the more important half of this
+round.
+
+1. **"Graceful skip when the named skill is unavailable" becomes
+   "graceful skip whenever the adversary produced no review."** The
+   round-1 rule above named one cause — the skill is not installed — and
+   `hex/hex-core/references/protocol.md` § Adversary contract now names
+   two: unavailable, **or** it ran and did not complete a review (could
+   not reach its harness, was refused credentials or quota, ran out of
+   time, or returned something it could not itself classify). Each
+   adversary skill states its own outcome vocabulary; the contract reads
+   it there rather than enumerating one centrally, which is what keeps
+   this symmetric across clients.
+
+   **The reason for the widening is that the narrow clause was
+   exploitable by accident** (`adr_0011` E45): a cross-model adversary
+   that runs and fails reports zero findings, and zero findings read as
+   agreement. The skip path — the one thing that makes a missed review
+   *visible* at tier `high` — fired only for the one cause the operator
+   was least likely to hit. Every other cause degraded silently into a
+   clean pass. The widened clause is strictly safer: it can only convert
+   a silent pass into a logged skip, never the reverse.
+
+2. **New normative rule: an empty finding list is never a clean pass.**
+   A "triage is complete" gate is satisfied by exactly two things — the
+   triage of a review that completed, or a logged skip — and never by an
+   untriaged emptiness. This is the enforcement half of (1); without it
+   the widened clause is advice a reader can decline to take, because
+   nothing downstream distinguishes "reviewed, found nothing" from "did
+   not review".
+
+**Restated across the bundle, unchanged in substance**, because the
+degrade clause is quoted rather than referenced in the per-tier files:
+`hex-plan/{overlays,tier-high}.md`, `hex-execute/{overlays,tier-high}.md`,
+`hex-review/{overlays,tier-high,tier-medium}.md`,
+`hex-architect/{overlays,tier-high}.md`. Ten files in total including
+`protocol.md`, which owns the contract; the nine restatements say
+"produces no review" where they said "is unavailable" and change nothing
+else.
+
+### Process defect (the reason this round exists)
+
+The widening reached `main` with `adr_0011`'s `## Constitution
+Deviations` block still reading "None" and this file unamended. The
+mechanism was not an oversight in the deviations block itself — it was
+**an undeclared file set upstream of it**. WP13's `Expected Files` cell
+declared two `hex/` paths; the merge carried thirteen. Nothing compares
+a work package's declared file set against the diff it lands, so a
+change that touches the constitution can arrive inside a work package
+scoped to something else, and the block that would have caught it is
+never consulted because nothing said the constitution was in play.
+
+The general rule this round establishes: **a work package whose landed
+diff touches a path outside its declared `Expected Files` set has not
+been reviewed against the constitution, whatever its review budget
+says.** Declaring the set is not bookkeeping; it is the trigger for the
+deviations check.
+
+**Upholds.** **The one-hop spawn requirement** (`adr_0010` C-914) —
+vacuously upheld: no spawn, no role, no `models.md` row. **Capability
+classes** — upheld; no shipped file this round touches names a literal
+model or a harness tool (the widened clause deliberately delegates the
+outcome vocabulary to the adversary skill rather than enumerating one,
+which is the same generalization the De-OCX checklist applies to
+"pluggable adversary skill named in `hex.md › Preferences`").
+**`hex never pushes` / `hex never commits` outside execution** —
+untouched. **The two-layer knowledge model** — untouched; the contract
+is Layer-0 hex protocol, and nothing moves into or out of project
+context. **`adr_0005`'s fold path** — untouched; `hex-review` still
+writes only the Status block, the convergence check, and — on an
+approved converged fold — the spec file and receipt. **Thin dispatchers
++ per-tier phase files** — upheld in shape and weakened in practice: the
+nine restatements are exactly the copy this constitution's
+single-source rule exists to prevent, and they are why a one-line
+contract change became a ten-file diff. Recorded as a known cost, not
+repaired here — the repair is for `protocol.md` to own the sentence and
+the tier files to link it, which is a `hex/` change outside `adr_0011`'s
+scope. **`config.md` gains no key.**

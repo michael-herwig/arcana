@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-09-02
+
+### Added
+
+- **nox ships** — arcana's second bundle, and the first shipped implementation of hex's [adversary contract](hex-core/references/protocol.md#adversary-contract): `nox-review` runs a `code-diff` or `plan-artifact` review under a *different* AI harness (Claude Code, Codex, Copilot CLI, OpenCode), headlessly, from an ephemeral git worktree with the repository's own instruction, hook and agent-config files neutralized. Pin it as `adversary: nox-review` in `hex.md › Preferences` and `/hex-review`'s cross-model gate has something to call. `grim add ghcr.io/michael-herwig/arcana/nox`; its own notes are in `nox/CHANGELOG.md`. **nox's version is arcana's, not its own** — one release train, one tag (D-aa): this `v0.3.0` publishes hex 0.3.0 and nox 0.3.0 together, so nox's first release carries hex's number rather than starting at 0.1.0
+- The adversary contract's graceful skip now covers **any** outcome in which the adversary produced no review — the named skill unavailable, and equally a skill that ran and failed (unreachable harness, refused credentials, exhausted quota, an elapsed timeout, unclassifiable output). An empty finding list from such a run is stated to be the expected shape of a failure, never a clean pass, so a "triage is complete" gate can no longer pass silently with nothing triaged and no skip logged
+- `/hex-init` audit item — "Cross-model adversary skill installed?": detects an installed skill's `hex-adversary-scopes` frontmatter marker with no matching `adversary:` pin in `hex.md › Preferences`, and proposes `adversary: <skill-name>` for adoption via pointer, folded into Step 4½'s single consent-gated diff. Reads installed `SKILL.md` frontmatter only (via `grim status --format json`, or the client's own skill install roots without grim), reaches no network, executes nothing, and never removes or overwrites a user-typed pin — the reverse case, a pin naming a skill that is *not* installed, is reported as drift rather than repaired, because a dangling pin otherwise makes every adversary pass log a skip forever with no one seeing why
+
 ## [0.2.0] - 2026-08-31
 
 Consolidates three unreleased iterations (discussion mode, the finalize
