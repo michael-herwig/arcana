@@ -4,12 +4,6 @@ Scraped as text on purpose. nox ships zero runtime dependencies and its dev
 extra carries no YAML parser, and the properties under test are ordering and
 guard properties that survive a text scan intact: which marker precedes which,
 and whether a line carries its guard.
-
-The one exception is the `git verify-tag` fixture, which is run for real
-against `ssh-keygen`-generated keys. A grep proving the workflow *says*
-`verify-tag` is worth nothing if the mechanism does not reject a foreign
-signature, and that mechanism is what stands between a pushed tag and a
-published artifact.
 """
 
 from __future__ import annotations
@@ -19,8 +13,6 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
-
-import pytest
 
 import nox
 
@@ -54,8 +46,6 @@ GUARD_REF = "startsWith(github.ref, 'refs/tags/')"
 
 # Steps that must never run on a manual dispatch: they verify, build, or ship.
 RELEASE_MARKERS = (
-    "git verify-tag",
-    "allowedSignersFile",
     "task nox:build",
     "test -s",
     "github.ref_name",
@@ -428,7 +418,7 @@ def test_the_gate_runs_before_the_publish_dry_run_and_the_print_block():
     text = _uncommented(RELEASE_TASKFILE.read_text(encoding="utf-8"))
     gate = text.index("nox:release-gate")
     dry_run = text.index("task publish -- --dry-run")
-    tag_line = text.index("git tag -s")
+    tag_line = text.index("git tag ")
     assert gate < dry_run < tag_line
 
 
@@ -446,46 +436,6 @@ def test_release_prepare_prints_the_git_commands_and_never_runs_them():
             if echo == -1 or echo > index:
                 offenders.append(line.strip())
     assert offenders == []
-
-
-def test_the_printed_tag_line_carries_a_computed_digest():
-    """C-1037(4): the signed tag message is what `publish.yml` compares against.
-
-    A literal digest in the task file would be a digest of nothing; it has to be
-    read off the artifact `task nox:build` just wrote.
-    """
-    text = RELEASE_TASKFILE.read_text(encoding="utf-8")
-    match = re.search(r"git tag -s\s+(\S+)\s+-m\s+['\"]nox\.pyz sha256: ([^'\"]+)['\"]", text)
-    assert match, 'no `git tag -s <version> -m "nox.pyz sha256: <hex>"` line'
-    version, digest = match.group(1), match.group(2)
-    assert "{{" in version or "$" in version, version
-    assert not re.fullmatch(r"[0-9a-f]{64}", digest), "the digest is a literal"
-    assert "{{" in digest or "$" in digest, digest
-    assert "hashlib" in text
-    assert "nox-review/scripts/nox.pyz" in text
-
-
-def test_the_workflow_verifies_the_tag_before_it_builds_or_publishes():
-    """C-1037(5), E12: an unsigned tag fails with nothing built and nothing shipped."""
-    text = PUBLISH.read_text(encoding="utf-8")
-    checkout = text.index("actions/checkout")
-    signers = text.index("allowedSignersFile")
-    verify = text.index("git verify-tag")
-    assert checkout < signers < verify
-
-    downstream = [m.start() for m in re.finditer(r"task nox:build|grim publish|upload-artifact", text)]
-    assert downstream, "the workflow neither builds nor publishes anything"
-    assert verify < min(downstream)
-
-
-def test_the_digest_comparison_precedes_every_publish():
-    """C-1037(5): the trusted expected digest is the one the owner signed."""
-    text = PUBLISH.read_text(encoding="utf-8")
-    digest_step = re.search(r"name: [^\n]*digest[^\n]*", text, re.I)
-    assert digest_step, "no step compares the built digest against the signed tag message"
-    publishes = [m.start() for m in re.finditer(r"grim publish", text)]
-    assert publishes
-    assert text.index("git verify-tag") < digest_step.start() < min(publishes)
 
 
 def test_every_tag_guard_also_pins_the_event_name():
@@ -513,67 +463,6 @@ def test_every_action_is_pinned_to_a_commit_sha():
         if not re.fullmatch(r"[0-9a-f]{40}", match.group(1).rpartition("@")[2])
     ]
     assert floating == []
-
-
-def test_git_rejects_a_tag_signed_by_a_key_the_allowed_signers_file_does_not_name(tmp_path):
-    """The mechanism C-1037(5) rests on, exercised rather than grepped for.
-
-    Negative first (key A signs, only key B is trusted), then the positive
-    control on the same tag — otherwise a `verify-tag` that always fails would
-    pass the negative and prove nothing.
-    """
-    if shutil.which("ssh-keygen") is None:
-        pytest.skip("ssh-keygen is not available")
-
-    home = tmp_path / "home"
-    home.mkdir()
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    env = {
-        **os.environ,
-        "HOME": str(home),
-        "GIT_CONFIG_NOSYSTEM": "1",
-        "GIT_CONFIG_GLOBAL": str(home / "gitconfig"),
-        "GIT_AUTHOR_NAME": "nox",
-        "GIT_AUTHOR_EMAIL": "noreply@nox",
-        "GIT_COMMITTER_NAME": "nox",
-        "GIT_COMMITTER_EMAIL": "noreply@nox",
-    }
-
-    def git(*args: str) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(["git", *args], cwd=str(repo), env=env, capture_output=True, text=True, check=False)
-
-    public: dict[str, str] = {}
-    for name in ("a", "b"):
-        key = tmp_path / name
-        keygen = subprocess.run(
-            ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", name, "-f", str(key)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert keygen.returncode == 0, keygen.stderr
-        public[name] = (tmp_path / f"{name}.pub").read_text(encoding="utf-8").strip()
-
-    assert git("init", "-q", "-b", "main").returncode == 0
-    (repo / "f.txt").write_text("x\n", encoding="utf-8")
-    assert git("add", "f.txt").returncode == 0
-    assert git("commit", "-qm", "c").returncode == 0
-    assert git("config", "gpg.format", "ssh").returncode == 0
-    assert git("config", "user.signingkey", str(tmp_path / "a")).returncode == 0
-
-    signed = git("tag", "-s", "v0.0.0", "-m", "nox.pyz sha256: " + "0" * 64)
-    if signed.returncode != 0:
-        pytest.skip(f"this git cannot sign tags with ssh keys: {signed.stderr.strip()}")
-
-    def verify_against(who: str) -> int:
-        allowed = tmp_path / f"allowed_signers_{who}"
-        allowed.write_text(f"noreply@nox {public[who]}\n", encoding="utf-8")
-        assert git("config", "gpg.ssh.allowedSignersFile", str(allowed)).returncode == 0
-        return git("verify-tag", "refs/tags/v0.0.0").returncode
-
-    assert verify_against("b") != 0, "a tag signed by a foreign key verified"
-    assert verify_against("a") == 0, "a tag signed by the trusted key failed to verify"
 
 
 def test_the_coverage_report_step_is_linux_only():

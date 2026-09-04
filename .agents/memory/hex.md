@@ -701,9 +701,9 @@ preferences, not copies. Team-shared — commit it.
   `backup/hex/adr-0011-nox-adversary-440100a`,
   [PR #2](https://github.com/michael-herwig/arcana/pull/2) ready. **Next
   (Michael's): merge PR #2, then cut `v0.3.0`** — the tag publishes hex and nox
-  together (D-aa), and the release needs repository variable
-  `NOX_RELEASE_ALLOWED_SIGNERS` set to the owner's SSH signing key plus a
-  one-time hand-flip of the nox GHCR package to public.
+  together (D-aa), and the release needs a one-time hand-flip of the nox GHCR
+  package to public. (The signed-tag gate that also wanted
+  `NOX_RELEASE_ALLOWED_SIGNERS` was removed on the owner's ruling — plan E72.)
   Superseded pre-execution detail follows.) Originally recorded as: State
   **plan-approved**, 2026-09-02; **single repo — nox lives at
   `nox/` beside `hex/`** by owner decision after the first handoff,

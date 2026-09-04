@@ -90,18 +90,14 @@ tasks:
       - echo "Next version:{{.NEXT_VERSION}}"
       # The C-1037(4) nox release gate runs here, on a clean tree, before the
       # changelog dirties it. It also refuses a version the nox subtree does not
-      # already agree on — nothing auto-bumps inside a release about to be signed.
+      # already agree on — nothing auto-bumps inside a release about to be cut.
       - NOX_RELEASE_VERSION={{.NEXT_VERSION}} task nox:release-gate
       - task: changelog
         vars: { TAG: '{{.NEXT_VERSION}}' }
       - task publish -- --dry-run
-      # The digest is read off the artifact the gate just built, with stdlib
-      # hashlib (no coreutils bet), so the signed tag message carries the exact
-      # bytes publish.yml rebuilds and compares against.
       - |
-        digest="$(python3 -c 'import hashlib, pathlib; print(hashlib.sha256(pathlib.Path("nox/nox-review/scripts/nox.pyz").read_bytes()).hexdigest())')"
         echo ""
         echo "Release prepared ({{.NEXT_VERSION}}). Review changes, then:"
         echo "  git add -A && git commit -m 'release: {{.NEXT_VERSION}}'"
-        echo "  git tag -s {{.NEXT_VERSION}} -m 'nox.pyz sha256: $digest'"
+        echo "  git tag {{.NEXT_VERSION}}"
         echo "  git push --atomic origin main {{.NEXT_VERSION}}"
