@@ -361,7 +361,7 @@ above against the baseline this table sets
 Concurrency cap and degraded mode:
 [`protocol.md`](../hex-core/references/protocol.md#worker-coordination). The
 adversary skill name comes from `hex.md › Preferences`
-([adversary contract](../hex-core/references/protocol.md#adversary-contract));
+([adversary contract](../hex-core/references/adversary.md#adversary-contract));
 `codex-adversary` is only an example value.
 
 ## Tool preferences (optional, feature-detected)
@@ -390,7 +390,7 @@ client's ambient instructions / project rules), cached in the Pointers
 section of `.agents/memory/hex.md`
 ([`memory.md`](../hex-core/references/memory.md#the-three-sections)).
 "Verify" anywhere below means **run the project's documented verification**
-([`protocol.md`](../hex-core/references/protocol.md#verification)) — relevant
+([`verify.md`](../hex-core/references/verify.md#verification)) — relevant
 when a design phase spikes a prototype, or Review checks a claim against real
 code.
 

@@ -106,17 +106,17 @@ testable.
 Break the design into right-sized tasks, each mapping to a Stub → Specify →
 Implement → Review cycle so `/hex-execute` runs unchanged — **decomposed to
 maximize parallelism**
-([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)):
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
 cut along structural boundaries, declare every WP's expected file set and
 **Review budget** (`self | light | panel`, per the protocol heuristic; a
 sub-overhead WP folds into its nearest sibling), compute waves from the
 dependency graph, and mark the critical path. The
 Parallelization section carries the WP table (id, scope, expected files,
-size, wave, depends-on, review, status — status initialized `pending`), the
-wave-grouped mermaid `graph TD`, a "Shippable after wave: N — <what
-ships>" line, and the serialized topological-order merge plan (waves
-derived)
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics));
+size, wave, depends-on, review, verify, status — status initialized
+`pending`), the wave-grouped mermaid `graph TD`, a "Shippable after wave:
+N — <what ships>" line, and the serialized topological-order merge plan
+(waves derived)
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics));
 fewer parallel WPs than file-disjointness allows → one-line justification.
 At this tier the wave structure is itself a design output — a cross-area
 change that decomposes into one sequential chain usually means the
@@ -131,13 +131,17 @@ pairs, not bare paths (C-316). `/hex-plan` never runs the C-303 pre-flight
 and never writes into a satellite — it only proposes the column (C-314).
 Absent `Federation:` bullets, none of this fires and the plan is unchanged.
 
+Print the **budget histogram** at this gate, linking rather than restating
+its grammar
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
+
 **Gate** — the plan holds executable phases `/hex-execute` can run without
 further decomposition, and the Parallelization section shows the widest
 wave structure the file sets permit.
 
 ## Phase 6: Review (parallel panel + mandatory cross-model)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 on the draft plan — **plan-artifact scope: one panel round**; fix
 application, conditional re-validation, and escalation follow the
 canonical loop's artifact-scope rule, never restated here.
@@ -149,10 +153,10 @@ canonical loop's artifact-scope rule, never restated here.
   every C-/S- ID maps to at least one WP Scope cell and at least one test
   step; an uncovered ID is an actionable finding, no exceptions at this tier
   ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
-  Also checks the Parallelization table: an unjustified sub-overhead WP, or
-  a `self`/`light` Review budget on a security-, hot-path-, or large WP, is
-  an actionable finding
-  ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
+  Also checks the Parallelization table for an unjustified sub-overhead WP,
+  and applies the
+  [budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition)
+  to every WP's Review column.
 - `architect` — are the trade-offs honest, the alternatives considered, any
   boundary violations introduced?
 - `researcher` — does the plan miss a trending pattern, a known pitfall, or a
@@ -167,8 +171,9 @@ panel converges, run the configured adversary skill once in `plan-artifact`
 scope on the plan file. One-shot, no loop; 4-way triage (actionable /
 deferred / stated-convention / trivia); actionable fixes re-validated by a
 single `reviewer` (focus `spec`) pass
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
-If the skill is unavailable, log
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
+If the adversary produces no review — the skill is unavailable, or it ran and
+did not complete one — log
 `Cross-model plan review skipped: <reason>` and continue — but **surface the
 skip prominently in the handoff**, since one review layer was missed.
 

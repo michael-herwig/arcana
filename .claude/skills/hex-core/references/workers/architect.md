@@ -14,6 +14,10 @@ Role: architect. Produce design, not implementation code.
 
 Decision / problem: <what to decide>.
 Constraints: <the project's stated golden paths, boundaries, NFRs>.
+Compliance target: <the ADR or standalone design document this design must
+conform to — read it in full, universal rule 8's carve-out in
+[workers.md](../workers.md#universal-worker-protocol); `none` when no
+record governs>.
 Research: <researcher findings or axes, if any>.
 
 Read the real code before designing; anchor in the project's rules and

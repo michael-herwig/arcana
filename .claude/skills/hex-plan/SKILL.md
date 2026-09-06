@@ -211,7 +211,7 @@ against the baseline this table sets
 Concurrency cap and degraded mode:
 [`protocol.md`](../hex-core/references/protocol.md#worker-coordination). The
 adversary skill name comes from `hex.md › Preferences`
-([adversary contract](../hex-core/references/protocol.md#adversary-contract));
+([adversary contract](../hex-core/references/adversary.md#adversary-contract));
 `codex-adversary` is only an example value.
 
 ## Project rules and conventions
@@ -223,7 +223,9 @@ project rules), cached in the Pointers section of
 `.agents/memory/hex.md`
 ([`memory.md`](../hex-core/references/memory.md#the-three-sections)). "Verify"
 anywhere below means **run the project's documented verification**
-([`protocol.md`](../hex-core/references/protocol.md#verification)).
+([`verify.md`](../hex-core/references/verify.md#verification)) — the
+work-package table's `Verify` column is the exception: its cell grammar is
+the plan template's (C-905).
 
 ## The plan artifact
 
@@ -246,12 +248,19 @@ execute and review skills read and mutate — no external state file:
 ## Status
 - State:   plan-approved      <!-- planning → plan-approved → executing → review → done -->
 - Tier:    medium
+- Effective-tier: derived
 - Updated: 2026-07-19
 - Next:    /hex-execute <this plan path>
 ```
 
-hex-plan initializes it at `plan-approved` on handoff and records the pointer
-in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
+hex-plan initializes it at `plan-approved` on handoff, writes
+`- Effective-tier: derived` into every new plan's Status block, and records
+the pointer in `hex.md › Memory`; `/hex-execute` advances `State` and `Next`
+as it runs. The field is written explicitly rather than left absent because
+every ecosystem this marker copies tells authors to set it by hand, so the
+absent case's meaning can never safely change later
+([`decompose.md`](../hex-core/references/decompose.md#the-effective-tier)
+holds the value's semantics).
 
 **Required content** (every tier — the tier files scale depth, not presence):
 
@@ -267,17 +276,20 @@ in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
 - **Executable phases** — a Stub → Specify → Implement → Review cycle per
   task, runnable by `/hex-execute` without further decomposition.
 - **Parallelization** — decomposed to maximize parallel execution
-  ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)):
-  a work-package table (id, scope, expected files, size, wave, depends-on,
-  review — the `self | light | panel` budget — and status, initialized
-  `pending`), its Scope column citing the C-/S- IDs each WP covers, a
-  wave-grouped mermaid `graph TD` as its visual index
+  ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
+  a work-package table (id, repo, scope, expected files, size, wave,
+  depends-on, review and verify — the `self | light | panel` review budget and
+  the `scoped | full` verify budget, one budget over the WP's merge gate and
+  the Review-Fix Loop's exit gate that immediately precedes it, and nothing
+  beyond those two — and status, initialized `pending`), its Scope column
+  citing the C-/S- IDs each WP covers,
+  a wave-grouped mermaid `graph TD` as its visual index
   (the table stays canonical), the critical path, a "Shippable after wave:
   N" line (tier low exempt — single WP), the serialized topological-order
   merge plan (waves derived), and — when fewer parallel WPs than
   file-disjointness allows, or a sub-overhead WP stays isolated — a
   one-line justification
-  ([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+  ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 - **Open questions** — unresolved ambiguities as `[NEEDS CLARIFICATION: …]`
   markers, **hard cap 3**. More than three means the target is underspecified;
   raise it at the gate rather than guessing.

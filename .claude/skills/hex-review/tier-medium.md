@@ -35,7 +35,7 @@ Launch **in a single batch** so they run concurrently
   project's own stated patterns (error model, contract conventions,
   dispatch pattern) — never invent one from memory. When the target traces
   to a plan, this slot also runs the
-  [convergence check](../hex-core/references/protocol.md#convergence-contract)
+  [convergence check](../hex-core/references/loop.md#convergence-contract)
   against its C-/S- IDs — part of the Stage 1 gate below, not a separate
   pass.
 - **1** `reviewer` (focus `quality`, test-coverage emphasis) — checks that
@@ -75,7 +75,7 @@ perspectives fire, or when a `perspectives.always` rule matches):
   [`doc-reviewer`](../hex-core/references/workers/doc-reviewer.md)).
 
 Each reviewer classifies findings actionable or deferred and tags each with a
-[severity](../hex-core/references/protocol.md#finding-severity); a
+[severity](../hex-core/references/severity.md#finding-severity); a
 Suggest-severity finding is reported but never gates the verdict. Model class
 per
 [`models.md`](../hex-core/references/models.md), tier `medium`. Peak
@@ -86,7 +86,7 @@ rather than dropping a perspective.
 
 **Gate** — every applicable Stage 2 perspective is done.
 
-## Phase 4: Root-cause analysis (`rca=on`, [Block/High](../hex-core/references/protocol.md#finding-severity) findings)
+## Phase 4: Root-cause analysis (`rca=on`, [Block/High](../hex-core/references/severity.md#finding-severity) findings)
 
 For every finding classified Block or High, apply Five Whys:
 
@@ -112,7 +112,7 @@ those too).
 When `adversary=on` (user flag, or classifier-inferred from a one-way-door
 or security signal), invoke the configured adversary skill once — `code-diff`
 scope for a diff target, `plan-artifact` scope for a markdown target
-([`overlays.md`](overlays.md), [adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([`overlays.md`](overlays.md), [adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 One-shot, no looping.
 
 Triage 4-way:
@@ -124,7 +124,8 @@ Triage 4-way:
 - **stated-convention** — dropped, count mentioned.
 - **trivia** — dropped, count mentioned.
 
-When the skill is unavailable, log `Cross-model review skipped: <reason>`
+When the adversary produces no review — the skill is unavailable, or it ran and
+did not complete one — log `Cross-model review skipped: <reason>`
 and continue.
 
 **Gate** — triage is complete (or the skip is logged).
@@ -167,7 +168,7 @@ Produce the review report using the skeleton from
 - **Needs Work** — **High- or Warn-tier** findings exist but no Block-tier
   finding, or
   the
-  [convergence check](../hex-core/references/protocol.md#convergence-contract)
+  [convergence check](../hex-core/references/loop.md#convergence-contract)
   found unconverged gaps — this caps the verdict at Needs Work, never
   Approve, with `Next: /hex-execute <plan path>`.
 - **Approve** — otherwise.

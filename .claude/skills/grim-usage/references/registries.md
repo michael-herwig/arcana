@@ -640,11 +640,25 @@ entry declares none (and under `--registry`); `locator` is the configured
 value verbatim, which `repo` does not carry — `repo` names the artifact's own
 registry host, and one index source serves rows from many hosts.
 
+Beside `items`, the JSON document carries a `sources` array — one
+`{alias, locator, ok, error}` object per browsed source, in declaration
+order. A source grim cannot read degrades to an empty group so the reachable
+ones still answer, and the browse still exits `0` whether one source failed
+or all of them did — `sources` is the only place in the document that says
+so. Check it before treating a short or empty `items` as the catalog:
+
 ```sh
 grim search review
 grim search --refresh --registry ghcr.io/acme --format json
 grim search --format json | jq '.items | group_by(.source.alias // .source.locator)'
+# which sources did not load, and why
+grim search --format json | jq '.sources[] | select(.ok | not)'
 ```
+
+`ok: true` on a source whose rows are missing is not a contradiction: that
+source answered and had nothing, or a browse filter hid what it had. The
+same failure is still logged on stderr as `catalog for source '<x>'
+unavailable: …`.
 
 A registry declaring a [browse filter](#browse-filters) contributes only the
 repositories its patterns admit — to `grim search`, the TUI, and
@@ -806,12 +820,21 @@ announce token: `--token-stdin`, else `GRIM_RATE_TOKEN`, else a
 host-matched CI token, else `gh`/`glab auth token`, else a refusal. There
 is no `--token <value>` flag, because argv is world-readable.
 
-Voting against a GitHub Enterprise Server or self-managed GitLab needs
-`GRIM_RATING_HOST`. It is read from your own environment only — a fetched
-`stats.json` carries no host at all — and compared exactly, with no suffix
-matching. `grim rate <ref> --dry-run --format json` reports the resolved
-host without a credential, a forge request, or a mutation, which is how a
-client learns where a vote would go before it authenticates.
+Voting against a GitHub Enterprise Server or self-managed GitLab needs no
+per-machine setup: the index declares the host in its `stats.json`
+(`providers.rating_host`), and grim uses it in place of the built-in
+`api.github.com` / `gitlab.com` default. Comparison is exact, with no
+suffix matching. `grim rate <ref> --dry-run --format json` reports the
+resolved host and a `host_source` of `default` or `index` — without a
+credential, a forge request, or a mutation — which is how a client learns
+where a vote would go before it authenticates.
+
+Because that host comes from fetched content, the two credentials grim
+does **not** look up itself are bound to it: against an index-declared
+host, `--token-stdin` and `GRIM_RATE_TOKEN` must be paired with
+`--token-host <host>` naming it, or the run exits 80 before the credential
+is read. A CI token or a `gh`/`glab` stored credential needs nothing — grim
+only ever resolves those for the host it is about to contact.
 
 Piping a credential into that same dry run (`--dry-run --token-stdin`,
 which needs no `--yes` because it posts nothing) adds one read-only query

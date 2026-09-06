@@ -43,7 +43,7 @@ concurrently
   **Implement**-phase output against the design record and the project's
   stated patterns. When the target traces to a plan, this slot also runs
   the
-  [convergence check](../hex-core/references/protocol.md#convergence-contract)
+  [convergence check](../hex-core/references/loop.md#convergence-contract)
   against its C-/S- IDs — part of the Stage 1 gate below, not a separate
   pass.
 - **1** `reviewer` (focus `quality`, test-coverage emphasis) — checks that
@@ -95,12 +95,12 @@ a diff-content judgement, not a cap accommodation. Model class per
 [`models.md`](../hex-core/references/models.md), tier `high` — most rows
 escalate to `deep-reasoning` here. Each reviewer classifies findings
 actionable or deferred and tags each with a
-[severity](../hex-core/references/protocol.md#finding-severity); a
+[severity](../hex-core/references/severity.md#finding-severity); a
 Suggest-severity finding is reported but never gates the verdict.
 
 **Gate** — every perspective is done.
 
-## Phase 4: Root-cause analysis (`rca=on`, all findings above [Suggest](../hex-core/references/protocol.md#finding-severity))
+## Phase 4: Root-cause analysis (`rca=on`, all findings above [Suggest](../hex-core/references/severity.md#finding-severity))
 
 Apply Five Whys to every Block, High, and Warn finding:
 
@@ -123,7 +123,7 @@ noted.
 
 Invoke the configured adversary skill once against the diff (`code-diff`
 scope) or the artifact (`plan-artifact` scope for a markdown target) —
-[adversary contract](../hex-core/references/protocol.md#adversary-contract).
+[adversary contract](../hex-core/references/adversary.md#adversary-contract).
 One-shot, no looping.
 
 Triage 4-way — actionable (reported in the Cross-Model section, review
@@ -131,7 +131,7 @@ stays read-only), deferred (added to Deferred Findings with a reason),
 stated-convention (dropped, count mentioned), trivia (dropped, count
 mentioned).
 
-Unavailable path: at this tier the pass is a **gate, not a blocker** —
+No-review path: at this tier the pass is a **gate, not a blocker** —
 surface the skip prominently in the verdict summary so the reader knows one
 review layer was missed. Log
 `Cross-model review skipped: <reason>` and include it in the Summary line.
@@ -181,7 +181,7 @@ Produce the review report using the skeleton from
 - **Needs Work** — **High- or Warn-tier** findings exist, the cross-model
   pass surfaced
   actionable findings not yet addressed, or the
-  [convergence check](../hex-core/references/protocol.md#convergence-contract)
+  [convergence check](../hex-core/references/loop.md#convergence-contract)
   found unconverged gaps — this caps the verdict at Needs Work, never
   Approve, with `Next: /hex-execute <plan path>`.
 - **Approve** — otherwise.

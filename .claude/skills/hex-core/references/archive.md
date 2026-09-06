@@ -386,7 +386,7 @@ command transcript belongs is a spec violation (C-411).
 and continue to Upkeep and the handoff.** A halted fold **never** fails the
 review, **never** re-opens the verdict, and **never** attempts a repair pass:
 **zero fix passes.** The precedent is the merge-conflict playbook
-([`protocol.md`](protocol.md#worktree-work-package-mechanics): judge
+([`worktree.md`](worktree.md#worktree-work-package-mechanics): judge
 semantically, at most one fix pass, still failing → halt) — deliberately
 tightened to zero here, because there the fix edits code hex owns on a branch
 it owns, while here the target is human-authored truth in the working tree,
@@ -507,6 +507,16 @@ key on the **same terminal-review-state condition** the Fold-Back gate uses,
 so the phase and its Upkeep stay together; the satellite `Federation lead:`
 locks are a separate mechanism that persists past `landing` to `done` and are
 **not** this pointer.
+
+**One precondition on the terminal state:** a run that ends with a non-empty
+stranded-WP set never reaches its terminal review state — `done`, or
+`landing` for a plan carrying a `Repo` column. The failure cascade
+([`decompose.md`](decompose.md#parallel-by-default-decomposition)) owns that
+rule, and this phase stays its sole writer. A second, narrower precondition
+gates the same state: a plan that armed [the mandatory branch-level review
+precondition](loop.md#the-review-fix-loop) does not reach it until a
+branch-level `/hex-review` has run at no less than the plan's ceiling tier —
+`/hex-review` remains its sole writer regardless.
 
 Moving the plan to a dated archive directory was considered and rejected: it
 breaks every link that points at the plan for the sake of directory

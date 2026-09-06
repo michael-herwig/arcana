@@ -4,6 +4,47 @@ The shared vocabulary and contracts for every hex orchestrator. Roles are
 defined in [`workers.md`](workers.md); model classes in
 [`models.md`](models.md); the memory file in [`memory.md`](memory.md).
 
+**This file is the spine.** Six sibling files carry the contracts a mode
+opens only when it runs them; everything every mode needs stays here.
+
+| Sibling | Sections it now holds |
+|---|---|
+| [`loop.md`](loop.md) | The Review-Fix Loop, Convergence contract |
+| [`decompose.md`](decompose.md) | Parallel-by-default decomposition |
+| [`worktree.md`](worktree.md) | Worktree work-package mechanics |
+| [`verify.md`](verify.md) | Verification |
+| [`adversary.md`](adversary.md) | Adversary contract |
+| [`severity.md`](severity.md) | Finding severity |
+
+**The load map is a budget, not a permission.** A mode may follow any link;
+it *opens* a topic file when a phase it is running executes against that
+contract, never because prose mentions it. Two corollaries make the rows
+reproducible: a citation the citing file carries with the one-clause
+qualifier the single-source rule allows — never a restatement — is
+provenance, not an open; and defining a word is not running a phase — four
+`SKILL.md`s define `"Verify"` by linking [`verify.md`](verify.md), yet a
+mode opens it only when a phase it runs actually verifies. Considered and
+excluded on the first: `/hex-plan`'s four [`worktree.md`](worktree.md)
+citations for the mandatory Parallelization section and the serialized
+merge plan — every contract they reach is execution-time, unreachable from
+a plan-authoring phase, and each citing file enumerates the table's columns
+in situ. This is [`workers.md`](workers.md)'s **Load only what runs** one
+layer up.
+
+| Mode | Opens beyond the spine |
+|---|---|
+| `/hex-plan` | `decompose.md`, `loop.md` |
+| `/hex-execute` | `decompose.md`, `worktree.md`, `loop.md`, `verify.md` |
+| `/hex-review` | `decompose.md`, `loop.md`, `severity.md` |
+| `/hex-architect` | `loop.md` |
+| `/hex-finalize` | `verify.md` |
+| any of the above with `adversary=on` | `+ adversary.md` |
+| `/hex-review` on a federated target | `+ worktree.md` |
+| `builder` worker | `verify.md` only |
+| `reviewer` worker | `severity.md` only |
+| `coordinator` worker | `loop.md`, `decompose.md` — **and the spine**, which no worker persona loads by default |
+| every other worker persona | — |
+
 ## Shared shape
 
 Every orchestrator runs the same outer loop:
@@ -71,7 +112,8 @@ not named here is not exempt, whether or not it spawns workers, and a
 fourth member is added by amending this sentence, never by analogy.
 
 The gate announces the fully resolved config, each item attributed to its
-source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`):
+source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`
+/ `derived`):
 
 ```
 Tier: medium            (auto — classifier: new subcommand, 2 areas)
@@ -86,18 +128,54 @@ Spawn set:
 Models: <fast-balanced model> default; architect + reviewer:security →
         <deep-reasoning model> (hex.md preference instantiated — see models.md)
 Adversary: codex-adversary, plan-artifact scope   (hex.md preference)
-Limits: workers 8 · loop rounds 3   (shipped 8 / tier default — a stored limit or a batched phase shows here with its source)
-Degraded: no — subagent spawning available
+Limits: workers 8 (clamped from 12 · hex.md preference) · loop rounds 3
+        (loop rounds · tier default — a stored limit or a batched phase
+        shows here with its source)
+Degraded: blocking adversary call — no pollable output; process_only backstop 15 min
 ```
 
 The `Limits:` line appears at every orchestrator's gate whenever a
 `hex.md › Preferences` limit is in force **or** a phase's resolved set
 exceeds the effective worker cap (a batched phase — see [Worker
 coordination](#worker-coordination)); it is omitted only when neither
-applies and the shipped defaults run unmodified.
+applies and the shipped defaults run unmodified. A blocking adversary call
+announces itself on a `Degraded:` line instead ([§ Adversary
+contract](adversary.md#adversary-contract)).
+
+**Per-WP effective tiers.** In a plan carrying the generation marker
+([the effective tier](decompose.md#the-effective-tier)) `Tier:` announces the
+**ceiling** and the block gains two lines: one attributing each work
+package's own resolved tier to the inputs that produced it —
+`WP1 low (derived: S, no flags) · WP4 high (derived: sec)` — and the budget
+histogram that run prints,
+`effective tier: low 6 · medium 2 · high 1 (ceiling high)`, whose grammar
+lives at the histogram bullet in [Parallel-by-default
+decomposition](decompose.md#parallel-by-default-decomposition) and is not restated
+here. The value is recomputed at each WP's own spawn time, so gate-time
+and run-start listings are snapshots, labelled as one.
+
+**Clamp grammar, one shape for every limit.** A configured value above a
+limit's shipped or tier ceiling prints as `<name> <effective value>
+(clamped from <configured value> · <source>)`; an unclamped limit keeps the
+plain `<name> <value>` shape with its source in the line's trailing
+attribution. `<name>` is the limit's leaf key with `limits.` dropped and its
+hyphens read as spaces — `loop-rounds` → `loop rounds`,
+`adversary-timeout` → `adversary timeout`; `max-workers` is the one
+shortening, rendered `workers` as the block above shows. The derivation
+governs this line and nothing else — `hex.md`'s own Preferences prose spells
+the config keys themselves ([`memory.md`](memory.md)). A mode-(b) run in a
+project that set `adversary-timeout: 45` therefore renders
+
+```
+Limits: adversary timeout 5 (clamped from 45 · hex.md preference)
+```
+
+This is the rendering every "announced as clamped" clause resolves to —
+[`max-workers`](#worker-coordination) and
+[`limits.adversary-timeout`](config.md#key-vocabulary) alike.
 
 **Federation announce block.** When a plan carries a `Repo` column, the gate
-gains one block **immediately after the `Degraded:` line**, in the same
+gains one block **immediately after the last `Degraded:` line**, in the same
 `<label>: <resolved value> (<source>)` shape:
 
 ```
@@ -132,12 +210,26 @@ never restate it:
   `[<phase> batched N+M — concurrency cap C (hex.md)]`.
 - a `never: [reviewer:security]` suppression failed closed → the
   `Error:` / `Fix:` refusal pair ([`config.md`](config.md#merge-rules) rule 5).
+- a `hex.md › Preferences` model override that raises a spawn above its
+  effective-tier cell → one line naming the role, the class, the WP's
+  effective tier, and `hex.md preference` as the source; no override is
+  blocked, weakened or reordered.
 
 See [`config.md`](config.md#tiers).
 
+**Risk-flag degrade — a trigger class of its own, never a member of the
+enumeration above.** A run in which any risk flag degraded ([the effective
+tier](decompose.md#the-effective-tier)) prints one line, once, naming which flag, which
+convention was unreadable, the consequence per flag — a degraded `sec` or
+`hot` resolves that WP at the ceiling, a degraded `hub` floors it at
+`min(T, medium)` — and the one-line remedy. It is filed here rather than
+in that list because an absent or malformed Pointers row is not a
+`Preferences` config block, and filing it there would widen a closed
+enumeration by analogy.
+
 (`codex-adversary` is only an example value — the adversary skill name
 always comes from `hex.md › Preferences`; see the
-[adversary contract](#adversary-contract).)
+[adversary contract](adversary.md#adversary-contract).)
 
 **Models line contract.** Shipped files name only capability classes and
 placeholders; the **running orchestrator resolves each class to the
@@ -169,7 +261,13 @@ Three inputs decide which workers and perspectives run; later wins:
 2. **Project hints** — the Preferences section of
    `.agents/memory/hex.md`: always-on perspectives, research axes,
    path-triggered escalations, model overrides. The classifier folds these
-   into its suggestion.
+   into its suggestion. **Hints populate phases; they never define them** —
+   project hints contribute perspectives, research axes, path-triggered
+   escalations and model overrides; they
+   **never add, remove, or reorder a phase or stage**.
+   A hint naming a phase absent from the
+   resolved tier file is **dropped** by [`config.md`](config.md#merge-rules)
+   merge rule 9 — warn-once, that key only, run continues.
 3. **User, at the gate** — the single approval point offers perspective and
    researcher selection; non-interactive flags override.
 
@@ -178,7 +276,13 @@ block always shows the resolved set with per-item source.
 
 `tiers` (and, in v2, `workflows`) do not add a fourth input — they
 **rewrite layer 1** before layers 2 and 3 above apply
-([`config.md`](config.md#merge-rules)).
+([`config.md`](config.md#merge-rules)). The **phase set is the resolved tier
+file's**, and layer 1 is the only place it is rewritten.
+
+**Running a stage absent from the resolved tier file is a spec violation**,
+announced to the same standard [`models.md`](models.md#rules) sets for a
+silent model escalation. A hint dropped under merge rule 9 is no licence to
+run its phase anyway: the tier file *is* the phase set.
 
 **Persona loading.** The orchestrator always reads the
 [`workers.md`](workers.md) index; it loads a full persona file
@@ -186,87 +290,6 @@ block always shows the resolved set with per-item source.
 **only for roles in the resolved spawn set** — never the whole registry.
 Project-local personas fold in as project hints (layer 2 above) and never
 override a shipped role of the same name.
-
-## The Review-Fix Loop
-
-The canonical contract-first loop. **This is the only copy in the bundle —
-every other file links here.** Diff-scoped, bounded, tier-scaled.
-
-**Contract-first TDD phases:**
-
-1. **Stub** — a builder (focus `stub`) creates the public surface; gate on
-   the project's compile/type check.
-2. **Specify** — a tester (focus `specification`) writes tests from the
-   design record; they MUST fail against the stubs.
-3. **Implement** — a builder (focus `implement`) fills bodies until the
-   tests pass; run the project's documented verification for changed files.
-   **Carve-out for a leaf under a coordinator:** it runs a scoped
-   compile/parse check only — concurrent full verification in the
-   coordinator's shared worktree would race on shared build artifacts — and
-   the coordinator runs the one authoritative verification at the WP join.
-4. **Review-Fix** — the loop below.
-
-**The loop:**
-
-- **Round 1** — run every tier-selected perspective on the diff,
-  concurrently. Perspectives most likely to find blockers go first (spec,
-  correctness). Classify each finding:
-  - **Actionable** — a builder fixes it; re-run only the affected
-    perspectives next round.
-  - **Deferred** — surface it in the summary with context; never block the
-    loop on it.
-- **Subsequent rounds** — re-run only the perspectives with actionable
-  findings from the prior round. A finding that surfaces two rounds running
-  (oscillating) auto-defers.
-- **Loop cap** — scales with tier and **scope**. Code-diff scope: 1 round
-  at `low`, up to 3 at `medium` and `high`. **Plan-artifact scope** (a
-  draft plan or ADR under review by its own orchestrator): **one** panel
-  round → the orchestrator applies actionable fixes → **one** re-validation
-  pass by `reviewer` (focus `spec`) *whenever any actionable fix was
-  applied* (skipped only on a clean panel) → anything still actionable
-  escalates to the user. Artifacts are re-checked downstream anyway
-  (Specify and Verify-Architecture gates), so multi-round artifact loops
-  buy little; re-enabling them takes an **explicit** `artifact loop
-  rounds: N` limit in `hex.md › Preferences` — the generic loop-rounds
-  ceiling does not. If actionable findings remain when a cap
-  is hit, **stop and escalate to the user** with the outstanding list —
-  do not loop past the cap.
-- **A `loop rounds` value in `hex.md › Preferences` is a ceiling, never a
-  default and never a raise.** It caps the code-diff scope's per-tier round
-  count *and* any `--loop-rounds` flag: the effective cap is the **lower of
-  the stored value and the run's resolved request** — `--loop-rounds` when
-  passed, the tier default otherwise. The stored value never raises the tier
-  default and never lifts `low` above 1 round; a `--loop-rounds` flag may
-  still loosen a run up to (never past) the stored ceiling. `limits.*` sit
-  **outside** the later-wins [spawn-selection
-  precedence](#spawn-selection-precedence) — a user flag may lower a limit,
-  never raise it past the stored ceiling. The stored value never affects
-  plan-artifact scope — that scope moves only via the explicit `artifact
-  loop rounds: N` limit named above. Both limits are announced at the gate
-  with their source, like every other resolved axis.
-- **Per-WP review budget** — when the plan's Parallelization table carries
-  a `Review` column, it scales this loop per work package:
-  - `self` — **no reviewer spawns in this loop, and the WP skips the
-    Verify-Architecture reviewer**: the builder's self-check
-    ([`workers.md`](workers.md) universal rule 7) plus the project's
-    documented verification are the only WP-level checks. A `self` WP is
-    deliberately un-reviewed at the WP level — which makes the
-    branch-level `/hex-review` pass **mandatory before the feature branch
-    lands on the trunk** for any plan containing one; the execution
-    handoff records it.
-  - `light` — one `reviewer` (focus `spec`, phase `post-implementation`),
-    one round.
-  - `panel` — the tier's full Round-1 set and round cap (the ceiling).
-
-  The budget only **lowers** breadth below the tier baseline, never raises
-  it. A missing column or cell means `panel` — pre-budget plans run
-  unchanged.
-- **Adversary gate** (optional, tier-scaled) — after the loop converges,
-  one cross-model pass on the diff; see [Adversary contract](#adversary-contract).
-  One-shot, never loops.
-- **Exit gate** — no actionable findings remain, the project's documented
-  verification passes on the final state, and deferred findings are
-  documented for handoff.
 
 ## Worker coordination
 
@@ -286,16 +309,43 @@ rarely clears the granularity gate.
   batch in a single step. Keep prompts focused for fast startup. The cap
   counts **recursively** — leaves running inside a coordinator count toward
   it — so the orchestrator hands each coordinator a **fan-out budget** no
-  larger than its slot's share, keeping the recursive total within the cap.
+  larger than its wave allocation, keeping the recursive total within the cap.
+  **The cap counts live model-compute — agents in state `working`.** An agent
+  in state `blocked` — waiting on its children, on a heavy slot, or on a lock
+  — **does not occupy a slot**: it is burning no model compute, and charging a
+  blocked parent against the very pool its children need is the documented
+  nested-pool deadlock (the parent holds a slot while it waits on work that
+  can only run in that same pool, so neither side ever advances). Recursive
+  counting, the clamp above 8 and the federated single-lead read below are
+  otherwise unchanged.
+- **Allocation across the hierarchy: a guaranteed floor plus bounded
+  borrowing, partitioned at schedule time.** Every live coordinator gets a
+  floor of 1 leaf slot it can never be starved of, and may borrow above that
+  floor up to a ceiling from the unused share of idle siblings. **Allocation
+  is partitioned per wave at schedule time, never contended at runtime** —
+  the fan-out budget above is handed out once per wave, never raced for.
+  Effective parallel work-package count is
+  `min(|ready set|, effective max-workers)` — those two terms and no third.
+  **`limits.heavy` is never a term in that formula and never a cut applied to
+  spawns**: it bounds the **concurrent heavy commands** the launched work
+  packages may run, worker-side rather than at spawn time
+  ([`resources.md` § 3](resources.md#3-the-heavy-semaphore) owns the
+  mechanism). The two caps **compose rather than substitute** — one bounds how
+  many work packages run, the other how many heavy commands run inside them.
+  Blocked agents do not count, per the
+  bullet above. This is the invariant's one home; [Parallel-by-default
+  decomposition](decompose.md#parallel-by-default-decomposition) reads against it and
+  restates none of it.
 - **A `max-workers` value in `hex.md › Preferences` lowers the cap and
   never raises it**: the effective cap is `min(8, max-workers)`, counted
-  recursively like the shipped 8. A value above 8 is honored as 8 and
-  announced as clamped. The cap bounds **how many workers run at once, not
-  how many a phase spawns** — a phase whose resolved set exceeds the
-  effective cap runs in **sequential batches of at most the cap, in
-  declaration order**, and the phase gate holds until the last batch returns
-  (the same cap bounds WP launch — [Parallel-by-default
-  decomposition](#parallel-by-default-decomposition)); it never silently
+  recursively like the shipped 8 — that 8 is the ceiling [`config.md` merge
+  rule 9](config.md#merge-rules) clamps and announces against. The cap
+  bounds **how many workers run at once, not how many a phase spawns** —
+  a phase whose resolved set exceeds the effective cap runs in **sequential
+  batches of at most the cap, in declaration order**, and the phase gate
+  holds until the last batch returns (the same cap bounds WP launch —
+  [Parallel-by-default
+  decomposition](decompose.md#parallel-by-default-decomposition)); it never silently
   drops a perspective the tier baseline calls for, and it announces the
   batch split and the cap's source. **Federated (a plan carrying a `Repo`
   column):** this cap counts **across all participating repos**, and the
@@ -362,76 +412,314 @@ pattern as the existing subagent-spawn gate. **Axes compose:** each gated
 capability contributes its own `Degraded:` line; a harness lacking both
 subagent spawning and per-spawn override prints both (inline workers *and*
 single session model). The gate stacks one line per degraded axis rather
-than defining a combined state.
+than defining a combined state. The set of gated capabilities is **open**,
+not the harness-probe list alone — a blocking adversary call is one
+([§ Adversary contract](adversary.md#adversary-contract)). `Degraded: no — <capability>
+available` is the **no-axis rendering**: a gate that prints any axis line
+prints no `Degraded: no`.
 
-## Parallel-by-default decomposition
+**Preflight before every spawn wave.** A **spawn wave** is the launch of one
+ready-order batch — the eligible work packages the ready-set releases
+together, bounded by the cap above ([Parallel-by-default
+decomposition](decompose.md#parallel-by-default-decomposition)). Before **every** spawn
+wave the orchestrator runs three checks, in under 2 seconds total:
 
-Plans are decomposed to **maximize parallel execution** — sequential is
-the exception, not the default shape:
+| Check | Source | Trips when |
+|---|---|---|
+| Disk headroom | the worktree and scratch volumes | free space is under `max(5 GB, measured per-worktree artifact size × the wave's width)` — 5 GB is a floor, never the threshold |
+| Memory pressure | `/proc/pressure/memory`, `full avg10` | it reads above 10 % |
+| Stale worktrees | the plan's active set | a worktree exists that the plan does not list |
 
-- **Decompose by structural boundary** (a directory, module, package, or
-  data-model boundary), never by user-facing feature slice — two slices
-  that touch the same file from different angles cannot parallelize.
-- **Every WP declares its expected file set at planning time.** Parallel
-  eligibility is a plan-time set-intersection check, not a merge-time
-  discovery: two WPs may share a wave only if their file sets are
-  disjoint. Two tasks that need the same file become sequential steps of
-  **one** WP — never two parallel WPs. **When the plan carries a `Repo`
-  column** the comparison is over `(Repo, path)` pairs, not bare paths
-  (C-316) — satellites routinely declare textually identical repo-relative
-  paths that are disjoint across repos; with no `Repo` column every pair is
-  `(., p)` and the check is byte-for-byte as before (same key, worktree side:
-  [Worktree work-package mechanics](#worktree-work-package-mechanics)).
-- **Every WP declares its review budget at planning time.** The
-  Parallelization table's `Review` column holds `self | light | panel`,
-  assigned when the WP is cut: docs-only or tiny low-risk work (~≤50
-  expected lines, no security-sensitive or hot-path files) → `self`;
-  a single-area moderate change → `light`; large, cross-area, security-
-  or hot-path-touching work → `panel`. Consumed by the
-  [Review-Fix Loop](#the-review-fix-loop); a sub-WP inherits its parent's
-  budget when absent; a missing column means `panel`. **Budgets are
-  re-validated at merge time**: alongside the merge-time file-set
-  re-validation, a WP whose actual diff outgrew its budget class (size
-  well past the `self` heuristic, or any security-/hot-path file touched)
-  escalates to the next budget and its review re-runs at that breadth
-  before the merge — a plan-time estimate never caps review of what was
-  actually built.
-- **The counterweight: no WP below its own overhead.** Every WP pays a
-  fixed cost — worktree, stub/specify/implement spawns, review, merge,
-  verification. A WP whose whole scope is a single trivial concern (~≤50
-  expected lines) **folds into its nearest sibling as sequential steps**;
-  keeping it isolated needs a one-line justification, checked by the plan
-  review. Maximize parallelism *between* right-sized WPs — never by
-  slicing below the overhead floor.
-- **Launch on dependency-ready; waves are a derived reporting view.** Waves
-  stay computed — a WP is in wave N iff every WP it depends on sits in an
-  earlier wave and N is minimal (topological levels), wave 1 = no
-  dependencies — but a wave is a **derived reporting view**, shown in the
-  table and the mermaid index for readability, never a launch gate. A WP
-  becomes eligible the instant every WP in its `Depends-on` has Status
-  `merged` — not when its whole wave is ready. The orchestrator maintains a
-  **ready-set** and launches eligible WPs immediately, within the
-  concurrency cap, recomputing on every merge. The ready-set is ordered
-  **critical-path-first** (longest remaining dependency chain first), so a
-  shallow WP never starves the critical path (marked in the plan). The
-  concurrency cap still bounds fan-out
-  ([Worker coordination](#worker-coordination)) — when the ready-set is
-  wider than the cap allows, launch in ready-order batches. Merge stays
-  serialized in a valid topological order — the DAG changes launch timing,
-  not merge discipline. A linear or all-wave-1 plan schedules identically to
-  the old barrier — its ready-set equals wave membership — so it is
-  backward compatible.
-- **Progress surface** — with no wave barrier, surface live state from the
-  Status column (the data is already there): a compact rollup line per
-  coordinator (e.g. `WP3 [coordinator]: 2/4 sub-WPs merged`), and a WP left
-  `active` far beyond its peers carries a **staleness flag**, so a hung WP no
-  longer blocks anything visibly. Surface only — never speculative
-  re-execution.
-- **The critical path** — the longest dependency chain — is identified
-  and marked; it bounds wall-clock time no matter how wide the waves are.
-- **Under-parallelization is justified, never silent**: a decomposition
-  with fewer parallel WPs than its file-disjointness allows carries a
-  one-line justification in the plan's Parallelization section.
+On any trip the orchestrator **holds, never spawns**: wait 60 seconds and
+re-check, at most 3 times, then surface to the human naming the tripped check
+rather than holding forever — an orchestrator that waits indefinitely on a
+machine the human is also using is a hang, not a safeguard. **A missing check
+is never a passed check**: a host whose source does not exist
+(`/proc/pressure` is Linux-only) skips that check and **announces the reduced
+check set**, because the whole value of the preflight is that its output is
+believable. Preflight lives here rather than in `resources.md` because it is
+**scheduling, not a resource knob** — two of its three checks do not care
+whether the gate is heavy, and `resources.md` is conditional-load.
+
+**Heavy commands — see [`resources.md`](resources.md).** That file is
+**conditional-load**, in the shape [`config.md`](config.md) already uses: read
+it **only when a run will issue a heavy command**, so a parse-only project
+never pays its bytes. It owns the measured profile, the semaphore, the
+per-run scratch, the containment ladder, the knob sheet, teardown and the
+[output signals](resources.md#9-output-as-a-resource-signal) — and **not**
+preflight, which is scheduling and is defined above. One thing to know here: a
+heavy command takes one of `limits.heavy` `flock` slots
+([`resources.md` § 3](resources.md#3-the-heavy-semaphore)).
+
+### Worker liveness
+
+Every live agent maintains one heartbeat file, so the orchestrator can tell a
+working agent from a hung one. **This section is the sole definition of that
+contract**; every other file links here rather than restating it.
+
+**The file — one flat directory per run, one JSON object per live agent.**
+
+```
+${XDG_CACHE_HOME:-$HOME/.cache}/hex/<run-id>/hb/<agent-id>.json
+```
+
+**It sits outside every checkout, and that is a security decision, not a
+tidiness one.** A fixed in-tree path that is *read as a control surface* is
+plantable by the repository under work: a hostile clone ships a beat naming
+itself a child of the orchestrator, ages it to L3, and its attacker-authored
+`checkpoint` string is interpolated into a re-spawn prompt as "where to
+resume"; a planted directory symlink redirects the write out of the checkout
+entirely. `<run-id>` removes a second defect the in-tree path had — two runs
+sharing one checkout collided on a single per-role filename.
+
+**Paths come from the spawn prompt, never from a worker's own environment.**
+The orchestrator resolves every path under `${XDG_CACHE_HOME:-$HOME/.cache}/hex/`
+**once, from its own unredirected environment**, and passes each as an
+absolute path in every spawn prompt; **a worker never expands it itself**,
+because a worker's own copy of that variable is redirected into the per-run
+scratch and its expansion would land back inside that scratch. `<run-id>` and
+every `<agent-id>` are **minted by the agent that spawns the agent the id
+names** — the orchestrator for `<run-id>` and for its own children, a
+coordinator for each leaf it spawns and returns — under one rule for all of
+them: slugified to `[a-z0-9][a-z0-9-]{0,63}`, and **never taken verbatim
+from a plan cell, a filename or any worker-supplied text** — these strings
+reach a delete target and a composed shell. An id that arrives *from* a
+coordinator — a leaf id in its returned `agent=<id>` lines — is
+worker-supplied text by that same rule, so it is **re-checked against
+`[a-z0-9][a-z0-9-]{0,63}` before it is used or echoed**.
+
+**Eight fields, and no schema-version field** (presence checks, never a
+version marker):
+
+| Field | Value |
+|---|---|
+| `seq` | int, monotonic from 1 — the torn-write guard, and nothing else |
+| `parent` | string, or `null` for the top orchestrator |
+| `state` | one of the five values below |
+| `step` | short string: the phase or step it is on now |
+| `checkpoint` | string or `null` — a path for a leaf, a commit SHA for a coordinator |
+| `ts` | ISO-8601 UTC — with file completeness, the only thing that grades an agent |
+| `expect_next_s` | int: seconds until the next beat is due |
+| `blocked_on` | string, present only in state `blocked` |
+
+There is deliberately **no `id` field** — it would be byte-identical to the
+filename stem — and, by the same rule, **no `children` field**: the directory
+is flat and every beat carries `parent`, so any agent reconstructs any subtree
+with one glob and a filter. A second copy that can disagree with the thing it
+names earns nothing. **`seq` is the torn-write guard and never a liveness
+grade**: an agent whose context is compacted and which restarts its counter at
+1 must not be gradeable as dead for it.
+
+**Every field is worker-authored, so every one the orchestrator echoes or
+interpolates — `checkpoint`, `step`, `blocked_on`, and the `agent=<id>` a
+coordinator returns — is quoted and truncated per
+[§ Untrusted-text echoes](#untrusted-text-echoes)** — linked, never
+restated.
+
+Beats are written **temp-then-rename** — write `<agent-id>.json.tmp`, then
+move it into place — so a reader never observes a partial object, a move
+within one directory being atomic on POSIX. **Exactly one writer, always —
+the agent the filename names.** No parent, no sibling and no sweep ever writes
+into another agent's beat file, not even to mark a child it has just stopped:
+a parent writing into a child's file races a child that may not in fact be
+dead. The file is **ephemeral** — deleted by teardown, never inside a
+repository, and **never read by resume**. **Teardown deletes the whole
+`${XDG_CACHE_HOME:-$HOME/.cache}/hex/<run-id>/hb/` directory**, and that
+obligation is stated here rather than only in
+[`resources.md` § 8](resources.md#8-teardown): a parse-only run issues no
+heavy command and so never loads that conditional-load file at all, and
+still deletes its beats. That section keeps listing the same directory for
+the runs that do load it.
+
+**The state enum — five values, two of them load-bearing.**
+`spawning | working | blocked | done | failed`.
+
+- `spawning` carries the **cold-start budget**: a cold start and a
+  steady-state deadlock are different numbers and must not share a threshold.
+- `working` is live model-compute and **occupies a concurrency-cap slot**.
+- `blocked` is load-bearing for exactly one thing, and it is contract, not
+  convention: **it exempts the agent from the concurrency cap** (the cap
+  bullet above), which is what keeps nested fan-out from deadlocking. **The
+  exemption rides on the declared state carrying a `blocked_on` value, never
+  on an inference** — without one the agent still occupies its slot. An
+  agent in `blocked` sets `blocked_on` naming what it waits for, and **a
+  `blocked` beat without `blocked_on` is graded as nothing** — not a
+  violation, not a death; it is simply a less useful beat, and the ladder
+  reads `ts`.
+- `done` and `failed` are terminal for the file: it stops advancing, and
+  **the orchestrator's teardown deletes the heartbeat directory; no parent
+  deletes a child's beat file.** **`failed` means "the agent reported its
+  own failure before exiting" — never "the parent declared it dead"**, since
+  every beat file has exactly one writer. The terminal state of the *work*
+  lives where work state has always lived: the plan's Parallelization-table
+  **Status** column.
+
+**Cadence — four obligations, one default, and nothing running in the
+background.** An agent writes a beat:
+
+1. **At spawn**, within **2 minutes**, in state `spawning`.
+2. **At every phase boundary**, with `step` changed.
+3. **At least every 5 minutes** while `working`.
+4. **Before any tool call it expects to exceed its current deadline** — a
+   beat declaring a new, larger `expect_next_s`. The worker moves its own
+   deadline *before* it blows it, rather than the orchestrator guessing one
+   global timeout for every worker.
+
+Where a worker is free to choose, it beats at `expect_next_s / 2`, so a
+single lost beat is not a miss. **The default `expect_next_s` is 300.** A
+beat that repeats the same `step` is a healthy beat: **freshness is the only
+test the ladder applies**, so a long phase that beats on time never trips
+anything.
+
+**Every beat is one foreground tool call the agent makes itself, at its own
+tool rounds — a delta the agent produces, never a pulse something else
+keeps.** No background process, no timer, no daemon, no client hook:
+nothing outside the agent can keep the signal alive after the
+agent has hung, and that is exactly why a fresh beat is evidence the agent is
+still executing. The whole contract's value rests on it. An agent that was
+passed no path writes no beat and is exempt from the ladder.
+
+**The checkpoint — the resume anchor.** `checkpoint` is the anchor a re-spawn
+resumes from, and it names no new mechanism. It carries **two different
+values, and the contract says which agent writes which**:
+
+- For a **coordinator** of either kind: a **commit SHA**, a coordinator
+  being the one worker that commits. For a **decomposing** coordinator it is
+  the SHA of its last sub-WP join commit, which
+  [`workers/coordinator.md`](workers/coordinator.md) already writes and
+  already calls a reset point. A **pipeline** coordinator joins nothing, so
+  its value is the SHA of **the last phase commit on its work package's
+  branch** — the same reset point one level down, already made by the phase
+  that landed, so this kind is never left permanently `null`. **This clause
+  is the source**; the coordinator persona's Liveness clause follows it.
+- For a **leaf**: **a path, never a SHA** — the path of the last durable
+  artifact it produced. A **leaf** has no commit to point at:
+  [`workers.md`](workers.md) § Universal worker protocol rule 5 is *never
+  auto-commit*, so offering a leaf the SHA form would put this field in
+  direct contradiction with a universal worker rule.
+
+`null` where nothing durable exists yet, and a re-spawn restarts the phase
+from its beginning. The value is **advisory to the re-spawn prompt and never
+authoritative over the plan**: a re-spawned agent still reads its plan row for
+scope, and the checkpoint only tells it where to pick up.
+
+**The escalation ladder — four rungs, applied to every orchestration depth
+by the single runner named below.**
+
+- **L0 fresh** — the last beat is within `expect_next_s`. Nothing happens.
+- **L1 stale** — `now − ts > 2 × expect_next_s`. Wait **3 minutes**, and
+  best-effort ping the agent over the *agent-messaging* capability. **The wait
+  is the rung; the ping is not a gate** — L1 proceeds on its timer whether or
+  not a message can be delivered, and whether or not one is answered; an
+  answered ping short-circuits back to L0. **No beat file 2 minutes after
+  spawn — the cadence obligation above — is a missed startup beat, and it is
+  the only L1 that skips straight to L2** — there is nothing to ping, because
+  the agent never announced itself.
+- **L2 unresponsive** — no new beat after that wait. Read the agent's output
+  *if the harness exposes it*. **The discriminator: tool calls still flowing
+  means the agent is alive and violating the beat contract — log a `Warn`
+  finding (`adr_0006` `C-502`) and do NOT kill it.** Silent means L3.
+  **Where the output cannot be read at all, the rung holds at L2** — log the
+  same `Warn` and do **not** kill: an absent observation is not a silent
+  agent, and a missing check is never a passed check (the preflight table
+  above). Announce
+  `Degraded: no agent output — L2 holds at Warn, never escalates to L3`. Any
+  worker text this rung reads or echoes is untrusted, and is quoted and
+  truncated per [§ Untrusted-text echoes](#untrusted-text-echoes) — linked,
+  never restated.
+- **L3 dead** — stop the agent over the *agent-termination* capability and
+  **re-spawn it from `checkpoint`** under a **newly minted `<agent-id>`,
+  never the dead agent's**. The stop is best-effort — and where the
+  *agent-termination* capability is absent it is only a report — so reusing
+  the id would put two live agents on one beat file, breaking **exactly one
+  writer, always** on precisely the path where it matters, and would
+  overwrite the stale beat kept for the post-mortem. **L3 on a coordinator
+  stops its children first**, identified by `parent` **cross-checked against
+  the orchestrator's own spawn record** — `parent` is self-reported, so an
+  unchecked field lets a confused child evade the cascade or drag a sibling
+  into it, and the orchestrator already holds the record of what it spawned.
+  **A coordinator's leaves are absent from that record** — the coordinator
+  minted and spawned them — and its per-phase `agent=<id>` lines ship in
+  its Return block, so **at the moment this rung fires they do not exist
+  yet**: the coordinator is still running, which is why the rung fired. At
+  depth 2, therefore, **`parent` alone identifies the leaves** and the
+  cascade is that much more best-effort. The returned `agent=<id>` lines
+  ([`workers/coordinator.md`](workers/coordinator.md) return template)
+  corroborate **afterwards** — retry accounting and the post-mortem — and
+  are re-checked as untrusted ids per the minting rule above.
+  Orphaned agents holding worktrees, daemons and containers are the
+  documented failure of every kill path that skips this.
+
+**One retry per phase. A second death in the same phase marks the work
+package `failed` and surfaces it — never a third auto-retry.**
+
+**Nobody writes a dead agent's beat.** The evaluator stops the agent, retires
+it from its own glob, and records the outcome in the plan's
+Parallelization-table **Status** column — the writer, the column and the
+vocabulary it already owns. It never writes `failed` into the child's file:
+one writer per beat file is absolute, and the "dead" child may be alive enough
+to write the next beat. The stale file is left on disk for the post-mortem and
+removed by teardown.
+
+**Who runs the ladder.** A coordinator is **a worker like any other for
+liveness: it writes its own beat and runs no ladder.** **The top orchestrator
+is the sole ladder runner for the whole fleet, at every orchestration depth.**
+The directory is flat and every beat carries `parent`, so **one glob gives
+every agent's state at every depth**, and the top orchestrator is the one
+agent that reliably takes turns — it schedules, it merges, it runs the gates.
+A coordinator awaiting its children is `blocked` and takes no turns, so an
+evaluator sitting there would never run at the moment it was needed. Nothing
+here needs a second mechanism, per-level tuning or a reach-past rule: a dead
+coordinator's children are already in the glob the evaluator just read, and
+the spawn tree is unchanged.
+
+**The evaluation mechanism — three rungs, resolved once per run and
+announced.** Capability classes only: the ladder is gated on *what a client
+can do*, never on a primitive's name.
+
+1. A **condition-waiting** capability → arm **one wait per spawn wave**,
+   returning when the wave completes **or** a beat goes stale. Preferred.
+2. Else a **scheduled-wake** capability → one wake per 5 minutes.
+3. Else **turn-boundary checks** → glob the whole heartbeat directory,
+   **unfiltered**, at each phase boundary and at each turn the orchestrator
+   takes anyway. One glob, no polling loop, no background process, **zero
+   added turns**. Rung 3 is **not a failure mode** — it is the contract
+   working with no client features at all — but its detection latency is
+   bounded by the orchestrator's own turn cadence and is honestly larger than
+   rung 1's.
+
+**A blocking spawn primitive degrades rung 3 further, and it is the common
+case.** Where the client's spawn call returns only when the worker returns,
+the orchestrator takes **no turns while that worker runs**, so "bounded by
+the orchestrator's own turn cadence" collapses to **the worker's own
+completion**: nothing is observed until the thing being observed has
+finished, and a worker that hangs for its whole budget is indistinguishable
+from one that worked for it. Two mitigations, neither a new mechanism.
+**The binding one is a per-worker wall-clock budget stated in the brief** —
+one line telling the worker how long its whole assignment may take and to
+return a partial result rather than run past it. Under a blocking spawn
+that budget, not the ladder, is what bounds the stall; it needs no new
+field and no new file. **The beat file is still written and still readable**, so an agent
+that *does* take turns — a sibling, or the orchestrator one level up —
+observes the stall this parent cannot see. The ladder itself still runs
+where **Who runs the ladder** above puts it — nothing here adds a second
+runner.
+
+Each absent capability announces its own line, in the shape the fan-out
+ladder above already uses:
+
+```
+Degraded: turn-boundary liveness checks — no condition-waiting or scheduled-wake capability
+Degraded: no agent messaging — L1 waits out its 3 minutes, no ping
+Degraded: no agent termination — L3 reports instead of killing
+Degraded: no agent output — L2 holds at Warn, never escalates to L3
+Degraded: blocking spawn — no liveness check runs while a worker runs; the brief's per-worker wall-clock budget bounds it
+```
+
+Where messaging is absent, L1 simply waits out its 3 minutes. Where output is
+not exposed, **L2 holds**: it logs its `Warn` and never escalates. Where
+termination is absent, **L3 does not kill**: it reports the dead agent, marks
+the work package `failed`, and lets `adr_0010` `C-913`'s cascade govern.
 
 ## Traceability IDs
 
@@ -451,52 +739,13 @@ check, not a prose judgment:
   (`reviewer:spec` — an ID with no covering WP or no covering test is an
   actionable finding), the Specify gate in execution (every ID has at
   least one failing test before Implement), and the convergence check in
-  review ([Convergence contract](#convergence-contract) — one gap per
+  review ([Convergence contract](loop.md#convergence-contract) — one gap per
   unmet ID).
 
 IDs are the join key convergence uses to name gaps; a requirement cannot
 drift silently once it carries one. The same IDs key the **spec fold-back**
 delta grammar (`ADDED`/`MODIFIED`/`REMOVED`) — see
 [`archive.md`](archive.md#delta-grammar).
-
-## Finding severity
-
-The shared severity vocabulary for review findings. **This is the only copy
-in the bundle — reviewer.md, the hex-review verdict and RCA rules,
-overlays.md, and the tier files link here, never restate it.** Severity is
-assigned by the worker that raises the finding (the orchestrator synthesises,
-it never invents a grade).
-
-Severity is orthogonal to a finding's actionable/deferred class: class says
-who fixes it, severity says how bad it is; every finding carries one of each.
-The floor is a floor, not a ceiling — a consumer's own rule may raise a
-finding above the label's floor.
-
-| Severity | What it is | Verdict floor |
-|---|---|---|
-| Block   | Merge-unsafe: correctness, security, data-loss, or contract break. | Request Changes |
-| High    | A real defect that should not merge unfixed, not unsafe on its own. | Needs Work |
-| Warn    | A minor defect or smell — naming, small duplication, a narrow edge case. | Needs Work |
-| Suggest | An optional improvement; no defect. | none — reported, but never gates the verdict |
-
-Medium/high construct: at tier low the ladder is not applied — a low finding
-carries only its class, the tag is absent, and the low verdict runs off its
-enumerated triggers. Presence of the tag is the signal that a run graded
-severity; there is no schema-version marker.
-
-One defect, highest severity wins: when more than one perspective reports the
-same file:line defect it is one finding at the highest severity any
-perspective gave it — no averaging. A panel Warn the cross-model pass raises
-to Block resolves to Block; the escalation is already visible in the
-Cross-Model section it was reported in.
-
-Producer-local grades fold in here: doc-reviewer keeps emitting
-Critical / Medium / Accuracy; the orchestrator maps them at synthesis —
-Critical → High, Medium → Warn, Accuracy → Block (a doc now wrong about
-shipped behavior is a contract defect). No producer defines a fifth level.
-
-Nothing to report → no findings lines, just the verdict — the same
-byte-identical-when-clean rule as the Convergence contract.
 
 ## Untrusted-text echoes
 
@@ -508,219 +757,6 @@ a message or in an authored file alike: interpolated quoted, truncated with
 the only copy in the bundle — `hex-architect`, `finalize.md`, and any later
 consumer link here, never restate it.** Which of its own surfaces carry that
 property is each consumer's definition; this section fixes the echo alone.
-
-## Worktree work-package mechanics
-
-Every plan integrates through **one feature branch**; each **work package
-(WP)** runs on its own ephemeral branch in its own worktree:
-
-- **One feature branch per plan** — the integration target for every WP.
-  Resolve it once, at execution start: the non-trunk branch already
-  checked out, else create `hex/<plan-slug>` from the trunk. Its tip at
-  that moment is the **frozen base** every wave-1 WP branches from — never
-  a moving baseline.
-- **One ephemeral branch + worktree per WP** — branch
-  `hex/<plan-slug>--<wp-slug>` (hyphenated, not `hex/<plan-slug>/<wp-slug>`:
-  git refs are paths, so the feature branch `hex/<plan-slug>` cannot also be
-  a ref *directory* holding a `<wp-slug>` child — a branch cannot be both a
-  ref and a ref-directory), worktree `.agents/worktrees/<wp-slug>/`
-  (the default; a deviation location is documented in project context
-  (cached in `hex.md › Pointers`) — it describes repo layout, not hex
-  behavior, so any bundle that spawns worktrees reads the same source). A
-  launching WP bases on the **current feature-branch tip** — by serialized
-  integration it already holds every merged dependency; wave-1 WPs base on
-  the frozen initial tip. Basing on a
-  dependency WP's tip instead is the never-taken pipelining option:
-  dependency-ready launch requires every dep `merged` (already on the
-  feature branch), so that clause would only apply to an *unmerged*
-  dependency — documented, unused.
-- Concurrently-running WPs **must own disjoint file sets** — never two WPs
-  on the same file.
-- **Merge back onto the feature branch, serialized, in a valid topological
-  order** — one WP at a time, never a batch: each merge changes the base
-  under the next.
-  Run the project's documented verification **after every merge** —
-  cross-file interactions surface only post-merge.
-- **Merge-time file-set re-validation** — before merging a WP, run
-  `git diff --name-only <base>..<wp-branch>` (`<base>` is that WP's
-  recorded base — the feature-branch tip it launched from, the frozen
-  initial tip for wave-1 WPs, never the trunk) and require every listed
-  file to sit inside the
-  WP's declared file set. Anything outside → do not merge; reconcile
-  first: justify the extra files in the plan's table, or re-scope the
-  WP.
-- **Merge conflict / post-merge failure playbook** — on a merge conflict
-  or a failed post-merge verification, the orchestrator judges the
-  collision semantically (a real design conflict versus a textual
-  overlap), applies at most **one** fix pass on the feature branch, and
-  re-verifies. Still failing → halt the wave, mark the WP `failed` in
-  the plan's table, and escalate to the user with a state summary.
-  Never loop past the one pass, never force-push, never rebase a
-  published ephemeral branch.
-- **Delete the ephemeral branch and remove the worktree after its WP
-  merges.** The feature branch is what survives; landing it on the trunk
-  is the human's step (their PR or merge flow) — hex never pushes, except
-  `/hex-finalize`'s force-push of the one feature branch it was invoked
-  on, consented by that invocation and approved at its gate — see
-  [`finalize.md`](finalize.md#scope).
-- **The plan table's Status column is the WP-level state of record**
-  (`pending | active | merged | failed`): execution sets `active` when a
-  WP's worktree is created, `merged` after its merge, `failed` per the
-  playbook. Branches and worktrees are only its evidence — resume reads
-  the column, not the refs.
-- **Sub-WP rows (dotted IDs)** — a coordinator splits its WP into dotted
-  sub-WPs (`WP3.1`, `WP3.2`, …) that are **ordinary table rows** — same
-  columns, same four statuses. **Only leaf rows are branch- and
-  worktree-eligible**; a parent with children is never itself branched. The
-  default for sub-WPs is the parent WP's **single shared worktree, with no
-  sub-branches**; a hyphenated leaf branch `hex/<plan>--<wp>--<sub>` (never a
-  slash path) is created **only for a declared true-isolation need**. A
-  sub-WP's `Depends-on` inherits the parent's when absent (override for a
-  tighter edge). IDs are never renumbered — next sibling = next integer,
-  append-only — and there is **no schema-version marker**: the presence of
-  dotted IDs is the signal.
-- **Parent Status is a computed rollup, never written directly** —
-  recomputed on every child write: **failed** if any child failed;
-  **merged** iff every child is merged *and* the parent's join check passes;
-  **active** once any child has started (is active or merged); else
-  **pending**. Genuine join work (more than the sum of the children) is an
-  **ordinary sibling sub-WP row** that depends on the other children — no
-  fifth status, no `.join` suffix. A parent with zero children (every old
-  plan) rolls up to its own literal status — the rule is vacuous, old plans
-  unchanged.
-
-Ignore `.agents/worktrees/` specifically (transient checkouts); never
-ignore `.agents/` wholesale — `.agents/memory/hex.md` is shared
-memory (see [`memory.md`](memory.md)).
-
-**Federation — a plan carrying a `Repo` column.** Everything above is
-per repo; a federated plan spans the lead (`.`) and one or more satellite
-repos named by the lead's `Federation:` pointers
-([`memory.md`](memory.md#the-three-sections)). Absent a `Repo` column every
-clause below is inert and single-repo behaviour is byte-identical.
-
-- **`Repo` column (C-302)** — the plan table's second column names the repo
-  each WP runs in: a Federation key, or `.` (the empty-cell default) for the
-  lead. `Expected Files` are **repo-relative to that repo**, because
-  merge-time re-validation runs `git -C <repo> diff --name-only`. Sub-WPs
-  inherit the parent's `Repo` and never name a different repo than the parent
-  (only leaf rows are worktree-eligible, so a cross-repo split is at WP
-  grain). No schema-version marker — the column's presence is the signal.
-- **Pre-flight access invariant (C-303)** — no cross-repo mutation (branch,
-  worktree, commit, back-pointer) occurs until, for **every** Federation key
-  the plan uses, six halting clauses pass. It is a **barrier over all keys,
-  not a per-repo gate**: a partially accessible or partially writable cluster
-  produces zero writes.
-  - (i) `git -C <path> rev-parse --show-toplevel` **must equal `<path>`** —
-    `git -C` walks *up*, so a non-repo path nested in another repo silently
-    reports the enclosing repo (the one clause here whose omission is silent).
-  - (ii) `git -C <path> rev-parse --path-format=absolute --git-common-dir`
-    **must differ from the lead's** — equality means `<path>` is another
-    *worktree of the lead*, not a separate repo.
-  - (iii) `git -C <path> status --porcelain` must succeed (hex's own
-    uncommitted back-pointer never counts as blocking).
-  - (iv) a **non-destructive write probe** must succeed — a zero-byte file
-    created and removed under `<path>/.agents/`, plus
-    `update-ref refs/hex/write-probe HEAD` created and deleted — because
-    (i)–(iii) prove readability only and every federated write comes later.
-  - (v) the repo's trunk must resolve, per C-304's discovery order.
-  - (vi) `git -C <path> check-ignore -q .agents/worktrees/` must succeed — a
-    satellite may never have run `/hex-init` (exempt there), so nothing
-    guarantees the path is ignored; on a miss, halt and offer to add
-    `.agents/worktrees/` (never `.agents/` wholesale).
-
-  Any failure **halts** with an `Error:`/`Fix:` pair carrying a pasteable
-  `--add-dir` relaunch line — never degrade, never skip a repo. The outputs
-  are **echoed per key** into the announce block so clause (i) is auditable.
-  The step-by-step procedure is `/hex-execute`'s (Dispatch step 1) and
-  cross-references this invariant; C-305 and C-306 depend on it.
-- **Shared-slug branch rule (C-304)** — `<plan-slug>` is the git-level join
-  key and is **identical in every participating repo**. The lead resolves its
-  feature branch unchanged (above). A **satellite always creates
-  `hex/<plan-slug>` from its own trunk, never from a checked-out non-trunk
-  branch** — the checked-out-branch clause is suspended for satellites; a
-  satellite found on a non-trunk branch is announced at the gate as unrelated
-  in-flight work. **Trunk is discovered, never assumed to be `main`**, in the
-  C-303 pre-flight, in order: (1)
-  `git -C <path> symbolic-ref --short refs/remotes/origin/HEAD`, stripping
-  the remote prefix, authoritative when present; (2) else the trunk documented
-  in that repo's **project context**, read explicitly (C-318 forbids reading
-  its swarm memory); (3) else **halt and ask**, naming the repo. Whatever (1)
-  or (2) yields must exist as a local ref
-  (`git -C <path> rev-parse --verify refs/heads/<trunk>`) or the same halt
-  fires. The resolved trunk and its source are echoed in the pre-flight line.
-- **Satellite worktree mechanics (C-305)** —
-  `git -C <path> branch hex/<plan-slug> <base>` (the frozen base SHA from the
-  plan's `Repos:` ledger, C-317/C-324 — never a branch name), then
-  `git -C <path> worktree add .agents/worktrees/<wp-slug> hex/<plan-slug>--<wp-slug>`.
-  The worktree lives under the **satellite's** own `.agents/worktrees/` — the
-  owning repo records the checkout and already gitignores that path. Removal
-  and branch delete after merge, as today. hex never fetches.
-- **Merge serialization spans repos (C-306)** — **one global topological
-  order over all WP rows regardless of repo, one merge in flight at a time.**
-  *Correctness* needs only two things: per-repo serialization (unchanged —
-  each merge moves the base under the next) and `Depends on` ordering wherever
-  an edge crosses the boundary (the DAG already enforces it); two WPs in
-  different repos with no edge between them have no correctness order. **Global
-  one-at-a-time is an operability choice** — one sequential orchestrator, one
-  halt-capable verification at a time, resume reconstructible from the Status
-  column — and is the first rule to relax if merge wall-clock ever dominates.
-  Each merge is `git -C <repo> merge` onto that repo's `hex/<plan-slug>`,
-  followed by the **owning repo's** documented verification read by an
-  **explicit `Read`** of that repo's project context (never ambient —
-  `--add-dir` does not load a satellite's `CLAUDE.md`). Cross-repo
-  `Depends on` edges are ordinary; the ready-set launcher and the merge
-  playbook are unchanged; the concurrency cap counts across repos.
-- **`Hex-Plan:` commit trailer (C-307)** — every commit hex makes in a
-  satellite carries `Hex-Plan: <remote-slug>:<repo-relative plan path>` in the
-  trailer block. Ordinary git-trailer syntax, no new format,
-  `git interpret-trailers`-compatible, recoverable via
-  `git -C <repo> log --grep`. The WP is derivable from the ephemeral branch
-  name, not the trailer. This is the only satellite-side record of the plan —
-  there is never a plan copy. Lead commits do not need it but may carry it
-  harmlessly.
-- **`(Repo, path)` disjointness key (C-316)** — the concurrent-WP invariant
-  above ("disjoint file sets") compares **`(Repo, path)` pairs**, not bare
-  paths: `Expected Files` are repo-relative, so satellites routinely declare
-  textually identical paths (`Cargo.toml`, `src/**`) that are nonetheless
-  disjoint across repos — FM5's free parallelism. Merge-time re-validation is
-  unchanged and already repo-scoped (`git -C <repo> diff --name-only` against
-  that WP's satellite-relative set). Vacuous single-repo: every pair is
-  `(., p)`. The plan-time set-intersection check states the same key — see
-  [Parallel-by-default decomposition](#parallel-by-default-decomposition).
-- **One frozen base per participating repo (C-317)** — the frozen-base rule
-  above is per feature branch, and C-304 gives a federated plan one feature
-  branch per repo, so there are **N frozen bases**, one per participating
-  repo, **all resolved together in the C-303 pre-gate step** — never lazily at
-  first touch, which would branch a wave-1 satellite WP from a moving
-  baseline. Each is **persisted as a full 40-character SHA in the plan's
-  `Repos:` ledger** (C-324) so resume, review, merge-time re-validation and
-  convergence all read the same `<base>` rather than re-resolving a trunk ref
-  that may have moved. A WP's base is its own repo's row.
-
-## Verification
-
-**hex never defines how to verify a project.** Every gate above that says
-"verify" means: run the project's documented verification, discovered from
-project context (cached in `hex.md › Pointers`; verify the pointer on
-consumption and re-detect on a miss). If none is documented, detect a
-reasonable command **once** for this run and suggest `/hex-init` to persist
-it — do not hardcode a command or re-guess it every phase.
-
-**Federation — a plan carrying a `Repo` column.** "The project's documented
-verification" means the **owning repo's**, read by an explicit `Read` of that
-repo's project context — never a cross-repo aggregate, because no single
-command spans a cluster and hex defines none (C-321). Tier gates worded
-"across the whole workspace" mean the workspace of the repo the gate runs in.
-The genuinely cross-repo check is a **mandatory integration WP** (one per plan,
-depending on every satellite WP it joins) whose command is authored **inline in
-the plan's Implementation Steps** (C-311), because it belongs to no repo and no
-pointer resolves it; its shape is a **per-repo table** — one row per
-participating repo (the lead plus every distinct `Repo` value), each naming the
-exact state that repo must be at and the command proving it, each reported
-pass/fail independently (an aggregate "integration green", a missing row, or
-running the command only in the lead does not satisfy it). There is no implicit
-federated verify gate.
 
 ## Constitution gate
 
@@ -748,68 +784,6 @@ satellite names one, the gate's federation announce block (C-315) names it as
 **unapplied**, so the gap is visible rather than silently inherited (C-322).
 No new gate, no new table.
 
-## Adversary contract
-
-A pluggable cross-model review, named in the `hex.md › Preferences` section.
-The contract is symmetric across harnesses — a user on one model family
-points at an adversary skill from another.
-
-- **Scopes:** `code-diff` (the branch diff versus a base) and
-  `plan-artifact` (a markdown plan or ADR file).
-- **One-shot — never loops.** Two-family stylistic thrash is the failure
-  mode it exists to avoid.
-- **4-way triage** of its findings:
-  - **actionable** — the orchestrator fixes it, then re-runs one affected
-    perspective;
-  - **deferred** — handed off with context;
-  - **stated-convention** — dropped, counted;
-  - **trivia** — dropped, counted.
-- **Graceful skip** when the named skill is unavailable: log
-  "Cross-model review skipped: `<reason>`" and continue — it is a gate, not
-  a blocker. The skip is surfaced **prominently at tier `high`**, where the
-  adversary pass is a default part of the flow.
-
-## Convergence contract
-
-The post-implementation drift check: does delivered code cover every
-requirement ID the plan carries? Run by the review orchestrator when its
-target traces to a plan artifact.
-
-- **4-way gap taxonomy, keyed by [Traceability IDs](#traceability-ids):**
-  **missing** (nothing delivered for the ID), **partial** (delivered but
-  incomplete against the contract), **contradicts** (delivered behavior
-  conflicts with the contract), **unrequested** (delivered behavior no ID
-  asked for — the reverse gap).
-- **Append-only growth**: the orchestrator appends gaps as new WP **rows**
-  at the end of the plan's Parallelization table, with matching new
-  Implementation Steps entries, `Depends on` the delivered WPs; their
-  **wave derives** as the next topological level (no explicit wave to
-  assert). Existing WPs, sub-WPs, steps, and IDs are never rewritten or
-  renumbered.
-- **Byte-identical when clean**: nothing unmet → the plan file is not
-  touched at all and the report states "Converged".
-- **Verdict interplay**: unconverged gaps cap the review verdict at
-  Needs Work — never Approve — with `Next: /hex-execute <plan path>`.
-- **Composition with fold-back (C-412)**: convergence runs **first and
-  unconditionally**; the [spec fold-back](archive.md) phase runs **only** on
-  a `Converged` result. They are mirrors on the same `C-###`/`S-###` join
-  key — convergence asks *does the delivered code cover the plan's IDs* and
-  appends to the plan (plan ← code), fold-back asks *does the spec describe
-  what the plan delivered* and appends to the spec (spec ← plan); neither
-  rewrites what the other wrote. A `Needs Work` verdict means fold-back never
-  runs at all.
-- **Federation — a plan carrying a `Repo` column (C-310):** the mechanism
-  above is unchanged; coverage is evaluated against the **union diff** (the
-  lead plus every distinct `Repo` value, `/hex-review`'s C-309 scope),
-  satellite delivery is located via the `Hex-Plan:` commit trailer
-  (`git -C <repo> log --grep`), and an appended gap row carries a `Repo` value
-  like any other row. `C-`/`S-` IDs stay plan-scoped and are therefore global
-  to the change. A gap delivered in a WP whose `Repo` is **not** `.` is
-  **not** folded into the lead's spec — it is reported "delivered in
-  `<repo>`, fold by hand" and left in the plan, because a fold has no correct
-  destination across a repo boundary (the [fold-back](archive.md) phase is
-  lead-scoped and never crosses it).
-
 ## Handoff contract
 
 Every orchestrator run ends with its skill's handoff block — **the
@@ -820,6 +794,19 @@ proceed question (e.g. "run the `Next step` command now?") — the
 single-gate rule governs *pre-work* approval and is not violated by a
 post-completion offer. Never more than one question, and never a question
 in place of the block.
+
+**An execution run's block carries a timing rollup — six figures, read from
+the plan the run just wrote** (the schedule log's `phase` and `merged`
+lines, [Parallel-by-default
+decomposition](decompose.md#parallel-by-default-decomposition)): total wall clock,
+per-work-package wall clock, per-phase wall clock, the work/wait split,
+review rounds, and adversary-gate time — that last figure alone from the
+orchestrator's own `date -u +%FT%TZ` bracket around the adversary
+invocation, the adversary pass being a run-level gate no `<WP>/<phase>`
+line can carry. **Where the `phase` lines are absent or partial the block
+names which figures are missing** rather than dropping
+the rollup or estimating them — an absent line is a run that predates it,
+not an error. The tier files link here and restate none of it.
 
 ## Upkeep step
 

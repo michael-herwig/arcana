@@ -185,8 +185,8 @@ ownership column. Other hex files reference them as `hex.md › Pointers`,
 
 | Section | Holds | Owner |
 |---|---|---|
-| `## Pointers` | Cached locations discovered from project context: where verification is documented, where spec/plan/ADR conventions live, doc and product-knowledge homes, key rule files, any worktree-location deviation from the default, the constitution / governing-principles location (optional). **Federation** pointers to sibling repos, when a change spans them — one bullet per satellite in the **lead** repo, fixed grammar `- Federation: <key> → <path> (<remote>); verification documented in …`: the `<key>` is the plan table's `Repo` value (the lead is `.` and is **never** listed), `<path>` is lead-relative (absolute permitted), `<remote>` is identity only (hex never clones, fetches, pulls or pushes), and the verification clause is a **pointer, never a command literal** — unlike an own-repo verification pointer it does not cache the satellite's command. Vacuous when absent. | **Skills** — a self-managed cache. Never authoritative: on conflict, project context wins; a stale pointer means re-detect and re-point (upkeep step), never wrong behavior. |
-| `## Preferences` | The instantiated model matrix (literal names) and per-cell overrides, the cross-model adversary skill, limits (max-workers, loop rounds), always-on perspectives / research axes. | **User** — written by `/hex-init` with consent; orchestrators read it, never edit it. |
+| `## Pointers` | Cached locations discovered from project context, plus the one **measured** value a run caches beside them: where verification is documented, where the selective test command is documented, where the project's security-sensitive / hot-path convention is documented, where spec/plan/ADR conventions live, doc and product-knowledge homes, key rule files, any worktree-location deviation from the default, the constitution / governing-principles location (optional), **`Resource profile:`** — the measured peak RSS, wall time and `light \| heavy` class of the project's documented verification gate plus the heavy-command ceiling derived from them ([`resources.md` § 2](resources.md#2-the-measured-resource-profile)), re-measured at upkeep when it drifts — and **`Scratch:`** — the disk-backed per-run root a run redirects its scratch environment to. Those two are cache like every other entry here, never authoritative, under this row's ownership rule. The sensitive-path entry is the named source the high-risk merge trigger reads; `key rule files` above points at the rule files themselves — two entries, two jobs. The two conventions inside that entry resolve **independently** — silence on one leaves that half absent, therefore `true` — and each half's value is a repo-relative path to the file documenting the convention, never the convention's own value ([`decompose.md`](decompose.md#the-effective-tier)'s read rule); [Staleness](#staleness) re-detects first and fails closed only if re-detection finds nothing. **Federation** pointers to sibling repos, when a change spans them — one bullet per satellite in the **lead** repo, fixed grammar `- Federation: <key> → <path> (<remote>); verification documented in …`: the `<key>` is the plan table's `Repo` value (the lead is `.` and is **never** listed), `<path>` is lead-relative (absolute permitted), `<remote>` is identity only (hex never clones, fetches, pulls or pushes), and the verification clause is a **pointer, never a command literal** — unlike an own-repo verification pointer it does not cache the satellite's command. Vacuous when absent. | **Skills** — a self-managed cache. Never authoritative: on conflict, project context wins; a stale pointer means re-detect and re-point (upkeep step), never wrong behavior. |
+| `## Preferences` | The instantiated model matrix (literal names) and per-cell overrides, the cross-model adversary skill, limits (max-workers, loop rounds, adversary-timeout), always-on perspectives / research axes. | **User** — written by `/hex-init` with consent; orchestrators read it, never edit it. |
 | `## Memory` | The active plan pointer, an artifact index (what lives where), and learned facts worth persisting. | **Skills** — working memory, updated during runs. |
 
 **Config carrier.** `## Preferences`'s first content, when present, is one
@@ -217,6 +217,9 @@ preferences, not copies. Team-shared — commit it.
 - Key rules: `CONTRIBUTING.md` › "Conventions"; code under `src/auth/**`
   is security-sensitive.
 - Worktrees: default `.agents/worktrees/` (gitignored).
+- Resource profile: `make check` — peak RSS 6 GB, wall 7m10s, class
+  `heavy`; heavy ceiling 3 (measured 2026-09-06; re-measure on drift).
+- Scratch: per-run root under `${XDG_CACHE_HOME:-$HOME/.cache}/hex/<run-id>/`.
 - Constitution: `docs/constitution.md` (optional — plans are gated
   against it when present; gate skipped silently when absent).
 - Federation: `mirror` → `../acme-mirror`
@@ -229,7 +232,8 @@ preferences, not copies. Team-shared — commit it.
 - Models (instantiated for this harness): fast-balanced → Sonnet,
   deep-reasoning → Opus. Override: reviewer:security → Opus at every tier.
 - Cross-model adversary: `codex-adversary` skill.
-- Limits: max-workers 6, loop rounds 3.
+- Limits: max-workers 6, loop-rounds 3, adversary-timeout 3 (below the
+  default, so it lowers the stall window).
 - Always-on perspectives: security review mandatory under `src/auth/**`.
 - Research axes of interest: registry ecosystems, OCI spec evolution.
 - Spec ID marker: `^#{1,6}\s+(C|S)-[0-9]+\b` (body = heading to next

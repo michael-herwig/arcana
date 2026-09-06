@@ -16,7 +16,7 @@ announces the resolved config, and hands off to the matching tier file.
 Unlike `hex-plan` and `hex-execute`, hex-review never edits its own output
 or loops on it — the reviewer panel runs **once** per invocation and
 reports; iterating on the findings is
-[`/hex-execute`'s job](../hex-core/references/protocol.md#the-review-fix-loop).
+[`/hex-execute`'s job](../hex-core/references/loop.md#the-review-fix-loop).
 The phase plans live in `tier-low.md`, `tier-medium.md`, and
 `tier-high.md`; the shared vocabulary (tiers, worker roles, model classes,
 the memory file) lives in the `hex-core` reference library and is **linked
@@ -100,11 +100,18 @@ labels, base ref, and file list in this order of preference:
 3. neither available — treat the input as a branch name or free text and
    continue.
 
-Resolve the baseline: user `--base=<ref>` wins; else a PR target uses its
-fetched base ref; else `main`. Fast-fail when the baseline doesn't resolve
-(`git rev-parse --verify <base>` fails) — print remediation and stop. An
-empty diff reports "nothing to review" and exits clean. A markdown-artifact
-target skips baseline resolution entirely.
+Resolve the baseline: user `--base=<ref>` wins; else, where the traced plan
+carries a valid `Reviewed:` anchor and the invocation is a review round
+continuing that plan's loop, the anchor is the baseline — validity per
+[`loop.md`](../hex-core/references/loop.md#anchor-validation), which
+resolves the fallback below *first* and validates the anchor against it; else
+a PR target uses its fetched base ref; else `main`. Fast-fail when the
+baseline doesn't resolve (`git rev-parse --verify <base>` fails) — print
+remediation and stop. An empty baseline-to-HEAD diff reports
+"nothing to review" and exits clean where no converged pass is outstanding;
+an empty `anchor..HEAD` delta proceeds to that pass instead
+([`loop.md`](../hex-core/references/loop.md#delta-round-scope)).
+A markdown-artifact target skips baseline resolution entirely.
 
 **Federation refusal (C-323).** A run is federated only if its own resolved
 `hex.md` carries `Federation:` bullets; if the resolved plan (or the branch's
@@ -117,7 +124,7 @@ or halt the same way.
 **Federation pre-flight (C-320).** For a federated target — one tracing to a
 plan that carries a `Repo` column — resolve nothing about the union scope until
 every participating repo is proven reachable. Run
-[C-303's pre-flight](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+[C-303's pre-flight](../hex-core/references/worktree.md#worktree-work-package-mechanics)
 in its **read-only** form for **every distinct `Repo` value the plan uses** —
 clauses (i) `--show-toplevel` and (ii) `--git-common-dir`, plus a
 `status --porcelain` read check — and **halt** with the same `Error:`/`Fix:`
@@ -236,7 +243,7 @@ review stages; the tier files set the actual counts and firing conditions.
 
 | Stage | Role | Count | Purpose |
 |---|---|---|---|
-| Stage 1 — Correctness | `reviewer` (focus `spec`, phase `post-implementation`) | 1 | design ↔ implementation traceability; also runs the [convergence check](../hex-core/references/protocol.md#convergence-contract) when the target traces to a plan |
+| Stage 1 — Correctness | `reviewer` (focus `spec`, phase `post-implementation`) | 1 | design ↔ implementation traceability; also runs the [convergence check](../hex-core/references/loop.md#convergence-contract) when the target traces to a plan |
 | Stage 1 — Correctness | `reviewer` (focus `quality`, test-coverage emphasis) | 0–1 | Specify-phase test adequacy (medium/high) |
 | Stage 2 — Panel | `reviewer` (focus `quality`) | 1 | naming, style, pattern compliance |
 | Stage 2 — Panel | `reviewer` (focus `security`) | 0–1 | fires on security-sensitive paths |
@@ -253,7 +260,7 @@ above against the baseline this table sets
 Concurrency cap and degraded mode:
 [`protocol.md`](../hex-core/references/protocol.md#worker-coordination). The
 adversary skill name comes from `hex.md › Preferences`
-([adversary contract](../hex-core/references/protocol.md#adversary-contract));
+([adversary contract](../hex-core/references/adversary.md#adversary-contract));
 `codex-adversary` is only an example value. A markdown-artifact target uses
 the `plan-artifact` scope; every other target uses `code-diff`.
 
@@ -266,7 +273,7 @@ rules) and the pointers in the Pointers section of
 `.agents/memory/hex.md`
 ([`memory.md`](../hex-core/references/memory.md#the-three-sections)).
 "Verify" anywhere below means **run the project's documented verification**
-([`protocol.md`](../hex-core/references/protocol.md#verification)). Path
+([`verify.md`](../hex-core/references/verify.md#verification)). Path
 hints from `hex.md › Preferences` (e.g. "security review mandatory under
 `src/auth/**`") fold into perspective selection at classification time
 ([`classify.md`](classify.md)).
@@ -278,13 +285,26 @@ invocation — it is not a persisted plan artifact. hex-review's writes land
 only here, on the plan artifact itself, never on the code or diff under
 review. When the target traces to an active plan (the `hex.md › Memory`
 active-plan pointer, or a `## Status` block found in a referenced markdown
-file — see [`memory.md`](../hex-core/references/memory.md)), mutate that
-block: on round entry, flip `State` to `review`; on verdict, set `State` to
-`done` with `Next` cleared (Approve — or `State: landing`, not `done`, for a
-plan carrying a `Repo` column, whose `Next` names the landing enumeration,
-C-324), or leave `State: executing` and set
-`Next` to `/hex-execute <plan path>` (Needs Work / Request Changes). Skip
-silently when no active plan is found — never invent one.
+file — see [`memory.md`](../hex-core/references/memory.md)),
+mutate that block: on round entry, flip `State` to `review`; on verdict,
+set `State` to `done` with `Next` cleared (Approve — or `State: landing`,
+not `done`, for a plan carrying a `Repo` column, whose `Next` names the
+landing enumeration, C-324), or leave `State: executing` and set `Next` to
+`/hex-execute <plan path>` (Needs Work / Request Changes). Skip silently when
+no active plan is found — never invent one. An Approve never writes the
+terminal review state — `done`, or `landing` for a plan carrying a `Repo`
+column — where the run ended with a non-empty stranded set
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
+Nor does it write that state while a WP's ceiling-floor precondition
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop))
+stays armed — a lower `--tier` flag is honoured for the run and does not
+discharge it, and the pass announces the downward override
+([`overlays.md` § Precedence](overlays.md#precedence)). `/hex-review`
+remains the sole writer of the terminal review state; this is a second
+precondition, never a second writer.
+Writing the `Reviewed:` anchor is a Status-block write, the class of write
+`hex-review` already performs — a branch-scope pass only
+([`loop.md`](../hex-core/references/loop.md#the-last-reviewed-anchor)).
 
 **Federated diff scope (C-309).** When the target traces to a plan carrying a
 `Repo` column, the resolved review scope is not one repo's diff but the
@@ -292,7 +312,7 @@ silently when no active plan is found — never invent one.
 as `git -C <repo> diff <base>...hex/<plan-slug>` and presented to the panel as
 one diff set with each hunk labelled by its repo. `<base>` is the frozen
 per-repo base SHA **read from the plan's `Repos:` ledger**
-([`protocol.md` C-317/C-324](../hex-core/references/protocol.md#worktree-work-package-mechanics)),
+([`worktree.md` C-317/C-324](../hex-core/references/worktree.md#worktree-work-package-mechanics)),
 **never re-resolved** from a trunk ref that may have moved since execution
 started. The C-320 pre-flight (step 2) has already proven every participating
 repo reachable, so the union is never silently narrower than the plan. Absent a
@@ -301,7 +321,7 @@ scope's construction generalizes — the never-edits and stay-in-scope contracts
 below are unchanged.
 
 When the target traces to a plan artifact, also run the
-[convergence check](../hex-core/references/protocol.md#convergence-contract):
+[convergence check](../hex-core/references/loop.md#convergence-contract):
 the orchestrator — never a worker — appends any gap as new WP rows at the
 end of the plan's Parallelization table (their wave derives as the next
 topological level); the plan stays byte-identical when nothing is
@@ -325,7 +345,7 @@ run and the Fold-Back block below says so in one line (`not performed —
 
 Order is not cosmetic: convergence is the mirror of this phase and runs
 first, always
-([`protocol.md`](../hex-core/references/protocol.md#convergence-contract)),
+([`loop.md`](../hex-core/references/loop.md#convergence-contract)),
 because folding an incompletely delivered plan would write aspiration into
 truth. **Every mechanic is defined in
 [`archive.md`](../hex-core/references/archive.md) and is not restated here** —
@@ -340,10 +360,10 @@ block in the report skeleton below.
 confirms on its own draft:
 
 - every duplicate `file:line` finding resolved
-  [max-wins](../hex-core/references/protocol.md#finding-severity), never
+  [max-wins](../hex-core/references/severity.md#finding-severity), never
   averaged;
 - every `doc-reviewer` grade mapped onto the
-  [severity ladder](../hex-core/references/protocol.md#finding-severity);
+  [severity ladder](../hex-core/references/severity.md#finding-severity);
 - every cross-model escalation is noted in the Cross-Model Adversarial
   section;
 - every empty findings bucket printed `(none)`.
@@ -368,7 +388,7 @@ run — absence of a section is a tier contract, not a bug):
 The Convergence section holds one line per unmet requirement ID (`missing`
 | `partial` | `contradicts` | `unrequested`), or the single word
 `Converged` — see the
-[convergence contract](../hex-core/references/protocol.md#convergence-contract).
+[convergence contract](../hex-core/references/loop.md#convergence-contract).
 
 The **Fold-Back section is mandatory whenever the target traces to a plan**,
 and prints `not performed — <reason>` when any precondition fails (verdict not
@@ -404,7 +424,7 @@ transcript belongs, is a spec violation.
 **Verdict rules** (tier files refine thresholds):
 
 - **Request Changes** — any unresolved
-  [Block-tier](../hex-core/references/protocol.md#finding-severity) finding,
+  [Block-tier](../hex-core/references/severity.md#finding-severity) finding,
   a security vulnerability, a breaking change without a migration note, new
   behavior without tests, or an **unjustified constitution violation** (a
   violation with no adequate Constitution Deviations row is automatic
@@ -412,26 +432,28 @@ transcript belongs, is a spec violation.
   [constitution gate](../hex-core/references/protocol.md#constitution-gate)).
 - **Needs Work** — **High- or Warn-tier** findings remain, the cross-model
   pass surfaced actionable findings not yet addressed, or the
-  [convergence check](../hex-core/references/protocol.md#convergence-contract)
+  [convergence check](../hex-core/references/loop.md#convergence-contract)
   found unconverged gaps — unconverged gaps cap the verdict at Needs Work,
   never Approve, with `Next: /hex-execute <plan path>`.
 - **Approve** — otherwise.
 
 **Review-only contract.** hex-review **never edits the code or diff under
 review, and never commits.** Its writes are the plan-artifact mutations
-above — the Status block and the append-only convergence rows — plus, under
+above — the Status block, including the `Reviewed:` anchor line on a
+branch-scope pass, and the append-only convergence rows — plus, under
 the [Fold-Back phase](#the-review-report)'s four preconditions only, the one
 resolved spec file and the fold receipt appended to the plan's `## Spec
 Deltas` block; a fold is never inferred from silence, and every write lands
 uncommitted (revert is `git checkout -- <file>`, see
 [`archive.md`](../hex-core/references/archive.md#revert)). Every finding is
 reported, not applied; the fix loop belongs to
-[`/hex-execute`](../hex-core/references/protocol.md#the-review-fix-loop).
+[`/hex-execute`](../hex-core/references/loop.md#the-review-fix-loop).
 
 ## Constraints
 
 - **Never edits the code or diff under review, and never commits** — its
-  writes are the plan-artifact Status block, the append-only convergence
+  writes are the plan-artifact Status block, including the `Reviewed:`
+  anchor line on a branch-scope pass, and the append-only convergence
   rows, and — under the [Fold-Back phase](#the-review-report)'s four
   preconditions only — the one resolved spec file and the fold receipt (see
   [`archive.md`](../hex-core/references/archive.md)).

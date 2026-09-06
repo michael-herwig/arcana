@@ -25,6 +25,24 @@ vague impression that "it's probably in there somewhere."
   `pyproject`/`tox`, Cargo aliases). A found command is proposed for
   **adoption via pointer** — document what exists, don't invent a new one.
 
+### Selective test command documented?
+
+- **Look for:** a command that runs the tests a change affects, rather
+  than the whole suite — the project's own selective / affected-tests
+  entry point, named alongside the full one.
+- **Where:** project context and checked-in files only. This item performs
+  no network read.
+- **Documented looks like:** a runnable template with its placeholders —
+  `nx affected -t test --base={base}`, `pytest --testmon`, or
+  `npx jest --findRelatedTests {files}`. Not "we use Nx", and not a suite
+  name with no command behind it.
+- **De facto discovery:** `nx.json` or `turbo.json` at the repo root, a
+  `.testmondata` entry in `.gitignore`, an `affected`-shaped CI job. A
+  found command is proposed for **adoption via pointer**, never invented;
+  only what the user consents to record in project context is what hex
+  runs — see
+  [`verify.md` § Verification › Scoped check](../../hex-core/references/verify.md#scoped-check).
+
 ### Commit and landing requirements documented?
 
 - **Look for:** whether the project requires DCO sign-off, signed commits,
@@ -178,6 +196,107 @@ anything is asked nothing, and hex never raises the question on its own.
   the team-shared `.agents/memory/hex.md` from version control and
   must be narrowed to `.agents/worktrees/` specifically.
 
+### Cross-model adversary skill installed?
+
+- **Look for:** an installed skill's `SKILL.md` frontmatter carrying a
+  `metadata` map with a `hex-adversary-scopes` key; whether
+  `hex.md › Preferences` already names an `adversary:` skill.
+- **Where:** `grim status --format json`'s top-level `items[]` array — each
+  entry's `outputs[]` carries the installed paths (`outputs_pending[]`
+  before install) — when the project uses grim: the supported way to script
+  against install locations, because the on-disk vendor layout is not a
+  stable contract.
+  Without grim, the client's own skill install roots — for Claude Code,
+  `.claude/skills/*/SKILL.md` and `~/.claude/skills/*/SKILL.md`. This item
+  performs **no network read**, and executes nothing — frontmatter only.
+- **Documented looks like:** an explicit `adversary: <skill-name>` line
+  naming an installed skill.
+- **De facto discovery:** a marker found with **no pin** proposes
+  `adversary: <skill-name>` for **adoption via pointer**, folded into Step
+  4½'s single consent-gated diff. Never writes unasked, and never removes or
+  overwrites a user-typed pin. A marker-less skill such as `codex:rescue` is
+  untouched.
+- **Drift:** a pin naming a skill that is **not installed** is reported, not
+  repaired — the no-overwrite rule above owns that pin, so there is nothing
+  to propose. Report it, because a dangling pin makes every adversary pass
+  log a skip forever and no one sees why.
+- **Optional** — no marker found, no pin proposed, and the item stays
+  silent.
+
+### Resource profile measured?
+
+- **Look for:** whether `hex.md › Pointers` carries a `Resource profile:`
+  entry — the peak RSS, wall time, and `light`/`heavy` class this
+  project's own documented verification gate measured, plus the
+  heavy-command ceiling derived from them.
+- **Where:** `.agents/memory/hex.md › Pointers`.
+- **Documented looks like:** the four values
+  [`resources.md` § 2](../../hex-core/references/resources.md#2-the-measured-resource-profile)
+  defines, recorded from an actual run on **this host** — never a number
+  picked because it looks right for the ecosystem or the project's size.
+  A project classed `light` (parse-only verification) is no exception;
+  what its ceiling is for is that section's, not restated here.
+- **De facto discovery:** where no `Resource profile:` entry exists,
+  measure it — run the project's own documented verification gate once
+  under the portable peak-RSS ladder and derive the ceiling from what
+  this host measured; see
+  [`resources.md` § The measured resource profile](../../hex-core/references/resources.md#2-the-measured-resource-profile).
+  Where no rung on this host can measure it, record the profile
+  **absent** and announce the degrade — never fabricate a number for a
+  host that could not be measured; the heavy-command ceiling then falls
+  back to its documented floor rather than a guess.
+
+### Agent worktrees excluded from watchers and indexers?
+
+- **Look for:** whether the path `/hex-execute` uses for parallel work
+  packages (`.agents/worktrees/` by default, or a project-declared
+  alternative) is excluded from IDE file watchers, project-wide search
+  indexes, and other background indexing tools — a concern distinct
+  from version control: an untracked worktree can still be watched,
+  indexed, and churned on by an editor or a search tool.
+- **Where:** editor/IDE workspace settings (e.g. `.vscode/settings.json`'s
+  `files.watcherExclude` and `search.exclude`, a JetBrains excluded-folder
+  mark), and any project-wide file-watch or search-index config the
+  project already carries.
+- **Documented looks like:** the worktree path named in at least one
+  such exclusion list, or an explicit note in project context that no
+  watcher or indexer runs against this repo. Silence, with an editor
+  known to index the repo, does not count as documented.
+- **De facto discovery:** a run creates and destroys several worktrees
+  in quick succession; an unexcluded watcher or indexer churns on that
+  traffic, burning cycles re-scanning generated build artifacts and, on
+  a platform with a low file-watch limit, exhausting it outright. Scan
+  the exclusion configs above for what the project already carries and
+  propose adding the resolved worktree path to it — **adoption via
+  pointer**, never inventing a new watcher or indexer config for a
+  project that runs none.
+
+### Scratch / temp convention documented?
+
+- **Look for:** the project's own scratch/temp convention — where
+  build tools, test runners, and the project's own scripts are expected
+  to write transient files — and whether the project has opted `HOME`
+  into the per-run scratch redirect.
+- **Where:** project context, and `hex.md › Pointers`'s `Scratch:`
+  entry — the disk-backed per-run root (`TMPDIR`, `XDG_CACHE_HOME`,
+  `XDG_STATE_HOME`) a run redirects its scratch environment to by
+  default.
+- **Documented looks like:** a named scratch/temp location, or an
+  explicit "no convention, tools use their own defaults" — not silence.
+  Where the project takes the `HOME` opt-in below, one line recording
+  that consent in project context.
+- **De facto discovery:** `HOME` is deliberately **not** among the
+  three variables redirected by default, because redirecting it breaks
+  every tool that reads real credentials from it — git identity, `gh`
+  auth, registry tokens, ssh. Offer the `HOME`-redirect **opt-in**,
+  recorded as project-context prose only with consent, and name **two**
+  reasons a project might take it: a test suite **known to write to
+  `$HOME`**, and **credential exposure to a verification command the
+  project does not fully trust** — hex runs that command unattended and
+  N-way concurrent, with read access to `~/.ssh`, `~/.config/gh`, and
+  `~/.aws`. Never redirect `HOME` without that consent, and never
+  propose it as the default.
+
 ### Existing `hex.md › Pointers` and index lines still resolve?
 
 - **Look for:** every pointer in the `hex.md › Pointers` section
@@ -257,6 +376,29 @@ Run `<command>` before considering any change complete. Covers: <build |
 test | lint - whatever it actually runs>. <Anything it doesn't cover, if
 relevant.>
 ```
+
+### Selective test command block
+
+Extends the Verification section above. The fenced line below is proposed
+only when the audit found a selective command, or the user named one.
+
+```markdown
+Selective tests: run `<template, e.g. nx affected -t test --base={base}>`
+for the tests a change affects; `<command>` still runs the full suite.
+```
+
+Two `hex.md › Pointers` rows record where each is documented, in this
+grammar:
+
+``- Selective tests: `<location>` — where the selective test command is documented.``
+``- Sensitive paths: `<location>` — where the project's security-sensitive / hot-path convention is documented.``
+
+The second row is the named source the high-risk merge trigger reads —
+distinct from the `Key rules` pointer, which names the rule files
+themselves. It records **where the convention is documented**, never a
+path list and never a judgment, and it is proposed off the [rules
+item](#rules-carry-architectural-context) whether or not a selective
+command was found.
 
 ### Spec / plan / ADR conventions block
 

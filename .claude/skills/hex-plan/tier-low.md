@@ -63,12 +63,18 @@ approach is enough when the change is genuinely small.
 Produce a single Stub → Specify → Implement → Review cycle in the plan. For
 ≤3 files this may collapse into one task. A Parallelization section is still
 required, even if it is one work package with no dependencies
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics))
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics))
 — the tier's ≤3-file scope is itself the justification, no extra line
 needed. Single WP: the "Shippable after wave" line is exempt — delete it,
-since the sole WP is the shippable unit. The WP still carries a Review
-budget — typically `self` or `light` at this tier
-([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
+since the sole WP is the shippable unit. The WP still carries **both budget
+cells — a `Verify` cell and a `Review` budget**, the latter typically `self`
+or `light` at this tier
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition));
+a plan carrying the generation marker needs the `Verify` column present.
+**In a plan carrying that marker the `Review` direction is flipped**: the
+baseline is the WP's derived breadth and the cell is raise-only against it
+([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier)).
 
 **Federation.** When `hex.md › Pointers` carries `Federation:` bullets and
 the target's scope lies in a satellite, Decompose offers that satellite's
@@ -79,19 +85,24 @@ applies the `(Repo, path)` disjointness key, not bare paths (C-316).
 `/hex-plan` never runs the C-303 pre-flight and never writes into a
 satellite (C-314). Absent `Federation:` bullets, unchanged.
 
+Print the **budget histogram** at this point, linking rather than
+restating its grammar
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
+
 ## Phase 6: Review (single reviewer, single pass)
 
 Launch **1** `reviewer` (focus `spec`, phase `post-stub`) on the draft plan —
 no adversarial panel, no adversary pass (`adversary: off` at this tier). Run
-the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 capped at **one round**: the orchestrator edits the plan directly on
 actionable findings; only a Block-tier finding earns one reviewer re-run
 (2 passes total max, then stop).
 When project context names a constitution (cached in `hex.md › Pointers`),
 this same reviewer also applies the
-[constitution gate](../hex-core/references/protocol.md#constitution-gate),
-and it sanity-checks the Review budget (a `self` budget on security-touching
-work is an actionable finding).
+[constitution gate](../hex-core/references/protocol.md#constitution-gate).
+The reviewer also applies the
+[budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition)
+to the WP's Review budget.
 
 **Gate** — the plan is ready for `/hex-execute`.
 

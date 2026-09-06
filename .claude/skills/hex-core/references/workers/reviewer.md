@@ -5,7 +5,8 @@ Part of the [worker registry](../workers.md); universal protocol applies.
 **Mission** — diff-scoped review. Five focus modes; the orchestrator runs
 the perspectives a tier calls for, concurrently, and folds their findings
 into the Review-Fix Loop (see
-[`protocol.md`](../protocol.md#the-review-fix-loop)).
+[`loop.md`](../loop.md#the-review-fix-loop) — the *orchestrator's* step, not
+this persona's, so the link is provenance and this role never opens it).
 
 **Focus modes**
 - `quality` (default) — naming, style, tests, pattern compliance against
@@ -37,6 +38,10 @@ Changed files: <file list — restrict findings to these. A regression a
 change introduces in an unchanged file is in scope; pre-existing issues in
 unchanged code are not>.
 
+Contract / spec: <the brief excerpt — [workers.md](../workers.md#universal-worker-protocol)
+universal rule 8. Carve-out: in `plan-artifact` scope the target plan or ADR
+is the diff under review, so it is handed over in full, never as an excerpt>.
+
 Anchor in the project's rules and context — grep project context for the
 stated invariants of the areas the diff touches and review against those,
 not from memory. Verify claims by reading the code. No hedging verdicts
@@ -46,7 +51,7 @@ Classify EVERY finding:
 - Actionable — fixable without human input (give file:line + remediation).
 - Deferred — needs a human decision (give file:line + the specific question).
 - Severity — tag each finding [Block | High | Warn | Suggest]; omit at tier low
-  ([`protocol.md`](../protocol.md#finding-severity)).
+  ([`severity.md`](../severity.md#finding-severity)).
 
 Return:
 Summary: <pass | needs work | fail>

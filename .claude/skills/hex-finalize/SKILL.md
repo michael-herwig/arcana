@@ -6,7 +6,7 @@ metadata:
   keywords: finalize,commit series,recompose,rebase,force-push,pull request,sign-off,land
   repository: https://github.com/michael-herwig/arcana
   summary: Finalize a review-approved branch — recompose, verify, gate, publish
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: true
 ---
 
@@ -151,7 +151,7 @@ analyse rather than an instruction. Every echo of it follows
 
 Verification is **inherited, never invented**: the project's own documented
 level
-([`protocol.md` § Verification](../hex-core/references/protocol.md#verification)),
+([`verify.md` § Verification](../hex-core/references/verify.md#verification)),
 at whatever that documentation names as release-grade. hex neither defines test
 tiers nor decides which suite is expensive.
 

@@ -92,6 +92,8 @@ propose adopting what exists via pointer before proposing anything new:
 
 - Is verification (build/test/lint) documented, or only discoverable by
   guessing?
+- Is a selective test command documented — one that runs the tests a
+  change affects, rather than the whole suite?
 - Are the project's commit and landing requirements documented — sign-off,
   signing, message convention, which suites are release-grade, which
   workflows gate a release? Checked-in files only; this item reads no
@@ -119,7 +121,31 @@ propose adopting what exists via pointer before proposing anything new:
   context, cached in `hex.md › Pointers`) — or none used? Optional;
   absent is fine.
 - Is the worktree path (default `.agents/worktrees/`) gitignored — and
-  does this project use a different one?
+  does this project use a different one? **And the converse: is that rule
+  narrow enough to leave `hex.md` committable?** A bare `.agents/` line
+  drops the team-shared memory file from version control and is a defect,
+  not a safer-because-broader choice. See
+  [`references/audit.md`](references/audit.md#worktree-path-gitignored).
+- Is a cross-model adversary skill installed but not pinned — a skill
+  carrying the `hex-adversary-scopes` marker with no matching `adversary:`
+  line in `hex.md › Preferences`? And the reverse: does an existing
+  `adversary:` pin name a skill that is not installed (report-only drift —
+  a user-typed pin is never overwritten)? Reads installed frontmatter only;
+  executes nothing. See
+  [`references/audit.md`](references/audit.md#cross-model-adversary-skill-installed).
+- Has the resource profile been measured on this host — peak RSS, wall
+  time, `light`/`heavy` class, and the derived heavy-command ceiling,
+  cached in `hex.md › Pointers`? See
+  [`references/audit.md`](references/audit.md#resource-profile-measured).
+- Are agent worktrees (`.agents/worktrees/` by default) excluded from
+  IDE file watchers and search indexers, not just from version control?
+  See
+  [`references/audit.md`](references/audit.md#agent-worktrees-excluded-from-watchers-and-indexers).
+- Is the project's scratch/temp convention documented, and has it
+  opted `HOME` into the per-run scratch redirect — for a suite known to
+  write to `$HOME`, or to keep credentials from a verification command
+  it does not fully trust? See
+  [`references/audit.md`](references/audit.md#scratch--temp-convention-documented).
 - If `.agents/memory/hex.md` already exists: does every pointer in
   its Pointers section, and every index line it seeded in the context
   file, still resolve? (a re-audit item, not first-run-only)
@@ -200,6 +226,19 @@ and `/hex-discuss`'s own `<home>/<slug>.md` alike (its already-exists and
 git-tracked conditions belong to the fold; the no-symlink, no-directory
 clause still binds — a dangling symlink reads as absent). This step only
 asks and records the answer, never restates them.
+
+**Selective test command.** A command found by the [selective-test
+item](references/audit.md#selective-test-command-documented) is proposed
+for adoption via pointer, with the matching block from
+[`references/audit.md`](references/audit.md#best-practice-blocks); that
+block pins the grammar of the two `hex.md › Pointers` rows this run
+records — where the selective test command is documented, and where the
+project's security-sensitive / hot-path convention is documented. Both are
+wizard questions inside the existing sequence, written under the same
+apply consent as the discussions row above. The second row is asked
+whether or not a selective command was found — its trigger is Step 1's
+rules question — and it names **where the convention is documented**,
+never a path list and never a judgment.
 
 **Commit and landing requirements.** A requirement found by the
 [commit-and-landing
@@ -298,10 +337,15 @@ Write or update `.agents/memory/hex.md` per
 the other two sections:
 
 - **`hex.md › Pointers`** — a cache seeded from Step 1's findings: where
-  verification is documented, where spec/plan/ADR conventions live, the
-  doc and product-knowledge homes provisioned in Step 2, the discussions
-  home when one was resolved, key architectural rules, any
-  worktree-location deviation, and the constitution location (optional).
+  verification is documented, where the selective test command is
+  documented, where the project's security-sensitive / hot-path convention
+  is documented, where spec/plan/ADR conventions live, the doc and
+  product-knowledge homes provisioned in Step 2, the discussions home when
+  one was resolved, key architectural rules, any worktree-location
+  deviation, and the constitution location (optional). The sensitive-path
+  row is the named source the high-risk merge trigger reads; the
+  key-architectural-rules pointer beside it keeps its own job — naming the
+  rule files — and neither replaces the other.
   Pointers only, never copies — the product-knowledge pointer is how
   researchers and reviewers reach the product facts that live in project
   context.

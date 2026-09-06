@@ -23,11 +23,21 @@ the project's plan location. Read and mutated by /hex-plan, /hex-execute,
 
 - State:   plan-approved      <!-- planning → plan-approved → executing → review → done; federated plans only (`Repo` column present): review → landing → done -->
 - Tier:    [low | medium | high]
+- Effective-tier: derived   <!-- optional — the generation marker.
+  Present ⇒ the `Tier:` line above is a ceiling and every WP derives its
+  own effective tier from cells the table already carries, never above
+  that ceiling. Absent ⇒ pre-`adr_0012` semantics, permanently —
+  never an error, never a prompt, never a rewrite. `derived` is the
+  only value understood; an unrecognized or empty value is a refusal,
+  not a default. Mechanics: hex-core references/decompose.md
+  § Parallel-by-default decomposition (C-953). -->
 - Updated: [YYYY-MM-DD]
 - Next:    /hex-execute [this plan's path]
+- Reviewed: <full 40-char SHA>   <!-- optional — the branch-scope last-reviewed anchor. Written by the reviewer, not the plan author: whoever completes a branch-scope pass over a diff headed at that SHA writes it, and a WP-scope round never does — delete this line until a review pass has run. It records that every commit reachable from that SHA saw at least one pass, not that the pass was clean. Absent line ⇒ never reviewed ⇒ full-branch review (C-907, C-915) — never an error, never a migration prompt. Mechanics: hex-core references/loop.md § The Review-Fix Loop. -->
+- Verify-default: full   <!-- optional — sets the default every empty `Verify` cell inherits, so full verification runs at both gates the cell reaches: each WP's merge gate and the Review-Fix Loop exit gate that immediately precedes it (C-924). Individual cells still override it. Absent line ⇒ `scoped` (C-905, C-915). It cannot reach the run's final gate, which is un-lowerable (C-926). Delete unless the plan needs it. -->
 - Repos:   <!-- optional — present only when the table carries a `Repo`
   column (C-324); written once at execution start, frozen, never
-  re-resolved (C-317). Mechanics: hex-core references/protocol.md
+  re-resolved (C-317). Mechanics: hex-core references/worktree.md
   § Worktree work-package mechanics. Delete this line and its rows when
   the plan is single-repo. -->
   - `[key]` [/absolute/path/to/repo]  trunk `[branch]`  base `[full 40-char SHA]`  landed: [yes|no]
@@ -134,33 +144,62 @@ sits in an earlier wave and N is minimal — /hex-execute launches each WP
 the instant its dependencies merge (dependency-ready, waves are derived
 reporting), one ephemeral branch + worktree per leaf WP, merged
 serialized onto the plan's feature branch in a valid topological order.
+Size is the plan-time estimate of the WP's diff: `S` — ~≤50 expected
+lines AND ≤3 expected files; `M` — ~≤500 expected lines AND ≤15
+expected files; `L` — anything else. Both halves of a class must hold,
+and an absent, empty, unrecognized or ambiguous cell reads `L` (C-954).
+It is reporting vocabulary — the downward budget guard reads it
+alongside `Expected Files`, which decides — and, in a plan carrying the
+`- Effective-tier: derived` marker, a derivation input. Substance:
+hex-core references/decompose.md § Parallel-by-default decomposition
+(C-928).
 Review is the per-WP review budget: self (docs-only/tiny low-risk —
 builder self-check only), light (single-area moderate — one spec
-reviewer), panel (large/security/hot-path — the tier's full set). A
-missing cell = panel; a sub-WP inherits its parent's budget. Repo is the
-WP's repo: a Federation key from `hex.md › Pointers`, or `.` (also the
+reviewer), panel (large/security/hot-path — the tier's full set). In a
+marked plan the cell is raise-only against the derived breadth: `panel`
+raises the WP to the ceiling, while `self` and `light` are inert —
+honoured as a no-op, never a defect. All three values are
+unchanged in a plan without the marker. Substance: hex-core
+references/decompose.md § Parallel-by-default decomposition (C-954). A
+missing cell = panel, or the derived breadth in a marked plan (C-957); a
+sub-WP inherits its parent's budget unless the sub-WP's own `Review`
+cell raises it. Repo is the WP's repo: a Federation key from
+`hex.md › Pointers`, or `.` (also the
 empty-cell default) for the lead — absent the column, a plan is
 single-repo and every federation rule is inert (C-302); delete the `Repo`
 column entirely when the plan is single-repo — its presence is the
 federation signal. A plan using a
 `Repo` value other than `.` must carry a mandatory integration WP — see
-hex-core references/protocol.md § Verification (C-311). Concurrently-running
+hex-core references/verify.md § Verification (C-311). Concurrently-running
 WPs must additionally own disjoint
 `(Repo, path)` pairs, not bare paths — substance in hex-core
-references/protocol.md § Parallel-by-default decomposition (C-316).
-Mechanics: hex-core references/protocol.md § Parallel-by-default
-decomposition and § Worktree work-package mechanics. This table is the
+references/decompose.md § Parallel-by-default decomposition (C-316).
+Verify is one verification budget for one merge boundary: `scoped |
+full`, raise-only — there is deliberately no value below `scoped`. It
+sets the WP's merge gate and the Review-Fix Loop's exit gate that
+immediately precedes it, and nothing beyond those two (C-924); `full`
+runs the project's full documented verification at both, `scoped` is
+the default and is written only for readability.
+A missing column or cell means the plan's `Verify-default:` line, else
+`scoped` (C-905, C-915). Assign `full` only where author judgment sees
+risk the merge-time high-risk predicate cannot, and write the one-line
+justification on this section's `Verify justification:` line below, one
+entry per `full` cell. Substance:
+hex-core references/verify.md § Verification (C-901) and
+hex-core references/decompose.md § Parallel-by-default decomposition (C-924).
+Mechanics: hex-core references/decompose.md § Parallel-by-default
+decomposition and hex-core references/worktree.md § Worktree work-package mechanics. This table is the
 source of truth; the diagram is a visual index and may be dropped by
 renderers.
 -->
 
-| WP | Repo | Scope | Expected Files | Size | Wave | Depends on | Review | Status |
-|----|------|-------|----------------|------|------|------------|--------|--------|
-| [WP 1] | `.` | [Covers C-001, S-001] | `path/to/file` | [S/M/L] | 1 | — | [self/light/panel] | pending |
-| [WP 2] | `.` | [Covers C-002] | `path/to/other` | [S/M/L] | 1 | — | [self/light/panel] | pending |
-| [WP 3] | `.` | [Covers S-002] | `path/to/third` | [S/M/L] | 2* | WP 1, WP 2 | panel | pending *(rollup — computed)* |
-| [WP 3.1] | *(inherits)* | [Covers S-002] | `path/to/third_a` | [S/M/L] | 2 | *(inherits WP 3's)* | *(inherits)* | pending |
-| [WP 3.2] | *(inherits)* | [Covers S-002] | `path/to/third_b` | [S/M/L] | 3 | WP 3.1 | *(inherits)* | pending |
+| WP | Repo | Scope | Expected Files | Size | Wave | Depends on | Review | Verify | Status |
+|----|------|-------|----------------|------|------|------------|--------|--------|--------|
+| [WP 1] | `.` | [Covers C-001, S-001] | `path/to/file` | [S/M/L] | 1 | — | [self/light/panel] | [scoped/full] | pending |
+| [WP 2] | `.` | [Covers C-002] | `path/to/other` | [S/M/L] | 1 | — | [self/light/panel] | [scoped/full] | pending |
+| [WP 3] | `.` | [Covers S-002] | `path/to/third` | [S/M/L] | 2* | WP 1, WP 2 | panel | — | pending *(rollup — computed)* |
+| [WP 3.1] | *(inherits)* | [Covers S-002] | `path/to/third_a` | [S/M/L] | 2 | *(inherits WP 3's)* | *(inherits)* | — | pending |
+| [WP 3.2] | *(inherits)* | [Covers S-002] | `path/to/third_b` | [S/M/L] | 3 | WP 3.1 | *(inherits)* | — | pending |
 
 <!--
 Dotted IDs (WP 3.1, WP 3.2, ...) are sub-WPs: same table, same columns,
@@ -172,10 +211,20 @@ marked with a trailing `*`; reporting only — a parent row is never itself
 launched. A sub-WP's Depends-on and Repo, if absent, inherit the parent's
 — a sub-WP never names a different repo than its parent, since only leaf
 rows are branch- and worktree-eligible, so a cross-repo split belongs at
-WP grain, not sub-WP grain (C-302). Only leaf rows get a branch +
-worktree — a parent with children is never itself branched. Genuine join
-work is an ordinary sibling row (e.g. a
-WP 3.3 depending on WP 3.1 and WP 3.2), not a 5th status. IDs are never
+WP grain, not sub-WP grain (C-302). `Verify` is not inherited, and on a
+sub-WP row it budgets no merge gate — write `—`: sub-WP merges land in
+the coordinator's own shared worktree, never onto the feature branch, so
+they are not merge-gate sites at all (hex-core references/worktree.md
+§ Worktree work-package mechanics). Write `—` on a decomposing-coordinator-owned
+parent row too: that row's merge always pays the full documented
+verification under trigger (i), which supersedes the cell at the merge
+gate only (C-901, C-924). Neither `—` makes the cell inert. That WP's
+Review-Fix Loop exit gate is untouched by trigger (i) and still resolves
+a budget, and a literal `—` in any `Verify` cell, parent or sub-WP,
+reads there as an empty cell (same chain as above). Only leaf rows get a
+branch + worktree — a parent with children is never itself branched.
+Genuine join work is an ordinary sibling row (e.g. a WP 3.3 depending on WP 3.1 and
+WP 3.2), not a 5th status. IDs are never
 renumbered — the next sibling is the next integer. No schema-version
 marker: the presence of dotted IDs is the signal. A plan with zero
 sub-rows makes every rule above vacuous — byte-identical behavior.
@@ -200,12 +249,17 @@ graph TD
 Delete at tier low (single WP).]
 
 **Merge order:** a valid topological order, serialized — [WP 1], [WP 2], [WP 3] — with
-the project's documented verification after each merge onto the feature
-branch.
+the scoped check after each merge onto the feature branch, and full
+verification on the documented triggers and overrides — hex-core
+references/worktree.md § Worktree work-package mechanics (C-901).
 
 **Parallelization justification:** [only when fewer parallel WPs than
 file-disjointness allows, or a sub-overhead WP stays isolated — one line
 why. Delete otherwise.]
+
+**Verify justification:** [one line per WP whose `Verify` cell reads
+`full`, naming the risk the merge-time high-risk predicate cannot see.
+Delete when no cell reads `full`.]
 
 ## Implementation Steps
 
@@ -278,8 +332,8 @@ instead of inventing a requirement.
   - Files: `path/to/file`
   - Details: [Additional context]
 
-Gate: all unit and acceptance tests pass; the project's documented
-verification succeeds.
+Gate: the scoped check passes — hex-core references/verify.md
+§ Verification › Scoped check (C-925).
 
 ### Phase 5: Review & Documentation
 
@@ -353,7 +407,13 @@ when empty.
 ### Before Merge
 
 - [ ] Code review approved
-- [ ] The project's documented verification passes
+- [ ] The merge gate's own check passes — the scoped check, or full
+      verification on a documented trigger — hex-core
+      references/worktree.md § Worktree work-package mechanics (C-901)
+- [ ] The run's final gate passes — the project's **full** documented
+      verification, once at the end of the run: mandatory and
+      un-lowerable, no `Verify` cell or `Verify-default:` line reaching
+      it (C-926) — merge-rule trigger (iii), same section
 - [ ] No merge conflicts
 
 ## Notes
@@ -397,8 +457,24 @@ Folded: [YYYY-MM-DD] → path/to/spec file
 
 ---
 
-## Progress Log
+## Schedule log
 
-| Date | Update |
-|------|--------|
-| [Date] | [What was done] |
+<!--
+Append-only, one bullet per merge onto the feature branch and one per
+completed work-package phase, never edited or reordered. Entries are appended on first merge; the section ships without
+a pre-seeded table, created on first write. An absent section is a
+pre-adr_0010 run, never an error (C-912, C-915). Two line kinds,
+discriminated by the first word after the first `·`. Grammar:
+
+- <ISO-8601 UTC> · merged <WP> @ <post-merge SHA> · verify <scoped | full(<trigger>)> [<elapsed>] · ready: <ids | —> · blocked: <id (<blocker>), … | —>
+- <ISO-8601 UTC> · phase <WP>/<phase> · model <class> · work <elapsed> [· wait <elapsed>] [· rounds <n>]
+
+The post-merge SHA is mandatory; `<elapsed>` is wall-clock and optional.
+Existing consumers (the bisection walk, C-904) read only `merged` lines; a
+`phase` line carries no post-merge SHA and is never read by it. An absent
+`phase` line is a pre-adr_0013 run, never an error — presence-checked,
+never versioned. `<class>` is a capability class (e.g. `fast-balanced` /
+`deep-reasoning`), never a literal model name.
+Substance: hex-core references/decompose.md § Parallel-by-default
+decomposition (C-912, C-1224).
+-->

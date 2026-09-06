@@ -54,13 +54,13 @@ per-role overrides live in `hex.md › Preferences`, never in a flag.
 ## adversary axis (plan-artifact scope)
 
 Controls whether the configured cross-model adversary skill runs against the
-plan artifact as a final gate after the native review panel converges.
-The skill name is read from the Preferences section of
-`.agents/memory/hex.md` (`codex-adversary` is only an example value);
-the full contract — scopes, one-shot rule, 4-way triage, graceful skip — is in
-[`protocol.md`](../hex-core/references/protocol.md#adversary-contract). This is
-the `plan-artifact` scope; `/hex-execute` runs the same skill in `code-diff`
-scope.
+plan artifact as a final gate after the native review panel converges. The
+skill name is read from the Preferences section of `.agents/memory/hex.md`
+(`codex-adversary` is only an example value); the full contract — scopes,
+one-shot rule, 4-way triage, graceful skip, stall bound and backstop — is
+in [`adversary.md`](../hex-core/references/adversary.md#adversary-contract).
+This is the `plan-artifact` scope; `/hex-execute` runs the same skill in
+`code-diff` scope.
 
 | Value | Effect |
 |---|---|
@@ -75,9 +75,10 @@ Per-tier defaults:
 | medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
 | high | `on` (a default part of the flow; a skip is surfaced prominently) |
 
-When the named skill is unavailable, log
+When the adversary produces no review — the named skill is unavailable, or it
+ran and did not complete one — log
 `Cross-model plan review skipped: <reason>` and continue — a gate, not a
-blocker ([`protocol.md`](../hex-core/references/protocol.md#adversary-contract)).
+blocker ([`adversary.md`](../hex-core/references/adversary.md#adversary-contract)).
 
 ## Precedence
 

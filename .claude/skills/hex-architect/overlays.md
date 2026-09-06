@@ -50,9 +50,9 @@ design panel* itself (in-harness `reviewer` perspectives, a tier-baseline
 behavior described in each tier file's Review phase) — this axis is only the
 cross-model pass. The skill name is read from the Preferences section of
 `.agents/memory/hex.md` (`codex-adversary` is only an example
-value); the full contract — scopes, one-shot rule, 4-way triage, graceful
-skip — is in
-[`protocol.md`](../hex-core/references/protocol.md#adversary-contract). This
+value); the full contract — scopes, one-shot rule, 4-way triage, graceful skip,
+stall bound and backstop — is in
+[`adversary.md`](../hex-core/references/adversary.md#adversary-contract). This
 is the `plan-artifact` scope; `/hex-execute` runs the same skill in
 `code-diff` scope on implementation later.
 
@@ -69,9 +69,10 @@ Per-tier defaults:
 | medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals, and auto-on on dossier fast-path input ([`SKILL.md`](SKILL.md#a-discussion-dossier-as-decision)); explicit via `--adversary` |
 | high | `on` (a default part of the flow; a skip is surfaced prominently) |
 
-When the named skill is unavailable, log
+When the adversary produces no review — the named skill is unavailable, or it
+ran and did not complete one — log
 `Cross-model design review skipped: <reason>` and continue — a gate, not a
-blocker ([`protocol.md`](../hex-core/references/protocol.md#adversary-contract)).
+blocker ([`adversary.md`](../hex-core/references/adversary.md#adversary-contract)).
 
 ## artifact axis
 

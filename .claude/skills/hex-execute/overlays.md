@@ -22,7 +22,7 @@ Matches the [`SKILL.md`](SKILL.md) parser:
 ## review axis
 
 Controls which reviewer perspectives populate Round 1 of the
-[Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop).
+[Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop).
 
 | Value | Effect |
 |---|---|
@@ -38,9 +38,18 @@ Per-tier defaults:
 | medium | `full` |
 | high | `adversarial` (mandatory) |
 
+**In a plan carrying the generation marker** the breadth follows each WP's own
+[effective tier](../hex-core/references/decompose.md#the-effective-tier) — the
+table above, read per WP — and the run's resolved axis then applies as a `min`
+cap over the result. **The order is part of the rule**, since `min` alone would
+contradict the escape hatch: `Review: panel` raises the derived *tier* to the
+ceiling first, the run's resolved axes cap the result second. So a `panel` WP
+under `--review=full` runs the ceiling's phases and model cells with `full`
+breadth.
+
 ## loop-rounds axis
 
-Controls the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Controls the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 round cap.
 
 | Value | Effect |
@@ -53,23 +62,39 @@ Per-tier defaults: low → `1`, medium → `3`, high → `3`. This axis lets a r
 tighten or loosen the tier's baseline cap without changing tier — but a
 stored `loop rounds` limit in `hex.md › Preferences` is a **ceiling** on it:
 the flag may loosen only up to the stored value, never past it
-([`protocol.md`](../hex-core/references/protocol.md#the-review-fix-loop)).
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
-Both the `review` and `loop-rounds` axes are **ceilings**: a WP's `Review`
-budget in the plan table lowers them per WP — `self` and `light` also force
-a 1-round loop for that WP regardless of this axis
-([`protocol.md`](../hex-core/references/protocol.md#the-review-fix-loop)).
+**In a plan carrying the generation marker** the cap follows each WP's own
+effective tier — the defaults above, read per WP — under the `min` cap
+[`loop.md`](../hex-core/references/loop.md#the-review-fix-loop) states,
+in the same order as the `review` axis.
+
+**Both axes being lowered per WP by the `Review` cell is the pre-marker
+reading, and the generation marker makes it false** — named here because it
+sits outside both axis sections above. Without the marker it stands unchanged:
+a WP's `Review` budget in the plan table lowers both axes per WP, and `self`
+and `light` also force a 1-round loop for that WP regardless of this axis.
+With the marker the cell is **raise-only** against the derived breadth — it
+lowers neither axis, a cell at or below the derived value is inert, and
+`self`/`light` force nothing
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
 ## adversary axis (code-diff scope)
 
 Controls whether the configured cross-model adversary skill runs against the
 branch diff after the Review-Fix Loop converges. The skill name is read from
-the Preferences section of `.agents/memory/hex.md`
-(`codex-adversary` is only an example value); the full contract — scopes,
-one-shot rule, 4-way triage, graceful skip — is in
-[`protocol.md`](../hex-core/references/protocol.md#adversary-contract). This
-is the `code-diff` scope; `/hex-plan` runs the same skill in `plan-artifact`
+the Preferences section of `.agents/memory/hex.md` (`codex-adversary` is only
+an example value); the full contract — scopes, one-shot rule, 4-way triage,
+graceful skip, stall bound and backstop — is in
+[`adversary.md`](../hex-core/references/adversary.md#adversary-contract). This is
+the `code-diff` scope; `/hex-plan` runs the same skill in `plan-artifact`
 scope.
+
+**This axis reads the plan tier `T`, never a WP's effective tier.** A WP that
+derived `low` inside a `high` plan **still runs the cross-model gate**: the pass
+is a run-level assurance decision, and a per-WP size estimate must not become a
+global skip switch
+([the effective tier](../hex-core/references/decompose.md#the-effective-tier)).
 
 | Value | Effect |
 |---|---|
@@ -84,9 +109,10 @@ Per-tier defaults:
 | medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
 | high | `on` (a default part of the flow; a skip is surfaced prominently) |
 
-When the named skill is unavailable, log
+When the adversary produces no review — the named skill is unavailable, or it
+ran and did not complete one — log
 `Cross-model review skipped: <reason>` and continue — a gate, not a blocker
-([`protocol.md`](../hex-core/references/protocol.md#adversary-contract)).
+([`adversary.md`](../hex-core/references/adversary.md#adversary-contract)).
 
 ## Precedence
 
