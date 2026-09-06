@@ -92,8 +92,20 @@ from nox.workspace import Workspace
 BINARY: Final[str] = "copilot"
 """The executable. `~/.npm-global/bin/copilot` on the owner's machine, resolved off the minimal `PATH`."""
 
-VERIFIED_AGAINST: Final[str] = "1.0.82"
-"""The version every fixture here was recorded from — read off `version-1.0.82.txt` (E3, C-1020)."""
+VERIFIED_AGAINST: Final[str] = "1.0.83"
+"""The version the installed binary reports — read off `version-1.0.83.txt`, never a document (E3, C-1020).
+
+**The 1.0.83 re-pin re-recorded the two free fixtures only** —
+`version-1.0.83.txt` and `help-1.0.83.txt` — and kept every paid or
+unreproducible capture (`output-format-json`, `review-shaped`, `tools`,
+`tool-visibility`, `text-footer`, the two `error-*` files) at its 1.0.82
+recording, under the E30 rule: a fixture's filename names the release it was
+actually captured from, and a paid turn is not re-summoned for a patch release.
+The 1.0.83 help page differs from 1.0.82's in two places: `--add-dir` gains a
+sentence on relative-path resolution, and `--enable-reasoning-summaries` — a
+flag this adapter never emitted — is gone. The contract tier re-derives the page
+live on every release, so a flag drift cannot hide behind this paragraph.
+"""
 
 VERSION_PATTERN: Final[re.Pattern[str]] = re.compile(r"\b(\d+\.\d+\.\d+)\b")
 """Extracts the version from `GitHub Copilot CLI 1.0.82.`

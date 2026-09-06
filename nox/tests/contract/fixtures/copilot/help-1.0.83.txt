@@ -13,7 +13,11 @@ Options:
   --add-dir <directory>                 Allow file access to a directory and
                                         load its .github/skills and
                                         .github/agents as trusted configuration
-                                        (can be used multiple times)
+                                        (can be used multiple times). A relative
+                                        path resolves against the session
+                                        working directory (the
+                                        --resume/--worktree/-C directory),
+                                        whatever order the options appear in
   --add-github-mcp-tool <tool>          Add a tool to enable for the GitHub MCP
                                         server instead of the default CLI subset
                                         (can be used multiple times). Use "*"
@@ -95,8 +99,6 @@ Options:
                                         persisted (can be used multiple times)
   --enable-memory                       Enable memory in prompt mode (disabled
                                         by default)
-  --enable-reasoning-summaries          Request reasoning summaries for OpenAI
-                                        models
   --excluded-tools[=tools...]           These tools will not be available to the
                                         model
   --experimental                        Enable experimental features
@@ -153,7 +155,11 @@ Options:
                                         autopilot to auto-approve the plan and
                                         implement it autonomously)
   --plugin-dir <directory>              Load a plugin from a local directory
-                                        (can be used multiple times)
+                                        (can be used multiple times). A relative
+                                        path resolves against the session
+                                        working directory (the
+                                        --resume/--worktree/-C directory),
+                                        whatever order the options appear in
   -r, --resume[=value]                  Resume from a previous session
                                         (optionally specify existing session ID,
                                         task ID, ID prefix, or name; name

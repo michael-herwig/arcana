@@ -221,7 +221,7 @@ DENIED_FLAGS: Final[frozenset[str]] = frozenset(
         "-i",
         "--interactive",
         # GitHub Copilot CLI (D-ab) — pinned against the committed
-        # `tests/contract/fixtures/copilot/help-1.0.82.txt` (E3). `--allow-all`
+        # `tests/contract/fixtures/copilot/help-1.0.83.txt` (E3). `--allow-all`
         # and `--yolo` are that file's own documented aliases for
         # `--allow-all-tools --allow-all-paths --allow-all-urls`, so denying the
         # three long forms without them denied nothing. `-r` and `-C` are short

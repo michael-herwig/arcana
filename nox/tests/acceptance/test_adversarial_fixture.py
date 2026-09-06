@@ -608,7 +608,7 @@ def test_nox_never_emits_a_flag_that_lifts_its_own_containment():
     `⊇`, and by a wide margin: the record names fourteen, the shipped set carries
     fifty. The other thirty-six were pinned by WP7a-d against the committed
     `--help` fixtures (E3) — `fixtures/claude/help-2.1.260.txt`,
-    `fixtures/copilot/help-1.0.82.txt` and the opencode 1.18.22 sheet — and it is
+    `fixtures/copilot/help-1.0.83.txt` and the opencode 1.18.22 sheet — and it is
     those fixtures, not this file, that guard them. Do not fold them in here from
     the source: copying the literal into the test is the vacuous oracle this
     section exists to remove.

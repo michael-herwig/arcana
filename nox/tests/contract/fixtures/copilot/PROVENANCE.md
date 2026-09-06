@@ -1,15 +1,20 @@
 # copilot fixtures — how each was recorded (E3)
 
-Every file here came off the installed binary on 2026-09-03. None was copied
-from a document. `verified_against` in `nox/src/nox/adapters/copilot.py` is set
-from `version-1.0.82.txt` and nothing else.
+Every file here came off the installed binary. None was copied from a
+document. `VERIFIED_AGAINST` in `nox/src/nox/adapters/copilot.py` is set from
+`version-1.0.83.txt` and nothing else.
 
-Binary: `~/.npm-global/bin/copilot`, **GitHub Copilot CLI 1.0.82**, authenticated.
+Binary: `~/.npm-global/bin/copilot`, authenticated. The two free fixtures
+(`version-`, `help-`) were re-recorded from **1.0.83** on 2026-09-06 when the
+installed binary auto-updated past the pin; every paid or unreproducible capture
+below still names **1.0.82**, its actual recording (2026-09-03), per E30. The
+1.0.83 help page adds a relative-path sentence to `--add-dir` and drops
+`--enable-reasoning-summaries`, a flag the adapter never emitted.
 
 | File | Command |
 |---|---|
-| `version-1.0.82.txt` | `copilot --version` |
-| `help-1.0.82.txt` | `copilot --help` |
+| `version-1.0.83.txt` | `copilot --version` |
+| `help-1.0.83.txt` | `copilot --help` |
 | `output-format-json-1.0.82.txt` | `copilot --no-color --log-level none --output-format json --disable-builtin-mcps --no-custom-instructions --deny-tool shell --deny-tool write --model gpt-5.6-luna -p 'Reply with exactly: NOX-JSON-OK'`, stdout |
 | `text-footer-1.0.82.txt` | the same run with `--output-format text` — **stderr**, verbatim |
 | `tools-1.0.82.txt` | the tool names Copilot offered the model, read off `model.model_call_success.data.requestCapture.tools` in a live `--output-format json` run |

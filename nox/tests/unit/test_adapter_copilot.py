@@ -14,7 +14,7 @@ Two properties every assertion here is written to preserve:
 2. **The never-emitted words live HERE, not in `src/`.** WP6's static scan
    refuses any string constant in an adapter that equals a `NEVER_EMITTED`
    member, correctly, since it cannot tell a guard from a flag. This module is
-   not scanned, and 1.0.82 carries five words `NEVER_EMITTED` does not.
+   not scanned, and 1.0.83 carries five words `NEVER_EMITTED` does not.
 """
 
 import ast
@@ -355,7 +355,7 @@ def test_the_pinned_tool_list_is_the_one_the_binary_offered():
 
 def test_verified_against_is_read_off_the_version_fixture_and_not_a_document():
     """C-1020/E3: `verified_against` is set from a re-probe, never copied from a document."""
-    banner = _fixture_lines("version-1.0.82.txt")[0]
+    banner = _fixture_lines("version-1.0.83.txt")[0]
     found = VERSION_PATTERN.search(banner)
     assert found is not None, banner
     assert found.group(1) == VERIFIED_AGAINST
@@ -363,8 +363,8 @@ def test_verified_against_is_read_off_the_version_fixture_and_not_a_document():
 
 def test_the_version_pattern_survives_the_unconditional_update_line():
     """C-1020: `--version` prints a banner AND `Run 'copilot update'…`, so the parse is a search."""
-    whole = _fixture("version-1.0.82.txt")
-    assert len(_fixture_lines("version-1.0.82.txt")) > 1, "the second line is the case this pattern exists for"
+    whole = _fixture("version-1.0.83.txt")
+    assert len(_fixture_lines("version-1.0.83.txt")) > 1, "the second line is the case this pattern exists for"
     assert VERSION_PATTERN.fullmatch(whole) is None, "a whole-output match would never fire on this shape"
     found = VERSION_PATTERN.search(whole)
     assert found is not None and found.group(1) == VERIFIED_AGAINST, "and the search still finds it"
@@ -383,7 +383,8 @@ def _visibility_rows() -> dict[str, tuple[str, list[str], str]]:
     Comment lines carry the conditions the columns cannot; the rows are TSV.
     """
     rows: dict[str, tuple[str, list[str], str]] = {}
-    for line in _fixture_lines(f"tool-visibility-{VERIFIED_AGAINST}.txt"):
+    # A paid capture kept at its recording (E30); the pin names the free `version-`/`help-` files only.
+    for line in _fixture_lines("tool-visibility-1.0.82.txt"):
         if not line or line.startswith("#"):
             continue
         name, count, tools, argv = line.split("\t")
@@ -449,7 +450,7 @@ def test_no_review_tool_can_write_or_reach_the_network():
 )
 def test_every_flag_this_adapter_emits_exists_in_the_recorded_help(flag):
     """E3: a flag this release does not have is a launch that refuses at runtime; catch it here."""
-    help_text = _fixture("help-1.0.82.txt")
+    help_text = _fixture("help-1.0.83.txt")
     assert re.search(rf"(?m)^\s*{re.escape(flag)}\b", help_text), flag
 
 
@@ -716,10 +717,10 @@ def test_the_probe_reads_the_version_off_the_first_line_and_declares_two_capabil
     """
     bindir = tmp_path / "bin"
     _executable(bindir, BINARY)
-    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.82.txt")))
+    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.83.txt")))
     info = CopilotAdapter().probe(runner, config(), {"PATH": str(bindir)}, tmp_path)
     assert info.name == "copilot"
-    assert info.version == "1.0.82"
+    assert info.version == "1.0.83"
     assert info.verified_against == VERIFIED_AGAINST
     assert info.capabilities == frozenset({Capability.ENUMERABLE_DENY, Capability.ENFORCED_READ_ONLY})
     assert Capability.STRUCTURED_OUTPUT not in info.capabilities
@@ -733,7 +734,7 @@ def test_the_probe_runs_in_the_directory_nox_minted_and_nowhere_else(tmp_path):
     _executable(bindir, BINARY)
     empty = tmp_path / "empty"
     empty.mkdir()
-    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.82.txt")))
+    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.83.txt")))
     CopilotAdapter().probe(runner, config(), {"PATH": str(bindir)}, empty)
     assert runner.spawned[0].cwd == empty
 
@@ -753,7 +754,7 @@ def test_a_version_call_that_does_not_exit_clean_is_absent_rather_than_a_probed_
     """
     bindir = tmp_path / "bin"
     _executable(bindir, BINARY)
-    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.82.txt"), exit_code=1))
+    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.83.txt"), exit_code=1))
     with pytest.raises(HarnessUnavailable) as exc:
         CopilotAdapter().probe(runner, config(), {"PATH": str(bindir)}, tmp_path)
     assert exc.value.reason is FailureReason.ABSENT
@@ -779,7 +780,7 @@ def test_the_probe_goes_through_a_configured_launcher_and_the_info_carries_it(tm
     """
     bindir = tmp_path / "bin"
     _executable(bindir, "wrapper")
-    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.82.txt")))
+    runner = FakeRunner(FakeProcess(lines=_fixture_lines("version-1.0.83.txt")))
     info = CopilotAdapter().probe(runner, config(launcher=("wrapper", "--")), {"PATH": str(bindir)}, tmp_path)
     assert info.launcher == Launcher(binary=BINARY, prefix=("wrapper", "--"))
     assert runner.spawned[0].argv[1:] == ("--", BINARY, "--version")
