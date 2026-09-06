@@ -22,7 +22,8 @@ the project's plan location. Read and mutated by /hex-plan, /hex-execute,
 -->
 
 - State:   plan-approved      <!-- planning → plan-approved → executing → review → done; federated plans only (`Repo` column present): review → landing → done -->
-- Tier:    [low | medium | high]
+- Tier:    [low | medium | high | xhigh | max]
+- Tier-grammar: 5   <!-- written by /hex-plan; the grammar `Tier:` was written in. Absent ⇒ pre-`adr_0017` grammar: `Tier:` is read one step higher (low→medium, medium→high, high→xhigh) and announced, never rewritten — hex-core references/protocol.md § Tier grammar (C-997). -->
 - Effective-tier: derived   <!-- optional — the generation marker.
   Present ⇒ the `Tier:` line above is a ceiling and every WP derives its
   own effective tier from cells the table already carries, never above
@@ -242,7 +243,7 @@ graph TD
 **Critical path:** [WP 1 → WP 3] (bounds wall-clock time)
 
 **Shippable after wave:** [N — what already ships if work stops here.
-Delete at tier low (single WP).]
+Delete at tier medium or below (single WP).]
 
 **Merge order:** a valid topological order, serialized — [WP 1], [WP 2], [WP 3] — with
 the scoped check after each merge onto the feature branch, and full
@@ -341,7 +342,7 @@ Gate: the scoped check passes — hex-core references/verify.md
 
 ## Dependencies
 
-<!-- tier-scaled — delete when empty/N/A at tier low -->
+<!-- tier-scaled — delete when empty/N/A at tier medium or below -->
 
 ### Code Dependencies
 
@@ -357,7 +358,7 @@ Gate: the scoped check passes — hex-core references/verify.md
 
 ## Rollback Plan
 
-<!-- tier-scaled — delete when empty/N/A at tier low -->
+<!-- tier-scaled — delete when empty/N/A at tier medium or below -->
 
 1. [Step to revert if issues arise]
 2. [Step to restore previous state]
@@ -365,7 +366,7 @@ Gate: the scoped check passes — hex-core references/verify.md
 
 ## Risks
 
-<!-- tier-scaled — delete when empty/N/A at tier low -->
+<!-- tier-scaled — delete when empty/N/A at tier medium or below -->
 
 | Risk | Mitigation |
 |------|------------|

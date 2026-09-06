@@ -3,11 +3,12 @@
 Signal-to-tier map for `/hex-architect` when `tier=auto`, plus the candidate
 research axes and overlay triggers that stack on the chosen tier. The
 classifier reads the free-text decision and emits a tier — **only `low`,
-`medium`, or `high`** — with a confidence flag and a ranked list of candidate
+`medium`, `high`, or `xhigh`** — with a confidence flag and a ranked list of candidate
 research axes.
 
-The classifier **never emits `xhigh` or `max`** (reserved; see
-[`protocol.md`](../hex-core/references/protocol.md#tier-grammar)). When
+The classifier **never emits `max`** — that tier is explicit only,
+`--tier=max` or a plan whose Status block says `Tier: max`
+([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)). When
 signals split across adjacent tiers, mark **low-confidence** — that forces
 the meta-plan gate in [`SKILL.md`](SKILL.md) step 4. Never fire a mid-flow
 question; ambiguity is resolved at the single gate.
@@ -32,13 +33,14 @@ single-area change to an external contract):
 
 | Tier | Signals | Examples |
 |---|---|---|
-| **low** | Two-way door; single area; established pattern; no external contract; no compliance/security touch | `builder vs constructor for this type`, `sync or async for this internal helper`, `naming convention for the new module` |
-| **medium** | One-way-door medium; single area or an internal contract; established pattern applied in a new way, or a bounded novel approach | `storage layout for the new index`, `caching strategy for the lookup path`, `internal event bus vs direct calls` |
-| **high** | One-way-door high; cross-area or an external/public contract; genuinely novel approach; compliance or security-critical | `public plugin API shape`, `wire protocol for the new sync mechanism`, `auth boundary redesign`, `data model migration with no rollback` |
+| **low** | Trivial two-way door; a naming or local-style call inside one file; no contract of any kind, no precedent needed | `snake_case or camelCase for this private helper`, `keep the early return or nest it` |
+| **medium** | Two-way door; single area; established pattern; no external contract; no compliance/security touch | `builder vs constructor for this type`, `sync or async for this internal helper`, `naming convention for the new module` |
+| **high** | One-way-door medium; single area or an internal contract; established pattern applied in a new way, or a bounded novel approach | `storage layout for the new index`, `caching strategy for the lookup path`, `internal event bus vs direct calls` |
+| **xhigh** | One-way-door high; cross-area or an external/public contract; genuinely novel approach; compliance or security-critical | `public plugin API shape`, `wire protocol for the new sync mechanism`, `auth boundary redesign`, `data model migration with no rollback` |
 
-Pick the **highest** tier with at least one clear signal. A single `low`
+Pick the **highest** tier with at least one clear signal. A single `low` or `medium`
 keyword does not demote a decision whose body describes a one-way-door
-change. `medium` is the default working tier — most architecture decisions
+change. `high` is the default working tier — most architecture decisions
 land here.
 
 ## Confidence rules
@@ -59,7 +61,7 @@ the gate handle it*.
 
 The classifier proposes a ranked subset of this catalog based on keywords in
 the decision text; the tier baseline in [`overlays.md`](overlays.md) sets how
-many actually run (`medium` 1, `high` 3) — **the user selects which** at the
+many actually run (`high` 1, `xhigh` 3) — **the user selects which** at the
 gate. This is the signature interaction at `/hex-architect`, more central
 here than in any other hex skill.
 
@@ -111,13 +113,13 @@ classifier never adds a second budget.
 ## Examples
 
 1. `/hex-architect "sync or async for the new internal retry helper"` → tier
-   **low**, no overlays, confident.
+   **medium**, no overlays, confident.
 2. `/hex-architect "storage layout for the new tag-lock cache"` → tier
-   **medium** (one-way-door medium, internal contract), research candidates:
+   **high** (one-way-door medium, internal contract), research candidates:
    technology/tooling, data model/compatibility, performance & scale.
 3. `/hex-architect "should we cache this?"` → **low-confidence** (no scope,
    no reversibility cue). The gate fires.
 4. `/hex-architect "public plugin API for third-party extensions"` → tier
-   **high** (external contract, novel) + `adversary=on` (public API change),
+   **xhigh** (external contract, novel) + `adversary=on` (public API change),
    research candidates: design-pattern precedent, security & compliance,
    data model/compatibility.

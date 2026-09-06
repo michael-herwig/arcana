@@ -2,7 +2,7 @@
 
 Overlays are single-axis adjustments layered on the tier
 [`classify.md`](classify.md) chose. They let `auto` mode assemble a mixed
-config (e.g. a `medium` base that still wants the full breadth panel for a
+config (e.g. a `high` base that still wants the full breadth panel for a
 dependency-manifest change) without compound tier names.
 [`classify.md`](classify.md) decides *when* an overlay fires from signals;
 this file defines *what each axis means* and how it changes the pipeline.
@@ -46,9 +46,11 @@ Per-tier defaults:
 
 | Tier | breadth default |
 |---|---|
-| low | `minimal` |
-| medium | `full` |
-| high | `adversarial` |
+| low | `minimal` — the orchestrator reads the diff itself against `spec` + `quality`; zero spawns |
+| medium | `minimal` |
+| high | `full` |
+| xhigh | `adversarial` |
+| max | `adversarial` |
 
 ## rca axis
 
@@ -57,16 +59,18 @@ Controls the depth of root-cause (Five Whys) analysis applied to findings.
 | Value | Effect |
 |---|---|
 | `off` | No Five Whys chains. A finding is reported with proximate cause and remediation only. A systemic-smelling finding is still flagged deferred with a reason. |
-| `on` | Findings above a tier-scoped [severity](../hex-core/references/severity.md#finding-severity) get a Five Whys chain and a systemic-fix recommendation. Scope: `medium` applies it to Block/High findings; `high` applies it to everything above Suggest. |
+| `on` | Findings above a tier-scoped [severity](../hex-core/references/severity.md#finding-severity) get a Five Whys chain and a systemic-fix recommendation. Scope: `high` applies it to Block/High findings; `xhigh` and `max` apply it to everything above Suggest. |
 
-Per-tier defaults: low → `off`, medium → `on` (Block/High), high → `on`
-(above Suggest).
+Per-tier defaults: low → `off`, medium → `off`, high → `on` (Block/High),
+xhigh → `on` (above Suggest), max → `on` (above Suggest).
 
 ## adversary axis
 
 Controls whether the configured cross-model adversary skill runs against
-the diff (or the artifact, when the target is a markdown file) as a final
-gate after the panel converges. The skill name is read from the
+the diff (or the artifact, when the target is a markdown file), launched
+**inside the Stage 2 batch, last** — never after the panel
+([`adversary.md`](../hex-core/references/adversary.md#adversary-contract),
+`adr_0016` C-987) — and triaged in the Cross-model phase. The skill name is read from the
 Preferences section of `.agents/memory/hex.md` (`codex-adversary`
 is only an example value); the full contract — scopes, one-shot rule, 4-way
 triage, graceful skip, stall bound and backstop — is in
@@ -78,15 +82,17 @@ This is `code-diff` scope for a branch/PR/working-tree target,
 | Value | Effect |
 |---|---|
 | `off` | No cross-model pass. |
-| `on` | After the panel converges, invoke the adversary skill once against the diff or artifact. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia). Review is read-only: an actionable finding is reported, never auto-fixed — hand off to `/hex-execute` if the caller wants it applied. |
+| `on` | Invoke the adversary skill once against the diff or artifact, launched last in the Stage 2 batch. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia). Review is read-only: an actionable finding is reported, never auto-fixed — hand off to `/hex-execute` if the caller wants it applied. |
 
 Per-tier defaults:
 
 | Tier | adversary default |
 |---|---|
-| low | `off` (two-way door — cost outweighs value) |
-| medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for a one-way-door or security signal; explicit via `--adversary` |
-| high | `on` (a default part of the flow; a skip is surfaced prominently) |
+| low | `off` (inline tier); explicit `--adversary` runs it alone, read-only |
+| medium | `off` (two-way door — cost outweighs value) |
+| high | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for a one-way-door or security signal; explicit via `--adversary` |
+| xhigh | `on` (a default part of the flow; a skip is surfaced prominently) |
+| max | `on` — **every** entry of a list-valued `adversary` key, in the Stage 2 batch; below `max` the first entry only (`adr_0017` C-995) |
 
 When the adversary produces no review — the named skill is unavailable, or it
 ran and did not complete one — log
@@ -108,8 +114,8 @@ axis's source.
 
 ## Per-tier defaults (cheat-sheet)
 
-| Axis | low | medium | high |
-|---|---|---|---|
-| breadth | minimal | full | adversarial |
-| rca | off | on (Block/High) | on (above Suggest) |
-| adversary | off | off (auto-on on signal) | on (mandatory) |
+| Axis | low | medium | high | xhigh | max |
+|---|---|---|---|---|---|
+| breadth | minimal (inline) | minimal | full | adversarial | adversarial |
+| rca | off | off | on (Block/High) | on (above Suggest) | on (above Suggest) |
+| adversary | off | off | off (auto-on on signal) | on (mandatory) | on (every configured) |

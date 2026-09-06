@@ -1,6 +1,6 @@
 ---
 name: hex-plan
-description: Tiered multi-agent planning orchestrator — decomposes a feature, issue, or PR into a contract-first TDD plan through discover, research, design, decompose, and adversarial-review phases. Use for multi-step feature planning, task decomposition, swarm planning, multi-perspective research, meta-plan preview, or ADR scaffolding. Tier (low|medium|high, auto by default) scales research depth, whether an architect designs, and review breadth.
+description: Tiered multi-agent planning orchestrator — decomposes a feature, issue, or PR into a contract-first TDD plan through discover, research, design, decompose, and adversarial-review phases. Use for multi-step feature planning, task decomposition, swarm planning, multi-perspective research, meta-plan preview, or ADR scaffolding. Tier (low|medium|high|xhigh|max, auto by default) scales research depth, whether an architect designs, and review breadth.
 license: Apache-2.0
 metadata:
   summary: Tiered swarm planning — prompt/issue to reviewed contract-first plan
@@ -13,7 +13,7 @@ metadata:
 Thin dispatcher. It parses arguments, classifies the target's tier, resolves
 overlays, runs the single meta-plan approval gate, announces the resolved
 config, and hands off to the matching tier file. The phase plans live in
-`tier-low.md`, `tier-medium.md`, and `tier-high.md`; the shared vocabulary
+the five `tier-<tier>.md` files; the shared vocabulary
 (tiers, the Review-Fix Loop, worker roles, model classes, the memory file)
 lives in the `hex-core` reference library and is **linked here, never
 copied**.
@@ -31,11 +31,11 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 /hex-plan [tier] <target> [flags]
 ```
 
-- **tier** (optional): `low | medium | high | auto`. Default `auto` — the
-  classifier picks one of the three. `xhigh` and `max` are **reserved**
-  (see [`protocol.md`](../hex-core/references/protocol.md#tier-grammar)): the
-  classifier never emits them, and an explicit reserved tier is announced as
-  "`<tier>` reserved, running high" and run as `high`.
+- **tier** (optional): `low | medium | high | xhigh | max | auto`. Default
+  `auto` — the classifier picks `low` … `xhigh`. **`max` is explicit
+  only** — `--tier=max`, or a plan whose Status block says `Tier: max`; the
+  classifier never emits it
+  ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **target** (one of):
   - free-text prompt;
   - `<N>` or `#<N>` — a number; probe PR first, fall back to issue;
@@ -92,7 +92,7 @@ file list feeds the Discover scope, not the tier decision.
 
 Read [`classify.md`](classify.md). Apply its tier signals and overlay
 triggers to the prompt plus any fetched GitHub context. It emits a candidate
-tier (**only** `low`, `medium`, or `high`), a confidence flag, and an overlay
+tier (**only** `low`, `medium`, `high`, or `xhigh`), a confidence flag, and an overlay
 set. Low confidence forces the gate in step 5. Never ask a mid-flow question
 during classification — ambiguity is resolved at the single gate.
 
@@ -110,10 +110,10 @@ Exactly one gate, before any worker launches
 ([`protocol.md`](../hex-core/references/protocol.md#the-meta-plan-approval-gate)).
 Its weight scales:
 
-- **Confident `low` / `medium`** — announce the resolved config (step 6) and
+- **Confident `low` / `medium` / `high`** — announce the resolved config (step 6) and
   proceed; the user can still abort. An explicit user tier always counts as
   confident — the classifier never ran.
-- **`high` tier, low-confidence classification, or `--dry-run`** — block for
+- **`xhigh` or `max` tier, low-confidence classification, or `--dry-run`** — block for
   explicit approval.
 
 On a client with a **native plan-approval mechanism**, use it. Otherwise
@@ -133,7 +133,7 @@ tier file (format:
 
 ```
 hex-plan
-  Tier:      medium                         (auto — classifier: new subcommand, 2 areas)
+  Tier:      high                         (auto — classifier: new subcommand, 2 areas)
   Overlays:  architect=on                   (classifier: cross-area design)
              research=1                      (tier baseline)
              adversary=on                    (hex.md preference: one-way-door signals)
@@ -177,7 +177,7 @@ Read `workflows.hex-plan.<tier>` from the resolved config first. When set and
 the named file passes the seven validation checks
 ([`config.md` § Workflows](../hex-core/references/config.md#workflows)), `Read`
 that forked file in place of the shipped one; on validation failure or when
-unset, `Read` the matching `tier-{low,medium,high}.md` — config.md owns the
+unset, `Read` the matching `tier-{low,medium,high,xhigh,max}.md` — config.md owns the
 check list and the on-failure fallback. Announce which ran: `Workflow: shipped
 tier-<tier>.md`, or for a fork, `Workflow: <path> (forked from <shipped tier
 file> @ <stamped version>)`. Execute the loaded file's phase plan; no phase
@@ -247,14 +247,17 @@ execute and review skills read and mutate — no external state file:
 ```markdown
 ## Status
 - State:   plan-approved      <!-- planning → plan-approved → executing → review → done -->
-- Tier:    medium
+- Tier:    high
+- Tier-grammar: 5
 - Effective-tier: derived
 - Updated: 2026-07-19
 - Next:    /hex-execute <this plan path>
 ```
 
 hex-plan initializes it at `plan-approved` on handoff, writes
-`- Effective-tier: derived` into every new plan's Status block, and records
+`- Effective-tier: derived` and `- Tier-grammar: 5` (the tier grammar the
+`Tier:` value was written in, [`protocol.md` § Tier grammar](../hex-core/references/protocol.md#tier-grammar), `adr_0017` C-997)
+into every new plan's Status block, and records
 the pointer in `hex.md › Memory`; `/hex-execute` advances `State` and `Next`
 as it runs. The field is written explicitly rather than left absent because
 every ecosystem this marker copies tells authors to set it by hand, so the
@@ -285,7 +288,7 @@ holds the value's semantics).
   citing the C-/S- IDs each WP covers,
   a wave-grouped mermaid `graph TD` as its visual index
   (the table stays canonical), the critical path, a "Shippable after wave:
-  N" line (tier low exempt — single WP), the serialized topological-order
+  N" line (tier medium and below exempt — single WP), the serialized topological-order
   merge plan (waves derived), and — when fewer parallel WPs than
   file-disjointness allows, or a sub-overhead WP stays isolated — a
   one-line justification
@@ -332,7 +335,7 @@ proceed question may follow it.
 ### Classification
 - Scope: small | medium | large
 - Reversibility: two-way | one-way (medium) | one-way (high)
-- Tier: low | medium | high
+- Tier: low | medium | high | xhigh | max
 - Overlays: architect=<inline|on>, research=<skip|1|3>, adversary=<on|off>
 
 ### Artifacts

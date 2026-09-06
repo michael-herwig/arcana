@@ -17,8 +17,7 @@ Unlike `hex-plan` and `hex-execute`, hex-review never edits its own output
 or loops on it — the reviewer panel runs **once** per invocation and
 reports; iterating on the findings is
 [`/hex-execute`'s job](../hex-core/references/loop.md#the-review-fix-loop).
-The phase plans live in `tier-low.md`, `tier-medium.md`, and
-`tier-high.md`; the shared vocabulary (tiers, worker roles, model classes,
+The phase plans live in the five `tier-<tier>.md` files; the shared vocabulary (tiers, worker roles, model classes,
 the memory file) lives in the `hex-core` reference library and is **linked
 here, never copied**.
 
@@ -35,12 +34,11 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 /hex-review [tier] <target> [flags]
 ```
 
-- **tier** (optional): `low | medium | high | auto`. Default `auto` — the
-  classifier picks one of the three from diff metrics. `xhigh` and `max`
-  are **reserved** (see
-  [`protocol.md`](../hex-core/references/protocol.md#tier-grammar)): the
-  classifier never emits them, and an explicit reserved tier is announced
-  as "`<tier>` reserved, running high" and run as `high`.
+- **tier** (optional): `low | medium | high | xhigh | max | auto`. Default
+  `auto` — the classifier picks `low` … `xhigh` from diff metrics. **`max` is explicit
+  only** — `--tier=max`, or a plan whose Status block says `Tier: max`; the
+  classifier never emits it
+  ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **target** (one of):
   - empty — the **working tree**: uncommitted changes (staged + unstaged)
     against `HEAD`. If the working tree is clean, fall back to the current
@@ -142,7 +140,7 @@ checked.
 Read [`classify.md`](classify.md). For a diff target, compute file count,
 lines changed, and areas touched once, then apply its tier signals,
 structural markers, and overlay triggers. It emits a candidate tier
-(**only** `low`, `medium`, or `high`), a confidence flag, and an overlay
+(**only** `low`, `medium`, `high`, or `xhigh`), a confidence flag, and an overlay
 set. Low confidence forces the gate in step 5. Never ask a mid-flow
 question during classification — ambiguity is resolved at the single gate.
 
@@ -159,10 +157,10 @@ Exactly one gate, before any worker launches
 ([`protocol.md`](../hex-core/references/protocol.md#the-meta-plan-approval-gate)).
 Its weight scales:
 
-- **Confident `low` / `medium`** (an explicit user tier always counts as
+- **Confident `low` / `medium` / `high`** (an explicit user tier always counts as
   confident — the classifier never ran) — announce the resolved config (step 6)
   and proceed; the user can still abort.
-- **`high` tier, low-confidence classification, or `--dry-run`** — block
+- **`xhigh` or `max` tier, low-confidence classification, or `--dry-run`** — block
   for explicit approval.
 
 On a client with a **native plan-approval mechanism**, use it. Otherwise
@@ -178,7 +176,7 @@ the tier file:
 
 ```
 hex-review
-  Tier:      medium                          (auto — 6 files, 180 lines, 1 area)
+  Tier:      high                          (auto — 6 files, 180 lines, 1 area)
   Baseline:  main                             (default)
   Target:    HEAD (branch: feature/export)
   Overlays:  breadth=full                     (tier baseline)
@@ -225,7 +223,7 @@ Read `workflows.hex-review.<tier>` from the resolved config first. When set
 and the named file passes the seven validation checks
 ([`config.md` § Workflows](../hex-core/references/config.md#workflows)), `Read`
 that forked file in place of the shipped one; on validation failure or when
-unset, `Read` the matching `tier-{low,medium,high}.md` — config.md owns the
+unset, `Read` the matching `tier-{low,medium,high,xhigh,max}.md` — config.md owns the
 check list and the on-failure fallback. Announce which ran: `Workflow: shipped
 tier-<tier>.md`, or for a fork, `Workflow: <path> (forked from <shipped tier
 file> @ <stamped version>)`. Execute the loaded file's phase plan; no phase
@@ -244,14 +242,15 @@ review stages; the tier files set the actual counts and firing conditions.
 | Stage | Role | Count | Purpose |
 |---|---|---|---|
 | Stage 1 — Correctness | `reviewer` (focus `spec`, phase `post-implementation`) | 1 | design ↔ implementation traceability; also runs the [convergence check](../hex-core/references/loop.md#convergence-contract) when the target traces to a plan |
-| Stage 1 — Correctness | `reviewer` (focus `quality`, test-coverage emphasis) | 0–1 | Specify-phase test adequacy (medium/high) |
+| Stage 1 — Correctness | `reviewer` (focus `quality`, test-coverage emphasis) | 0–1 | Specify-phase test adequacy (`high` and above) |
 | Stage 2 — Panel | `reviewer` (focus `quality`) | 1 | naming, style, pattern compliance |
 | Stage 2 — Panel | `reviewer` (focus `security`) | 0–1 | fires on security-sensitive paths |
 | Stage 2 — Panel | `reviewer` (focus `performance`) | 0–1 | fires on hot-path / async changes |
 | Stage 2 — Panel | `doc-reviewer` | 0–1 | fires on a doc-trigger match |
-| Stage 2 — Panel (high) | `architect` | 0–1 | boundary / dependency-direction review |
-| Stage 2 — Panel (high) | `researcher` | 0–1 | SOTA / known-pitfall gap check |
-| Adversary | configured adversary skill (`code-diff` or `plan-artifact`) | 0–1 | cross-model review |
+| Stage 2 — Panel (`high` and above) | `architect` | 0–1 | boundary / dependency-direction review |
+| Stage 2 — Panel (`high` and above) | `researcher` | 0–1 | SOTA / known-pitfall gap check |
+| Adversary | configured adversary skill (`code-diff` or `plan-artifact`) | 0–1 (every configured entry at `max`) | cross-model review |
+| Stage 2 — Panel (`max`) | `simulator` | 0 (4+ at `max` only) | one user pattern each against the target; reported, never fixed |
 
 A project's `tiers.hex-review.<tier>.counts` can override any Count cell
 above against the baseline this table sets
@@ -496,14 +495,14 @@ proceed question may follow it.
 
 ### Classification
 - Scope: small | medium | large
-- Tier: low | medium | high
+- Tier: low | medium | high | xhigh | max
 - Baseline: <ref>
 - Overlays: breadth=<minimal|full|adversarial>, rca=<on|off>, adversary=<on|off>
 
 ### Verdict
 - Approve | Needs Work | Request Changes
 
-### Findings   <!-- [severity] prefix absent at tier low -->
+### Findings   <!-- [severity] prefix absent below tier high -->
 - Actionable:
   - [severity] file:line — issue — remediation      <!-- one line per finding; `(none)` if the bucket is empty -->
 - Deferred:

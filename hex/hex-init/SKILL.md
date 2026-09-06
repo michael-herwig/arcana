@@ -299,7 +299,12 @@ role × tier. Detect the harness in use (from the client running this
 skill, or ask if ambiguous) and propose literal model names per class —
 for example, on a Claude harness: `fast-balanced` → Sonnet,
 `deep-reasoning` → Opus. Let the user adjust per row or per cell (e.g. pin
-`reviewer:security` to the deep-reasoning model at every tier).
+`builder:implement` to the deep-reasoning model at every tier). Review
+seats are the exception: they are configured **per join level** through
+`review.<level>.class`, which supersedes a `models.overrides`
+`reviewer[:focus]` entry
+([`config.md`](../hex-core/references/config.md#key-vocabulary), C-985) —
+offer that key here, never a reviewer override.
 
 Skipping this step is fine — the shipped class defaults apply and every
 orchestrator still runs unmodified. Nothing from this step is written
@@ -309,18 +314,24 @@ until Step 4½.
 
 Gather every swarm-only choice from this run — the model matrix and
 overrides from Step 4, plus (if raised) an adversary skill, `limits`,
-`perspectives`, and `research-axes` — into the single fenced `yaml` block
+`perspectives`, `research-axes`, and the per-join-level `review` settings
+(`review.<level>.{seats, class, rounds, budget-minutes, delta-only,
+checklist}`, plus any candidate a prior run recorded in `hex.md › Memory`
+under the [upkeep step](../hex-core/references/protocol.md#upkeep-step)) —
+into the single fenced `yaml` block
 that carries `hex.md › Preferences`. Key set, types, defaults, and effects
 are defined once, in
 [`../hex-core/references/config.md`](../hex-core/references/config.md#key-vocabulary);
 do not restate them here. The block is the **first content** under
 `## Preferences`, prose bullets continuing below it
 ([placement](../hex-core/references/config.md#carrier-and-placement)). Use
-vocabulary v2: v1's six keys (`models`, `adversary`, `limits`,
-`perspectives`, `research-axes`, `tiers`) plus `workflows`, the fork
+vocabulary v4: v1's six keys (`models`, `adversary`, `limits`,
+`perspectives`, `research-axes`, `tiers`), plus `workflows`, the fork
 pointer written into this same block by the
 [workflow-fork flow](#workflow-forks-hex-init-workflows)
-([`config.md` § Workflows](../hex-core/references/config.md#workflows)).
+([`config.md` § Workflows](../hex-core/references/config.md#workflows)),
+plus `review` (`adr_0016` C-990); tier segments take the five-value grammar
+and `adversary` may be a list (v4, `adr_0017` C-997).
 
 Present the assembled block as one diff against the file's current state
 (one line per changed key, old → new), gated by the
@@ -389,7 +400,7 @@ this flow only creates and tracks the files, and asks through the
 [wizard](#the-wizard):
 
 1. **List** the forkable skill × tier pairs (the four orchestrators ×
-   `low`/`medium`/`high`), each with its shipped phase list and a
+   `low`/`medium`/`high`/`xhigh`/`max`), each with its shipped phase list and a
    `[forked]` marker where `workflows.<skill>.<tier>` already points at a
    file.
 2. **Fork.** On selection, copy the shipped `hex-<skill>/tier-<tier>.md`

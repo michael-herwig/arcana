@@ -12,20 +12,23 @@ tier/overlay grammar). Inventory + analysis: session 2026-07-19.
 
 ## Shared shape (all orchestrators)
 
-parse args → classify tier (`low|medium|high`, `auto` default) → resolve
+parse args → classify tier (`low|medium|high|xhigh|max`, `auto` default; `max` explicit only) → resolve
 overlays → single meta-plan approval gate (never mid-flow questions) →
 announce resolved config with per-axis source attribution → dispatch to
 tier file.
 
 Skill layout: `SKILL.md` dispatcher + `classify.md` + `overlays.md` +
-`tier-{low,medium,high}.md`.
+`tier-{low,medium,high,xhigh,max}.md`.
 
 **Tier rename (locked 2026-07-19):** grammar is now `low | medium | high`
 (+ `auto` default), mapped from the OCX-era `low | high | max`: old low →
 low, old high → medium (the new default tier), old max → high. `xhigh`
 and `max` are reserved for future overlay stacks — documented, never
 emitted by the classifier; an explicit request for either announces
-"reserved, running high" and runs `high`.
+"reserved, running high" and runs `high`. **Superseded by round 22
+(2026-09-06, `adr_0017`):** the grammar is now five tiers,
+`low | medium | high | xhigh | max`, every 2026-07-19 tier shifted one step
+up and a zero-spawn inline `low` inserted below.
 
 ## Two-layer knowledge model (revised 2026-07-19, round 2)
 
@@ -2216,3 +2219,113 @@ not reopened; `review` is the v3 addition and a v2 reader ignores it under
 merge rule 8. **Load only what runs** (round 19) — upheld: a `reviewer`
 spawn still reads `severity.md` only; the join-level table is the
 orchestrator's to read.
+
+## Parallel-adversary and checklist round (2026-09-06, round 21)
+
+`adr_0016` (parallel adversary, review checklist, reviewer configuration)
+**amends round 20 in one place and adds two things it left implicit.**
+It changes no review level and no join rule: `L0`–`L3` stand as round 20
+wrote them. Full adjudication: `adr_0016` § Considered Options; the
+contracts are [`adversary.md`](hex-core/references/adversary.md#adversary-contract)
+(launch and triage) and the new
+[`checklist.md`](hex-core/references/checklist.md) (the shipped checklist
+and its composition).
+
+**The rule.** When `adversary=on`, the cross-model adversary **launches in
+the same batch as the native seat of the join it gates** — the `L2`
+aggregate seat, or the sole leaf's `L1` at `N = 1`, in `/hex-execute`; the
+Stage 2 batch in `/hex-review`; the Round 1 panel batch in `/hex-plan` and
+`/hex-architect` — native seats first, adversary last, no `max-workers`
+slot, each under its own clock (C-987). Its actionable findings join that
+join's **single builder fix pass**; duplicates merge with attribution; a
+merged pass that fails verification is reverted, re-run native-only, and
+the adversary findings deferred — never a re-invocation (C-988). Every
+review brief carries a `Checklist:` slot the orchestrator composes from
+`checklist.md`'s eight sections by join level — `L1` `spec` + `quality`,
+`L2` per the `--review` axis, `L3` per seat focus, the inline orchestrator
+`spec` + `quality` itself — and a seat answers every item or marks it not
+applicable (C-989). `review.<level>.checklist` overrides the composition;
+`/hex-init` seeds vocabulary v3 including the six `review.<level>.*` keys;
+the Upkeep step names three Memory candidate classes a run may propose
+(C-990).
+
+**The amendment to round 20's bound.** Round 20 bounded the terminal join
+at the aggregate seat's budget. It is now `max(aggregate, adversary)`: the
+adversary's bound is the adversary contract's, orthogonal to
+`review.<level>.budget-minutes`, and the join waits for both. Nothing
+truncates either — hex can stop its own worker and cannot terminate an
+external skill (round 13).
+
+**Rejected: a project checklist file.** `.agents/review-checklist.md`
+would be a third surface for what `perspectives.always` and the project's
+own rules (universal rule 1) already reach through `hex.md › Pointers`.
+Every composed brief names those rules; a project extends the checklist
+there.
+
+**Considered and not deviated** (unchanged by this round): **single-source
+contracts (C-923)** — upheld: launch order and triage live in
+`adversary.md`, the checklist in `checklist.md`, every tier file links.
+**Thin dispatchers + per-tier phase files** — upheld; no heading renamed
+(C-220). **Load only what runs** (round 19) — upheld and sharpened: the
+load map gains one row, "any mode composing a review brief opens
+`checklist.md`", and a `reviewer` spawn still opens `severity.md` only —
+the orchestrator inlines the sections. **Capability classes, never
+literal model names** — untouched. **`config.md`'s frozen vocabulary** —
+v1 and v2 not reopened; `review.<level>.checklist` is a v3 leaf.
+
+## Five-tier round (2026-09-06, round 22)
+
+`adr_0017` (five-tier grammar) **supersedes the 2026-07-19 tier rename
+recorded at the top of this file** and reopens the one thing that rename
+froze: `xhigh` and `max` stop being reserved words. Full adjudication:
+`adr_0017` § Considered Options; the grammar is
+[`protocol.md` § Tier grammar](hex-core/references/protocol.md#tier-grammar).
+
+**The shift map.** `low < medium < high < xhigh < max` plus `auto`. Old
+`low` → `medium`, old `medium` → `high`, old `high` → `xhigh` — per skill
+three `git mv` in a renames-only commit, headings byte-identical inside
+each file, then the literal shift (C-992). Every pre-existing tier keeps
+its behaviour under the new name. The effective-tier derivation is
+renamed with it: `S` ⇒ `medium`, `M` ⇒ `high`, floors `min(T, high)`, the
+collapse at effective `medium`; **effective `low` is never derived**
+(C-993).
+
+**Inline `low` (C-994).** Zero spawns — the orchestrator is the worker.
+The classifier's new bottom row: one file, ≤30 lines, no structural
+marker, no security-sensitive or hot path. `/hex-execute low` keeps the
+stub-first commit ordering, writes its own `L0` evidence table, answers
+the `spec` + `quality` checklist itself, and spawns one `L1` reviewer only
+when a non-doc file changed — the author≠verifier backstop survives.
+`/hex-review`, `/hex-plan` and `/hex-architect low` are the orchestrator's
+own read, plan or decision note.
+
+**`max` (C-995, C-996).** `xhigh` plus every configured adversary (the
+`adversary` key widens to a list; below `max` the first entry runs),
+five research axes with `competitive-research` mandatory, one extra
+known-pitfall researcher on the aggregate join, and usage simulation by
+the new `simulator` persona — four shipped patterns, `first-time`,
+`power-user`, `adversarial`, `automation`, plus project
+`.agents/workers/simulator-<pattern>.md` — as `/hex-execute`'s new
+`## Phase 8: Usage simulation` and a report section in `/hex-review`.
+**`max` is explicit only**; the classifier never lands there.
+
+**Migration on read (C-997).** `/hex-plan` writes `- Tier-grammar: 5`; a
+plan without it has its `Tier:` shifted one step up on read and disclosed
+on the `Tier:` line. A `hex.md › Preferences` block at `v3` or lower has
+its tier segments shifted the same way, once, at the gate. **Config v4**
+is the five-value segment plus the list-valued `adversary`; no new
+top-level key. Never a rewrite, never a refusal — the same posture as
+round 17's generation marker.
+
+**Considered and not deviated:** **thin dispatchers + per-tier phase
+files** — upheld: `tier-max.md` is thin, every phase a link into
+`tier-xhigh.md` with only the additions written out; headings exist so
+`tiers.<skill>.max.counts` has identifiers (C-220). **Single-source
+contracts** — upheld: the grammar and the read-side shift live in
+`protocol.md` § Tier grammar; the list-valued adversary in `adversary.md`.
+**Capability classes** — upheld; `simulator` takes `fast-balanced`, its
+`adversarial` pattern `deep-reasoning`. **Review by join level (round
+20)** — untouched: review depth is keyed on join level at every one of
+the five tiers; the tiers scale phases, model class and, at `max`, who
+else sits in the batch. **Load only what runs** — `simulator` opens
+`verify.md` only.

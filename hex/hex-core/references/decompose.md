@@ -65,10 +65,10 @@ the exception, not the default shape:
   every plan shape; the generation marker gates the spawn-time
   derivation, not this one.
 - **The histogram — one line, one grammar, stated once here.** Buckets are
-  keyed by the WP's effective tier, ordered `low`, `medium`, `high`, each
+  keyed by the WP's effective tier, ordered `medium`, `high`, `xhigh`, `max`, each
   key followed by its count, a zero-count bucket omitted, and the plan's
   ceiling closing the line:
-  `effective tier: low 6 · medium 2 · high 1 (ceiling high)`.
+  `effective tier: medium 6 · high 2 · xhigh 1 (ceiling xhigh)`.
   In a plan without the generation marker every WP runs at the ceiling, so
   the line degenerates to one bucket. `/hex-execute` prints it in its
   announce block and `/hex-plan` at the Decompose gate; both link this
@@ -195,7 +195,7 @@ the exception, not the default shape:
   writer of that state and gains this precondition.
 - **The counterweight: no WP below its own overhead.** Every WP pays a
   fixed cost — worktree, stub/specify/implement spawns (one collapsed
-  builder spawn at effective tier `low`, [the effective
+  builder spawn at effective tier `medium`, [the effective
   tier](#the-effective-tier)), review, merge, verification. A WP whose
   whole scope is a single trivial concern (~≤50 expected lines) **folds
   into its nearest sibling as sequential steps**; keeping it isolated
@@ -254,7 +254,8 @@ derived from cells the plan already carries, never written into the table:
 the plan's Status-block `Tier:` is a **ceiling**, not the baseline. **The
 effective tier is never above the ceiling and is never authored.** The
 vocabulary is [§ Tier grammar](protocol.md#tier-grammar)'s own, ordered
-`low < medium < high` — no new tier, no fourth value, and `auto` never
+`low < medium < high < xhigh < max` — five values and no sixth
+(`adr_0017` C-991), and `auto` never
 reaches this function because the classifier has already resolved it.
 
 The ceiling `T` is the plan's Status-block `Tier:` value, explicitly
@@ -277,7 +278,7 @@ four, named `sec`, `hot`, `hub`, `door`; a fifth arrives by amending this
 text in a later ADR, never by analogy at an edge case.
 
 **`Size`.** `S` is ~≤50 expected lines **and** ≤3 expected files,
-deliberately more conservative than `classify.md`'s `low` row of ≤3 files,
+deliberately more conservative than `classify.md`'s `medium` row of ≤3 files,
 ≤100 lines — the two thresholds have different jobs, an actual diff for a
 review against an estimate for a reduction, and the reduction side is the
 more conservative of the two on purpose, so this is a stated divergence and
@@ -285,9 +286,9 @@ not one shared table. `M` is ~≤500 expected lines and ≤15 expected files;
 `L` is anything else. **Both halves must hold** — a 40-line change spread
 over six files is `M`, not `S` — and an absent, empty, unrecognized or
 ambiguous cell reads `L`. No new numbers are introduced: ≤3 files is
-[§ Tier grammar](protocol.md#tier-grammar)'s own `low` row, ~≤50 lines is this
+[§ Tier grammar](protocol.md#tier-grammar)'s own `medium` row, ~≤50 lines is this
 section's overhead floor, and ≤15 files / ≤500 lines
-are `hex-review/classify.md`'s shipped `medium` row.
+are `hex-review/classify.md`'s shipped `high` row.
 
 **The four flags.**
 
@@ -324,15 +325,19 @@ are `hex-review/classify.md`'s shipped `medium` row.
 
 **Resolution — one pass, in this order.**
 
-1. **Baseline from `Size`** — `S` ⇒ `low`, `M` ⇒ `medium`, `L` ⇒ `T`.
+1. **Baseline from `Size`** — `S` ⇒ `medium`, `M` ⇒ `high`, `L` ⇒ `T`.
+   **Effective `low` is never derived** (`adr_0017` C-993): `medium` is the
+   collapsed builder, byte-identical to what the old `low` ran; a WP reaches
+   the inline `low` only through a plan ceiling `Tier: low`, which is a
+   single-WP plan whose one WP runs at the ceiling.
 2. **`sec`, `hot` or `door` true ⇒ `T`.** Any one of the three is decisive:
    they name one-way-door risk, which is what the ceiling was authored for.
-3. **First floor — `hub`.** A true `hub` floors the WP at `min(T, medium)`,
+3. **First floor — `hub`.** A true `hub` floors the WP at `min(T, high)`,
    never at the ceiling: a shared file is a merge-order risk, which four
    phases already cover, not the one-way-door risk the
    other three flags name.
 4. **Second floor — the coordinator floor**: a WP a coordinator splits
-   into dotted sub-WPs floors at `min(T, medium)`. Applied after `hub`, so
+   into dotted sub-WPs floors at `min(T, high)`. Applied after `hub`, so
    the two compose as *the highest floor that fired*; the reasoning and the
    no-sub-WPs case are below.
 
@@ -348,11 +353,11 @@ merge already pays the project's full documented verification under merge
 trigger (i) ([Worktree work-package
 mechanics](worktree.md#worktree-work-package-mechanics)), so nothing the flag would
 have bought is lost. **The floor is stated behaviourally, never by naming a
-coordinator kind**: never a flat `medium`, which at
-`T = low` would break the ceiling invariant, and a coordinator that owns
+coordinator kind**: never a flat `high`, which at
+`T = medium` would break the ceiling invariant, and a coordinator that owns
 only a WP's phase pipeline and adds no sub-WPs does not raise the floor, or
 the collapse could never fire. The reason is written with the rule:
-`models.md` Rule 5 gives `coordinator` no `low` cell, so a `low` derivation
+`models.md` Rule 5 gives `coordinator` no `medium` cell, so a `medium` derivation
 would leave a fan-out with no defined spawn, and the shipped granularity
 gate has no size floor, so an `S` or `M` coordinator parent is authorable.
 

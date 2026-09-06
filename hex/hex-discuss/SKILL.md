@@ -302,8 +302,8 @@ Four drain targets, adding zero new write paths. After the yes:
 Neither downstream command carries a tier: this skill has none of its own, so
 the receiving orchestrator's classifier resolves it, and a tier appears only
 when the user named one at the restate. The exception is the → ADR target,
-whose fast path refuses the lowest tier on arrival — the restate states the
-`medium` floor instead of emitting a dead-end command.
+whose fast path refuses the two lowest tiers on arrival — the restate states
+the `high` floor instead of emitting a dead-end command.
 
 Terminal states: `parked`, or
 `handed-off → plan | architect | context | dropped` — a `State:` vocabulary

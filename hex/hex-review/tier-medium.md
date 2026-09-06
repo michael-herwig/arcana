@@ -1,12 +1,11 @@
 # Tier: medium
 
-The **default** review tier for one-way-door-medium diffs: ≤15 files, ≤500
-lines changed, 1–2 areas, no one-way-door-high signal. This is the baseline
-any caller gets without an explicit tier — the shape most pre-merge reviews
-should take. Stage 1 runs spec-compliance and test-coverage in parallel;
-Stage 2 runs the full quality/security/performance/docs perspective set
-against changed files, each firing only when its trigger matches. The
-cross-model pass auto-fires on one-way-door signals, off otherwise.
+Minimal review for **two-way-door** diffs — a flag or option change, a doc
+edit, a fixture, a single-area tweak of ≤3 files. The adversarial stance
+still applies (question every assumption, name failure conditions) but the
+panel shrinks to one reviewer — no RCA, no cross-model pass. Matches what a
+quick check against `--base=HEAD~1` or a close sibling branch should feel
+like.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -16,119 +15,66 @@ Shared vocabulary is linked, not restated: roles in
 
 ## Phase 1: Discover (inline, no worker)
 
-Read the diff against the resolved baseline. Parse the changed-file list,
-map paths to areas using the project's own module/area boundaries (project
-context, cached in `hex.md › Pointers`). Read the project's quality rules
-for every touched area and the languages the diff uses, directly — no
-worker needed for this size.
+Read the diff against the resolved baseline (already computed in
+[`SKILL.md`](SKILL.md) step 2). Identify the single area touched by
+matching changed paths against the project's own module/area boundaries
+(project context, cached in `hex.md › Pointers`,
+[`memory.md`](../hex-core/references/memory.md#the-three-sections)). Read
+that area's quality rules directly — the diff is small enough that no
+worker is needed for this.
 
-**Gate** — the diff is fetched; every touched area's rules are loaded.
+**Gate** — the diff is fetched and the single area's rules are loaded.
 
-## Phase 2: Stage 1 — Correctness (parallel, 2 workers)
+## Phase 2: Stage 1 — Correctness (single reviewer)
 
-Launch **in a single batch** so they run concurrently
-([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)):
+Launch **1** `reviewer` (focus `spec`, phase `post-implementation`) on the
+diff. Model class per [`models.md`](../hex-core/references/models.md) row
+`reviewer:spec`, tier `medium`. Its brief carries the composed `spec` +
+`quality` sections of
+[`checklist.md`](../hex-core/references/checklist.md#composition) — the
+single-reviewer case the checklist exists for. It applies both jobs a
+larger tier splits across two reviewers:
 
-- **1** `reviewer` (focus `spec`, phase `post-implementation`) — reviews
-  the full Stub → Specify → Implement trajectory against the design
-  record, focused on **Implement**-phase output. Anchor claims in the
-  project's own stated patterns (error model, contract conventions,
-  dispatch pattern) — never invent one from memory. When the target traces
-  to a plan, this slot also runs the
+- design/contract compliance — does the change match the project's stated
+  patterns and conventions;
+- quality — naming, style, tests present, duplication;
+- convergence + ID-coverage — when the target traces to a plan, the
   [convergence check](../hex-core/references/loop.md#convergence-contract)
-  against its C-/S- IDs — part of the Stage 1 gate below, not a separate
-  pass.
-- **1** `reviewer` (focus `quality`, test-coverage emphasis) — checks that
-  the **Specify** phase produced adequate tests: new code has tests, bug
-  fixes have regression tests, edge cases are covered.
+  against its C-/S- IDs.
 
-Model class per [`models.md`](../hex-core/references/models.md) rows
-`reviewer:spec` / `reviewer:quality`, tier `medium`. If Stage 1 turns up
-actionable findings, surface them prominently — polishing code that
-doesn't meet spec or lacks tests wastes downstream effort. Stage 2 still
-runs in parallel (not gated on Stage 1), but Stage 1's actionable findings
-dominate the verdict.
+`post-implementation` phase because this reviews **Implement**-phase
+output: the code already exists (not Stub scaffolding, not Specify-phase
+tests reviewed in isolation). The design-record anchors this phase checks
+cover the whole Stub → Specify → Implement trajectory, so one pass is
+enough at this size.
 
-**Gate** — both reviewers are done; findings, and any convergence gaps,
-are classified.
+**Gate** — the reviewer is done; every finding is classified actionable or
+deferred.
 
-## Phase 3: Stage 2 — Quality / Security / Performance / Docs (parallel)
+## Phase 3: Stage 2 — skipped
 
-Launch **in a single batch** so they run concurrently (only applicable
-perspectives fire, or when a `perspectives.always` rule matches):
+Two-way-door scope (`breadth=minimal`): no security, performance,
+documentation, architect, or researcher perspective. If Discover surfaced a
+signal the classifier should have caught (e.g. a dependency-manifest change
+hiding inside a diff that looked doc-only), **stop and re-run** as
+`/hex-review high <target>` — never silently upgrade mid-pipeline.
 
-- `reviewer` (focus `quality`) — naming, pattern compliance, duplication,
-  the project's own quality rules.
-- `reviewer` (focus `security`) — **fires when** the diff touches an
-  auth/crypto/signing path, input handling, or archive extraction (see
-  [`classify.md`](classify.md#structural-marker-signals)); otherwise
-  skipped.
-- `reviewer` (focus `performance`) — **fires when** the diff touches a hot
-  path or async code; otherwise skipped.
-- `reviewer` (focus `user-feedback`) — **fires when** the diff touches a
-  user-facing surface (CLI flags/messages, public API names, docs UX);
-  grounded in the project's product knowledge (via `hex.md › Pointers`) when
-  present; otherwise skipped.
-- `doc-reviewer` — **fires when** the documentation-trigger matrix
-  matches changed files (CLI/flags, config/env, schema, install docs,
-  changelog — from project context per
-  [`doc-reviewer`](../hex-core/references/workers/doc-reviewer.md)).
+**Gate** — the skip is logged in the output; proceed to verdict.
 
-Each reviewer classifies findings actionable or deferred and tags each with a
-[severity](../hex-core/references/severity.md#finding-severity); a
-Suggest-severity finding is reported but never gates the verdict. Model class
-per
-[`models.md`](../hex-core/references/models.md), tier `medium`. Peak
-concurrency: up to 4 Stage 2 workers (Stage 1's 2 already done) — within the
-effective cap `min(8, max-workers)`; a lower cap batches Stage 2 per
-[`protocol.md`](../hex-core/references/protocol.md#worker-coordination)
-rather than dropping a perspective.
+## Phase 4: Root-cause analysis — skipped
 
-**Gate** — every applicable Stage 2 perspective is done.
+`rca: off`. The reviewer reports findings with proximate cause and
+remediation only. A systemic-smelling finding is still flagged **deferred**
+with a reason — a human can escalate to `/hex-review high` for Five Whys.
 
-## Phase 4: Root-cause analysis (`rca=on`, [Block/High](../hex-core/references/severity.md#finding-severity) findings)
+## Phase 5: Cross-model — skipped
 
-For every finding classified Block or High, apply Five Whys:
-
-```
-**Issue**: <problem>
-**Why 1**: <first-level cause>
-**Why 2**: <deeper cause>
-**Why 3**: <deeper cause>
-**Why 4**: <deeper cause>
-**Why 5**: <root cause>
-**Systemic Fix**: <what prevents recurrence across the codebase>
-```
-
-Stop early if the causal chain terminates before five levels — quality
-matters more than depth. Note when a finding shares a root cause with
-another. Warn-tier findings skip RCA at this tier (`high` applies it to
-those too).
-
-**Gate** — RCA is complete for every Block/High finding.
-
-## Phase 5: Cross-model pass (`adversary`, when it fires)
-
-When `adversary=on` (user flag, or classifier-inferred from a one-way-door
-or security signal), invoke the configured adversary skill once — `code-diff`
-scope for a diff target, `plan-artifact` scope for a markdown target
-([`overlays.md`](overlays.md), [adversary contract](../hex-core/references/adversary.md#adversary-contract)).
-One-shot, no looping.
-
-Triage 4-way:
-
-- **actionable** — reported in the Cross-Model section. Review is
-  read-only — no fix pass here; hand off to `/hex-execute` if the caller
-  wants it applied.
-- **deferred** — added to Deferred Findings with a reason.
-- **stated-convention** — dropped, count mentioned.
-- **trivia** — dropped, count mentioned.
-
-When the adversary produces no review — the skill is unavailable, or it ran and
-did not complete one — log `Cross-model review skipped: <reason>`
-and continue.
-
-**Gate** — triage is complete (or the skip is logged).
+`adversary: off` by default. If the user explicitly passes `--adversary`,
+run the pass anyway (user override) in the scope the target implies
+(`code-diff` for a diff, `plan-artifact` for a markdown target) — launched
+in the same batch as the Phase 2 reviewer, last, and triaged here
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
+Otherwise log `Cross-model review skipped: tier=medium default` and continue.
 
 ## Phase 6: Verdict & Output
 
@@ -141,40 +87,18 @@ Produce the review report using the skeleton from
 - Verdict: Approve | Needs Work | Request Changes
 - Tier: medium
 - Baseline: <base>
-- Diff: N files, +L / -L lines, S areas
+- Diff: N files, +L / -L lines, 1 area
 ### Stage 1 — Correctness
-#### Spec compliance
-#### Test coverage
-### Stage 2 — Quality / Security / Performance / Docs
-#### Quality
-#### Security             <!-- if fired -->
-#### Performance           <!-- if fired -->
-#### Documentation         <!-- if fired -->
-### Convergence               <!-- when the target traces to a plan -->
-### Fold-Back                 <!-- mandatory when the target traces to a plan; full block per SKILL.md § The review report -->
-### Cross-Model Adversarial   <!-- if adversary fired -->
-### Root-Cause Analysis
+[findings with file:line, description, remediation]
+### Convergence   <!-- when the target traces to a plan -->
+### Fold-Back     <!-- mandatory when the target traces to a plan; full block per SKILL.md § The review report -->
 ### Deferred Findings
+[each with: what it is, why human judgment is needed]
 ```
 
-**Verdict rules**:
-
-- **Request Changes** — any unresolved Block-tier finding; a security
-  vulnerability; a breaking change without a migration note; tests absent
-  for new code; an unjustified constitution violation (a violation with no
-  adequate Constitution Deviations row is automatic Request Changes — see
-  the
-  [constitution gate](../hex-core/references/protocol.md#constitution-gate)).
-- **Needs Work** — **High- or Warn-tier** findings exist but no Block-tier
-  finding, or
-  the
-  [convergence check](../hex-core/references/loop.md#convergence-contract)
-  found unconverged gaps — this caps the verdict at Needs Work, never
-  Approve, with `Next: /hex-execute <plan path>`.
-- **Approve** — otherwise.
-
-Don't nitpick style the project's own formatter or linter already
-enforces.
+Omit Stage 2, Cross-Model, and Root-Cause sections — absence is the tier
+contract, not a bug. Omit Convergence too unless the target traces to a
+plan.
 
 **Gate** — the report is presented. No commits.
 
@@ -183,20 +107,20 @@ enforces.
 **Fold-Back runs identically at every tier — see
 [`SKILL.md`](SKILL.md#the-review-report).**
 
-Run the [upkeep step](../hex-core/references/protocol.md#upkeep-step):
-update any `hex.md › Pointers` entry this run revealed as drifted. Then emit
-the handoff from [`SKILL.md`](SKILL.md) with:
+Run the
+[upkeep step](../hex-core/references/protocol.md#upkeep-step): update any
+`hex.md › Pointers` entry this run revealed as drifted. Then emit the handoff
+from [`SKILL.md`](SKILL.md) with:
 
 ```
-- Scope: medium (one-way door, where signals fire)
+- Scope: small (two-way door)
 - Tier: medium
 - Baseline: <base>
-- Overlays: breadth=full, rca=on, adversary=<off|on>
+- Overlays: breadth=minimal, rca=off, adversary=off
 ```
 
-If actionable findings exist:
+If actionable findings exist and the caller wants them applied:
 
 ```
-/hex-execute <plan path> "apply review findings"   <!-- a tracked plan exists -->
-/hex-execute "apply medium-tier review findings"   <!-- no tracked plan -->
+/hex-execute "apply medium-tier review findings"
 ```

@@ -1,11 +1,12 @@
 # Tier: high
 
-The full adversarial treatment for **one-way-door-high** diffs: >15 files,
-a new package/module, a breaking API, cross-area changes, a security-
-sensitive path, or a `breaking-change`/`epic` label. Adds `architect` and
-`researcher` to the Stage 2 panel, applies Five Whys to every finding above
-Suggest, and runs the cross-model pass as a mandatory final gate before
-verdict.
+The **default** review tier for one-way-door-medium diffs: ≤15 files, ≤500
+lines changed, 1–2 areas, no one-way-door-high signal. This is the baseline
+any caller gets without an explicit tier — the shape most pre-merge reviews
+should take. Stage 1 runs spec-compliance and test-coverage in parallel;
+Stage 2 runs the full quality/security/performance/docs perspective set
+against changed files, each firing only when its trigger matches. The
+cross-model pass auto-fires on one-way-door signals, off otherwise.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -13,130 +14,128 @@ Shared vocabulary is linked, not restated: roles in
 [`models.md`](../hex-core/references/models.md), and the outer contracts in
 [`protocol.md`](../hex-core/references/protocol.md).
 
-**Meta-plan preview is mandatory.** At `high`, the gate in
-[`SKILL.md`](SKILL.md) step 5 always blocks for explicit approval — this
-tier is expensive, and the preview catches a misclassification before
-workers launch.
-
 ## Phase 1: Discover (inline, no worker)
 
 Read the diff against the resolved baseline. Parse the changed-file list,
-map **every** touched area — including adjacent areas cross-cutting changes
-might affect — using the project's own module/area boundaries. Read:
+map paths to areas using the project's own module/area boundaries (project
+context, cached in `hex.md › Pointers`). Read the project's quality rules
+for every touched area and the languages the diff uses, directly — no
+worker needed for this size.
 
-- the project's quality rules for every touched area and language;
-- any prior ADR, plan, or research artifact in the convention-resolved
-  artifact home ([`memory.md`](../hex-core/references/memory.md#location-and-resolution))
-  that covers the diff's topic — a diff that contradicts a recorded
-  decision is itself a finding.
-
-**Gate** — a full area map is produced; relevant prior decision records are
-enumerated.
+**Gate** — the diff is fetched; every touched area's rules are loaded.
 
 ## Phase 2: Stage 1 — Correctness (parallel, 2 workers)
 
-Same shape as `medium`, launched **in a single batch** so they run
-concurrently
+Launch **in a single batch** so they run concurrently
 ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)):
 
 - **1** `reviewer` (focus `spec`, phase `post-implementation`) — reviews
-  **Implement**-phase output against the design record and the project's
-  stated patterns. When the target traces to a plan, this slot also runs
-  the
+  the full Stub → Specify → Implement trajectory against the design
+  record, focused on **Implement**-phase output. Anchor claims in the
+  project's own stated patterns (error model, contract conventions,
+  dispatch pattern) — never invent one from memory. When the target traces
+  to a plan, this slot also runs the
   [convergence check](../hex-core/references/loop.md#convergence-contract)
   against its C-/S- IDs — part of the Stage 1 gate below, not a separate
   pass.
 - **1** `reviewer` (focus `quality`, test-coverage emphasis) — checks that
-  **Specify**-phase tests cover edge cases, boundary conditions, concurrent
-  access, and failure modes.
+  the **Specify** phase produced adequate tests: new code has tests, bug
+  fixes have regression tests, edge cases are covered.
 
 Model class per [`models.md`](../hex-core/references/models.md) rows
-`reviewer:spec` / `reviewer:quality`, tier `high` — both escalate to the
-`deep-reasoning` class at this tier. Stub → Specify → Implement traceability
-matters extra here: flag any implementation behavior with no corresponding
-test or design-record anchor.
+`reviewer:spec` / `reviewer:quality`, tier `high`. If Stage 1 turns up
+actionable findings, surface them prominently — polishing code that
+doesn't meet spec or lacks tests wastes downstream effort. Stage 2 still
+runs in parallel (not gated on Stage 1), but Stage 1's actionable findings
+dominate the verdict.
 
 **Gate** — both reviewers are done; findings, and any convergence gaps,
 are classified.
 
-## Phase 3: Stage 2 — Adversarial panel (parallel, up to 6 workers)
+## Phase 3: Stage 2 — Quality / Security / Performance / Docs (parallel)
 
-Launch **in a single batch** so they run concurrently (plus any role a
-matching `perspectives.always` rule adds):
+Launch **in a single batch** so they run concurrently (only applicable
+perspectives fire, or when a `perspectives.always` rule matches):
 
-- `reviewer` (focus `quality`) — when the diff touches a user-facing
-  surface (CLI, API, UI), this slot spawns as focus `user-feedback`
-  instead (UX/product consistency, grounded in the project's product
-  knowledge via `hex.md › Pointers`); plain `quality` otherwise.
-- `reviewer` (focus `security`) — always at `high` (treat the diff as
-  security-sensitive until proven otherwise).
-- `reviewer` (focus `performance`) — always at `high`.
-- `doc-reviewer` — always at `high` (doc drift at scale is the default
-  failure mode).
-- `architect` — boundary respect, dependency direction, trade-off
-  honesty; checks the diff against any ADR covering the area.
-- `researcher` (focus `competitive-research` when comparing comparable
-  tools; grounded in the project's product knowledge via
-  `hex.md › Pointers`) — SOTA gap check: how do the field's leading
-  tools solve the same problem? Is the algorithm choice current? Any
-  known pitfall unaddressed?
+- `reviewer` (focus `quality`) — naming, pattern compliance, duplication,
+  the project's own quality rules.
+- `reviewer` (focus `security`) — **fires when** the diff touches an
+  auth/crypto/signing path, input handling, or archive extraction (see
+  [`classify.md`](classify.md#structural-marker-signals)); otherwise
+  skipped.
+- `reviewer` (focus `performance`) — **fires when** the diff touches a hot
+  path or async code; otherwise skipped.
+- `reviewer` (focus `user-feedback`) — **fires when** the diff touches a
+  user-facing surface (CLI flags/messages, public API names, docs UX);
+  grounded in the project's product knowledge (via `hex.md › Pointers`) when
+  present; otherwise skipped.
+- `doc-reviewer` — **fires when** the documentation-trigger matrix
+  matches changed files (CLI/flags, config/env, schema, install docs,
+  changelog — from project context per
+  [`doc-reviewer`](../hex-core/references/workers/doc-reviewer.md)).
+- the configured **cross-model adversary**, last in the batch, **when
+  `adversary=on`** — it occupies no worker slot and is triaged in Phase 5
+  ([adversary contract](../hex-core/references/adversary.md#adversary-contract),
+  `adr_0016` C-987).
 
-Stage 1 (2, sequential) then Stage 2 (up to 6 concurrent) — peak
-concurrency 6, within the shipped 8-worker cap. Under a lower effective cap
-(`min(8, max-workers)`) Stage 2 batches per
-[`protocol.md`](../hex-core/references/protocol.md#worker-coordination); it
-is never trimmed to fit a number. A `perspectives.always` addition on top of
-this already-saturated baseline is what merge rule 6's phase ceiling
-displaces first
-([`config.md` § Merge rules](../hex-core/references/config.md#merge-rules)).
-If the diff clearly doesn't need
-`researcher` (e.g. a pure refactor with no algorithmic change), skip it —
-a diff-content judgement, not a cap accommodation. Model class per
-[`models.md`](../hex-core/references/models.md), tier `high` — most rows
-escalate to `deep-reasoning` here. Each reviewer classifies findings
-actionable or deferred and tags each with a
+Each `reviewer` seat's brief carries the
+[`checklist.md`](../hex-core/references/checklist.md#composition) section of
+its own focus. Each reviewer classifies findings actionable or deferred and tags each with a
 [severity](../hex-core/references/severity.md#finding-severity); a
-Suggest-severity finding is reported but never gates the verdict.
+Suggest-severity finding is reported but never gates the verdict. Model class
+per
+[`models.md`](../hex-core/references/models.md), tier `high`. Peak
+concurrency: up to 4 Stage 2 workers (Stage 1's 2 already done) — within the
+effective cap `min(8, max-workers)`; a lower cap batches Stage 2 per
+[`protocol.md`](../hex-core/references/protocol.md#worker-coordination)
+rather than dropping a perspective.
 
-**Gate** — every perspective is done.
+**Gate** — every applicable Stage 2 perspective is done.
 
-## Phase 4: Root-cause analysis (`rca=on`, all findings above [Suggest](../hex-core/references/severity.md#finding-severity))
+## Phase 4: Root-cause analysis (`rca=on`, [Block/High](../hex-core/references/severity.md#finding-severity) findings)
 
-Apply Five Whys to every Block, High, and Warn finding:
+For every finding classified Block or High, apply Five Whys:
 
 ```
 **Issue**: <problem>
-**Why 1** … **Why 5**: <causal chain>
-**Systemic Fix**: <what prevents recurrence>
-**Related findings**: <other findings sharing this root, if any>
+**Why 1**: <first-level cause>
+**Why 2**: <deeper cause>
+**Why 3**: <deeper cause>
+**Why 4**: <deeper cause>
+**Why 5**: <root cause>
+**Systemic Fix**: <what prevents recurrence across the codebase>
 ```
 
-Coverage is deliberately wider than `medium` — big cross-area diffs often
-share systemic causes. Cluster findings that trace to the same root; note
-the pattern (e.g. "three findings all trace to a missing cancellation guard
-in the worker pool").
+Stop early if the causal chain terminates before five levels — quality
+matters more than depth. Note when a finding shares a root cause with
+another. Warn-tier findings skip RCA at this tier (`xhigh` applies it to
+those too).
 
-**Gate** — RCA is complete for every finding above Suggest; clusters are
-noted.
+**Gate** — RCA is complete for every Block/High finding.
 
-## Phase 5: Cross-model pass (mandatory)
+## Phase 5: Cross-model pass (`adversary`, when it fires)
 
-Invoke the configured adversary skill once against the diff (`code-diff`
-scope) or the artifact (`plan-artifact` scope for a markdown target) —
-[adversary contract](../hex-core/references/adversary.md#adversary-contract).
-One-shot, no looping.
+When `adversary=on` (user flag, or classifier-inferred from a one-way-door
+or security signal), the configured adversary skill was **launched last in
+Phase 3's batch** — `code-diff` scope for a diff target, `plan-artifact`
+scope for a markdown target
+([`overlays.md`](overlays.md), [adversary contract](../hex-core/references/adversary.md#adversary-contract));
+**this phase triages its return.** One-shot, no looping.
 
-Triage 4-way — actionable (reported in the Cross-Model section, review
-stays read-only), deferred (added to Deferred Findings with a reason),
-stated-convention (dropped, count mentioned), trivia (dropped, count
-mentioned).
+Triage 4-way:
 
-No-review path: at this tier the pass is a **gate, not a blocker** —
-surface the skip prominently in the verdict summary so the reader knows one
-review layer was missed. Log
-`Cross-model review skipped: <reason>` and include it in the Summary line.
+- **actionable** — reported in the Cross-Model section. Review is
+  read-only — no fix pass here; hand off to `/hex-execute` if the caller
+  wants it applied.
+- **deferred** — added to Deferred Findings with a reason.
+- **stated-convention** — dropped, count mentioned.
+- **trivia** — dropped, count mentioned.
 
-**Gate** — triage is complete (or the skip is surfaced).
+When the adversary produces no review — the skill is unavailable, or it ran and
+did not complete one — log `Cross-model review skipped: <reason>`
+and continue.
+
+**Gate** — triage is complete (or the skip is logged).
 
 ## Phase 6: Verdict & Output
 
@@ -150,45 +149,39 @@ Produce the review report using the skeleton from
 - Tier: high
 - Baseline: <base>
 - Diff: N files, +L / -L lines, S areas
-- Cross-model: ran | skipped: <reason>
 ### Stage 1 — Correctness
-#### Spec compliance (post-Implement traceability)
-#### Test coverage (Specify-phase adequacy)
-### Stage 2 — Adversarial panel
+#### Spec compliance
+#### Test coverage
+### Stage 2 — Quality / Security / Performance / Docs
 #### Quality
-#### Security
-#### Performance
-#### Documentation
-#### Architecture
-#### SOTA / technical soundness
+#### Security             <!-- if fired -->
+#### Performance           <!-- if fired -->
+#### Documentation         <!-- if fired -->
 ### Convergence               <!-- when the target traces to a plan -->
 ### Fold-Back                 <!-- mandatory when the target traces to a plan; full block per SKILL.md § The review report -->
-### Cross-Model Adversarial
+### Cross-Model Adversarial   <!-- if adversary fired -->
 ### Root-Cause Analysis
-[clusters with systemic fixes]
 ### Deferred Findings
 ```
 
 **Verdict rules**:
 
-- **Request Changes** — any unresolved Block-tier finding; any security
-  vulnerability; any architect-flagged boundary violation; a breaking
-  change without a migration plan; tests absent for new behavior; a
-  systemic cause affecting ≥3 findings; an unjustified constitution
-  violation (a violation with no adequate Constitution Deviations row is
-  automatic Request Changes — see the
+- **Request Changes** — any unresolved Block-tier finding; a security
+  vulnerability; a breaking change without a migration note; tests absent
+  for new code; an unjustified constitution violation (a violation with no
+  adequate Constitution Deviations row is automatic Request Changes — see
+  the
   [constitution gate](../hex-core/references/protocol.md#constitution-gate)).
-- **Needs Work** — **High- or Warn-tier** findings exist, the cross-model
-  pass surfaced
-  actionable findings not yet addressed, or the
+- **Needs Work** — **High- or Warn-tier** findings exist but no Block-tier
+  finding, or
+  the
   [convergence check](../hex-core/references/loop.md#convergence-contract)
   found unconverged gaps — this caps the verdict at Needs Work, never
   Approve, with `Next: /hex-execute <plan path>`.
 - **Approve** — otherwise.
 
-Explicitly surface in the Summary: whether the cross-model pass ran or was
-skipped (with reason), any architect-flagged boundary or ADR-compliance
-concern, and any SOTA gap the researcher flagged.
+Don't nitpick style the project's own formatter or linter already
+enforces.
 
 **Gate** — the report is presented. No commits.
 
@@ -202,22 +195,15 @@ update any `hex.md › Pointers` entry this run revealed as drifted. Then emit
 the handoff from [`SKILL.md`](SKILL.md) with:
 
 ```
-- Scope: large (one-way door, high)
+- Scope: medium (one-way door, where signals fire)
 - Tier: high
 - Baseline: <base>
-- Overlays: breadth=adversarial, rca=on, adversary=on
+- Overlays: breadth=full, rca=on, adversary=<off|on>
 ```
 
 If actionable findings exist:
 
 ```
-/hex-execute <plan path> "apply high-tier review findings"   <!-- a tracked plan exists -->
-/hex-execute "apply high-tier review findings"                <!-- no tracked plan yet -->
-```
-
-If a SOTA gap or an architectural concern needs its own decision record,
-escalate:
-
-```
-/hex-architect "propose an ADR for <concern>"
+/hex-execute <plan path> "apply review findings"   <!-- a tracked plan exists -->
+/hex-execute "apply high-tier review findings"   <!-- no tracked plan -->
 ```
