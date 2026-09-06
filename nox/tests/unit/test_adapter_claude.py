@@ -4,10 +4,11 @@ C-1007(claude), C-1010, C-1011, C-1012(claude), C-1014, C-1016, C-1018, C-1019,
 C-1020, C-1023, C-1025, C-1028, C-1030(claude), C-1032, C-1035, D-ac, E3,
 S-1001, S-1007, S-1008, S-1009, and WP5's schema-drift carry-forward row.
 
-Every parse assertion is written against a stream RECORDED from 2.1.260
-(`tests/contract/fixtures/claude/`) — bar the 429, whose live rate limit cannot
-be summoned to order and which therefore keeps its 2.1.259 capture (E30, and
-`VERIFIED_AGAINST` says why) — never against a shape invented here: the
+Every parse assertion is written against a stream RECORDED from the real
+binary (`tests/contract/fixtures/claude/`): the free fixtures — version, help,
+auth status — from 2.1.263, the review streams and the 401 ladder from 2.1.260,
+and the 429, whose live rate limit cannot be summoned to order, from 2.1.259
+(E30, and `VERIFIED_AGAINST` says why) — never against a shape invented here: the
 401 fixture's terminal event reads `"subtype": "success"` while `"is_error"` is
 true, and an adapter keyed on `subtype` reports an authentication failure as a
 clean review. Only the untrusted-field normalization cases are synthetic, and
@@ -218,12 +219,12 @@ def _run_index(argv: tuple[str, ...], run: tuple[str, ...]) -> int:
 
 def _probe_runner(
     *,
-    version_lines=("2.1.260 (Claude Code)",),
+    version_lines=("2.1.263 (Claude Code)",),
     version_exit: int = 0,
     auth_text: str | None = None,
     auth_exit: int = 0,
 ) -> FakeRunner:
-    auth = _fixture("auth-status-2.1.260.json") if auth_text is None else auth_text
+    auth = _fixture("auth-status-2.1.263.json") if auth_text is None else auth_text
     return FakeRunner(FakeProcess(version_lines, version_exit), FakeProcess(auth.splitlines(), auth_exit))
 
 
@@ -468,7 +469,7 @@ def test_no_evidence_flag_has_a_second_spelling_the_evidence_run_omits():
     evidence = set(containment_argv(config()))
     groups = [
         tuple(word.strip() for word in match.group(1).split(","))
-        for match in ALIAS_LINE.finditer(_fixture("help-2.1.260.txt"))
+        for match in ALIAS_LINE.finditer(_fixture("help-2.1.263.txt"))
     ]
     assert groups, "the --help fixture parsed to no alias groups at all"
     for group in groups:
@@ -551,7 +552,7 @@ def test_the_probe_establishes_the_version_capabilities_and_liveness_kind(tmp_pa
     runner = _probe_runner()
     info = probe_harness(ClaudeAdapter(), runner, config(), {"PATH": str(_bin(tmp_path, "claude"))})
     assert info.name == "claude"
-    assert info.version == "2.1.260"
+    assert info.version == "2.1.263"
     assert info.verified_against == VERIFIED_AGAINST
     assert info.heartbeat_kind is Liveness.SEMANTIC
     assert info.capabilities == frozenset(
@@ -637,14 +638,14 @@ def test_an_auth_status_shape_nox_cannot_read_is_not_evidence_of_a_missing_crede
     """C-1014: an availability preflight fails open — the review's own `classify` still catches a 401."""
     runner = _probe_runner(auth_text=auth_text)
     info = probe_harness(ClaudeAdapter(), runner, config(), {"PATH": str(_bin(tmp_path, "claude"))})
-    assert info.version == "2.1.260"
+    assert info.version == "2.1.263"
 
 
 def test_a_non_zero_auth_status_does_not_resolve_absent(tmp_path):
     """C-1014: `--version` already established runnability, so a failed preflight is not an absent binary."""
     runner = _probe_runner(auth_exit=1)
     info = probe_harness(ClaudeAdapter(), runner, config(), {"PATH": str(_bin(tmp_path, "claude"))})
-    assert info.version == "2.1.260"
+    assert info.version == "2.1.263"
 
 
 def test_a_binary_that_exists_and_cannot_run_is_absent(tmp_path):
@@ -670,12 +671,12 @@ def test_the_sandbox_probe_refuses_in_one_line_because_this_adapter_claims_no_os
 
 def test_parse_version_reads_the_dotted_release_out_of_the_recorded_line():
     """E3: the version is read from the binary's own output, never copied from a document."""
-    assert parse_version(_fixture("version-2.1.260.txt")) == VERIFIED_AGAINST
+    assert parse_version(_fixture("version-2.1.263.txt")) == VERIFIED_AGAINST
 
 
 def test_logged_out_reads_exactly_one_field_of_the_recorded_auth_object():
     """C-1035: the recorded fixture redacts the identity fields on purpose — only `loggedIn` is read."""
-    assert logged_out(_fixture("auth-status-2.1.260.json")) is False
+    assert logged_out(_fixture("auth-status-2.1.263.json")) is False
     assert logged_out(json.dumps({"loggedIn": True})) is False
     assert logged_out(json.dumps({"loggedIn": False})) is True
 
@@ -690,7 +691,7 @@ def test_an_advisory_line_ahead_of_the_auth_object_does_not_defeat_the_preflight
     """
     advisory = "⚠ claude.ai connectors are disabled because ANTHROPIC_API_KEY is set\n"
     assert logged_out(advisory + json.dumps({"loggedIn": False}, indent=2)) is True
-    assert logged_out(advisory + _fixture("auth-status-2.1.260.json")) is False
+    assert logged_out(advisory + _fixture("auth-status-2.1.263.json")) is False
     assert logged_out(advisory) is False
 
 
@@ -703,7 +704,7 @@ def test_a_probe_whose_output_arrives_in_chunks_is_read_whole_before_it_is_reape
     """
     auth = json.dumps({"loggedIn": False, "email": "NOX-SECRET-EMAIL@example.invalid"}, indent=2)
     runner = FakeRunner(
-        TrickleProcess(["2.1.260 (Claude Code)\n"]),
+        TrickleProcess(["2.1.263 (Claude Code)\n"]),
         TrickleProcess(auth.splitlines(keepends=True)),
     )
     with pytest.raises(HarnessUnavailable) as exc:

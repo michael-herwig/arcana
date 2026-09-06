@@ -6,7 +6,8 @@ Code has no operating-system sandbox nox drives, so `sandbox_probe` returns
 adapter never makes.
 
 **Every flag below was proven against the installed 2.1.260, not read off a
-document** (E3). Two of the findings are the reason the set is what it is:
+document** (E3), and re-derived byte-identical from 2.1.263's `--help`. Two
+of the findings are the reason the set is what it is:
 
 - `--restricted --tools Read,Grep,Glob` alone reported a session tool list of
   `Glob, Grep, Read` **plus every tool of the user's connected MCP servers**,
@@ -97,7 +98,7 @@ if TYPE_CHECKING:
 
 # ── Shipped literals, pinned from the real binary ────────────────────────────
 
-VERIFIED_AGAINST: Final[str] = "2.1.260"
+VERIFIED_AGAINST: Final[str] = "2.1.263"
 """The version the fixtures in `tests/contract/fixtures/claude/` were recorded from (E3).
 
 Set from a re-probe of the installed binary, never copied from a document
@@ -111,6 +112,14 @@ from, and inventing the stream would be exactly the document-sourced claim E3
 forbids. The `system`/`api_retry` event it turns on is byte-identical in shape
 at 2.1.260, re-derived from the live 401 ladder when the pin moved, so the
 recording remains a faithful sample of the dialect this adapter parses.
+
+**The 2.1.263 re-pin re-recorded the three free fixtures only** —
+`version-2.1.263.txt`, `help-2.1.263.txt` and `auth-status-2.1.263.json` — and
+kept the review streams and the 401 ladder at their 2.1.260 captures, under the
+same E30 rule: a review costs a paid turn and a 401 needs a credential taken
+away, and neither was re-summoned for a patch release whose `--help` page is
+byte-identical to 2.1.260's (the contract tier re-derives that page live on
+every release, so a flag drift cannot hide behind this paragraph).
 """
 
 PROBE_TIMEOUT_S: Final[int] = 60
