@@ -2147,3 +2147,72 @@ semantics change anywhere** — this is a relocation: no contract's text
 changes, `§ Untrusted-text echoes` and every other spine section stay
 where they are, and a run's behaviour before and after the cut is
 identical.
+
+## Review-by-join-level round (2026-09-06, round 20)
+
+`adr_0015` (review by join level) **replaces the review half of round 17's
+per-WP effective tier and retires two positions recorded above.** It
+changes no execution semantics: phases and model class still scale with
+the effective tier exactly as round 17 wrote them. What changes is *what
+decides how deep a diff is reviewed*: no longer the tier, the per-WP
+`Review` budget or a plan-wide ceiling, but **the join level** at which
+the diff lands. Full adjudication and the option comparison: `adr_0015`
+§ Considered Options; the contract itself is
+[`loop.md` § Review by join level](hex-core/references/loop.md#review-by-join-level).
+
+**The rule.** Four levels, closed and versioned (C-980). `L0` — every
+builder return carries an evidence table (`<ID> → <path>:<line>`) the
+orchestrator greps; no spawn. `L1` — one fast-balanced reviewer, delta-only,
+one round, ten-minute budget, at every leaf join, at every tier. `L2` — one
+deep-reasoning seat over the aggregate diff with the leaf verdicts as
+inputs, **only where a node joins two or more leaves** (C-981); at `N = 1`
+it is skipped and the `L1` verdict stands. `L3` — the trunk pass, only when
+`/hex-review` is invoked. Risk (`sec`, `hot`, `door`, or an authored `risk`
+cell) raises a WP **one level, never a round** (C-983). A level's wall-clock
+budget ends its loop with residue recorded, never a failure (C-984). Seats,
+class, rounds, budget and input scope are `review.<level>.*` keys — the
+config vocabulary's v3 addition — overridden per level, never per role
+(C-985).
+
+**What it retires, by name** (C-986): the `self | light | panel` budget
+column semantics and both halves of its guard (round 12, "a budget column
+moves a WP away from the shipped default in exactly one direction" — the
+`Verify` column keeps that discipline, `Review` leaves it and becomes a risk
+hint); the `Review: panel`
+escape hatch (round 17's resolution step 5); the branch-review precondition
+and the `adr_0012 backstop` announce line (round 17, C-947); the "review
+grows by diversity across join levels" three-scope model (round 18); and
+every per-tier round cap and tier-scaled perspective panel in the execute
+tier files. Nothing is renamed and no plan is migrated: a legacy cell is
+read, `panel` as `risk`, `self` and `light` as nothing.
+
+**The amendment to round 17's marker promise.** Round 17 wrote that a plan
+without the generation marker runs pre-`adr_0012` semantics byte-for-byte,
+forever. That promise now covers **execution** — phases, model class, the
+collapse — and no longer covers review: every plan shape reviews by join
+level. The reason is the one the round itself gave for the marker — a
+review that silently changes depth in bulk is dangerous when it *reduces*;
+this change reduces per-WP breadth but adds an `L1` where a `self` WP had
+nothing and an `L2` where nothing aggregate existed, and the trunk pass it
+removes was never a guarantee, only a precondition a human could satisfy
+by running a lower tier.
+
+**Why this and not "a little faster".** Wall clock was seats × rounds ×
+WPs × round-trips, and every prior round trimmed one factor for one case.
+Keying on join level bounds all four at once: `k` WPs cost `k`
+parallel fast leaf reviews plus one deep aggregate, in minutes, at any
+tier. The dogfood result that motivated it — a mid-sized merge request at
+three days and a week of quota — is recorded in the ADR's Context.
+
+**Considered and not deviated** (unchanged by this round): **single-source
+contracts (C-923)** — upheld and strengthened: `loop.md` gains the one new
+section and every other file links it; the retired text is deleted, not
+paraphrased. **Thin dispatchers + per-tier phase files** — upheld: each
+execute tier file's Phase 6 now states its checklist breadth and links the
+level definitions. **Capability classes, never literal model names** —
+upheld; `review.<level>.class` takes a class. **The two-layer knowledge
+model** — untouched. **`config.md`'s frozen vocabulary** — v1 and v2 are
+not reopened; `review` is the v3 addition and a v2 reader ignores it under
+merge rule 8. **Load only what runs** (round 19) — upheld: a `reviewer`
+spawn still reads `severity.md` only; the join-level table is the
+orchestrator's to read.

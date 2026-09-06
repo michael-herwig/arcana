@@ -7,8 +7,8 @@ resolves `low` runs the **collapsed** pipeline — Stub, Specify and Implement
 in one builder spawn, under the conditions
 [`loop.md`](../hex-core/references/loop.md#the-review-fix-loop) states.
 In a plan without the generation marker the four-phase skeleton below runs
-unchanged; either way only the worker count, review breadth and loop rounds
-scale down.
+unchanged; either way only the worker count scales down — review depth is
+keyed on join level, not tier.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -92,27 +92,24 @@ written there ([Phase 2](#phase-2-stub)), which paid this gate.
 **Gate** — the [scoped check](../hex-core/references/verify.md#scoped-check)
 passes.
 
-## Phase 6: Review-Fix Loop (1 round, minimal breadth)
+## Phase 6: Review-Fix Loop (by join level)
 
 Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
-— capped at **1 round** (`loop-rounds=1` baseline), `review=minimal` breadth:
-**1** `reviewer` (focus `quality`) + **1** `reviewer` (focus `spec`, phase
-`post-implementation`), launched concurrently. Each brief carries the
-excerpt, not the plan body
+at the join levels [`loop.md` § Review by join
+level](../hex-core/references/loop.md#review-by-join-level) defines — the
+sole definition, never restated here. At this tier that is `L0` on the
+builder's return (evidence table, grep-verified, no spawn) and `L1` at the
+WP's join: **1** `reviewer` (focus `spec`, phase `post-implementation`,
+`quality` folded into the brief), delta-only, **1 round**, inside its
+budget. Each brief carries the excerpt, not the plan body
 ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
-rule 8). The 1-round cap means at most
-one `builder` fix pass and a re-verification — never a second review round.
-The WP's Review budget lowers this further: `self` drops both reviewers
-(builder self-check + verification only), `light` runs the spec reviewer
-alone ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
-**In a plan carrying the generation marker that direction is flipped**: the
-baseline is the WP's derived breadth and the cell is raise-only against it,
-`panel` raising the WP to the plan's ceiling ([the effective
-tier](../hex-core/references/decompose.md#the-effective-tier)).
+rule 8). `L2` fires only when this run joins **two or more** WPs — the
+usual single-WP `low` plan skips it. A `sec`, `hot` or `door` flag, or a
+`risk` cell, raises the WP one level, never a round.
 
 **Gate** — the loop's
 [exit gate](../hex-core/references/loop.md#the-review-fix-loop), bounded
-by this phase's 1-round cap.
+by the level's `rounds`; budget residue goes to the handoff.
 
 ## Phase 7: Cross-model review — skipped
 

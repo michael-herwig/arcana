@@ -70,7 +70,7 @@ may fire. Axis definitions and per-tier defaults are in
 |---|---|
 | `review=adversarial` | Status-block `Tier: high`; the diff touches security-sensitive paths (auth/crypto/signing, a new dependency manifest, a CI workflow file); the plan or prompt mentions "novel algorithm", "cross-area", "protocol change" |
 | `adversary=on` | one-way-door medium or high signal from the plan's Classify-phase note; breaking-change signals in the plan or prompt; an explicit `Overlays: adversary=on` note in the plan |
-| `loop-rounds=1` | tier `low`; or the plan tags the feature as two-way door |
+| `loop-rounds=1` | every tier — rounds are a per-level setting; the axis only caps ([`overlays.md`](overlays.md#loop-rounds-axis)) |
 
 Project hints in the Preferences section of
 `.agents/memory/hex.md` (always-on perspectives, path-triggered

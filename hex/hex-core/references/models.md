@@ -44,7 +44,11 @@ from [`protocol.md`](protocol.md#tier-grammar).
 `—` = never spawned at that tier. Column resolution is per spawn, not per
 plan: **a spawn made for a work package reads that WP's effective tier; a
 spawn made for the run reads the plan tier**
-([`decompose.md`](decompose.md#the-effective-tier)).
+([`decompose.md`](decompose.md#the-effective-tier)). **Review-Fix `L1`/`L2`
+seats do not read the `reviewer` rows** — their class is
+`review.<level>.class` ([`loop.md`](loop.md#review-by-join-level)); the
+rows govern Verify-Architecture, `/hex-review`'s `L3` panel and the artifact
+panels.
 
 ## Rules
 

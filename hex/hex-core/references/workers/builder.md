@@ -36,8 +36,11 @@ implement: fill bodies until the specification tests pass; run the
 [scoped check](../verify.md#scoped-check) — as a leaf under a
 decomposing coordinator, its half (b) alone.
 
-Return: files changed, tests touched, verification result, anything that
-needed judgment (report deferred, do not work around it).
+Return: files changed, tests touched, verification result, the L0
+evidence table — one `<ID> → <path>:<line>` row per requirement ID in
+the excerpt, naming the line that satisfies it
+([`loop.md`](../loop.md#review-by-join-level); the orchestrator greps it) —
+and anything that needed judgment (report deferred, do not work around it).
 
 Self-check before return (one fix pass, universal rule 7):
 - diff stays inside the owned file set;

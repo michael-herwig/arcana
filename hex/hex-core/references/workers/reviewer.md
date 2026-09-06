@@ -3,8 +3,8 @@
 Part of the [worker registry](../workers.md); universal protocol applies.
 
 **Mission** — diff-scoped review. Five focus modes; the orchestrator runs
-the perspectives a tier calls for, concurrently, and folds their findings
-into the Review-Fix Loop (see
+the seat a join level calls for — one at `L1`/`L2`, a panel at `L3` — and
+folds its findings into the Review-Fix Loop (see
 [`loop.md`](../loop.md#the-review-fix-loop) — the *orchestrator's* step, not
 this persona's, so the link is provenance and this role never opens it).
 

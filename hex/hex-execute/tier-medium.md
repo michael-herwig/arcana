@@ -3,7 +3,7 @@
 The **default** execution tier — one-way-door-medium plans: a new command, a
 new index or storage layout, work spanning 1–2 areas. Preserves the
 contract-first TDD skeleton (Stub → Specify → Implement → Review-Fix) with
-the full 3-round Review-Fix Loop and `full` review breadth. That skeleton is
+the join-level Review-Fix Loop with a `full` `L2` checklist. That skeleton is
 the shape at effective tier `medium`: in a plan carrying the generation marker
 a WP whose [effective
 tier](../hex-core/references/decompose.md#the-effective-tier)
@@ -68,10 +68,8 @@ this phase unchanged.
 Launch **1** `reviewer` (focus `spec`, phase `post-stub`) per work package to
 validate stubs against the plan's component contracts: signatures match,
 module boundaries align, error variants cover the documented failure modes.
-*Optional when the whole plan touches ≤3 files. Budget-gated in a plan without
-the generation marker: a `self` WP skips this phase, `light` keeps it optional.
-Under the marker the `Review` cell skips nothing — it is raise-only — and a WP
-skips this phase only by deriving `low` ([the effective
+*Optional when the whole plan touches ≤3 files. A WP skips this phase only
+by deriving `low` ([the effective
 tier](../hex-core/references/decompose.md#the-effective-tier)).*
 Each brief carries the excerpt, not the plan body
 ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
@@ -112,42 +110,46 @@ written there ([Phase 2](#phase-2-stub)), which paid this gate.
 **Gate** — the [scoped check](../hex-core/references/verify.md#scoped-check)
 passes, per work package.
 
-## Phase 6: Review-Fix Loop (up to 3 rounds, full breadth)
+## Phase 6: Review-Fix Loop (by join level, `full` checklist)
 
 Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
-— scoped to the branch diff (or, for parallel work packages, each WP's diff
-before merge) — capped at **3 rounds** (**in a plan carrying the generation
-marker** the cap is the WP's own effective-tier default instead — a WP that
-resolves `low` caps at **1**), `review=full` breadth. Each WP runs
-at its declared Review budget: `self` = no reviewer spawns (builder
-self-check + verification only), `light` = one spec reviewer × 1 round,
-`panel` = the full set below; the budget lowers the tier baseline, never
-raises it. **In a plan carrying the generation marker that direction is
-flipped**: the baseline is the WP's derived breadth and the cell is raise-only
-against it, `panel` raising the WP to the plan's ceiling ([the effective
-tier](../hex-core/references/decompose.md#the-effective-tier)).
+at the join levels [`loop.md` § Review by join
+level](../hex-core/references/loop.md#review-by-join-level) defines — the
+sole definition, never restated here:
 
-**Round 1** — launch concurrently: `reviewer` (focus `quality`), `reviewer`
-(focus `spec`, phase `post-implementation`), `reviewer` (focus `security`)
-when the diff touches security-sensitive paths (auth/crypto/signing, a new
-dependency manifest, a CI workflow file), `reviewer` (focus `performance`)
-when the diff touches a hot path or async code, `doc-reviewer` when
-doc-drift triggers match, or when a `perspectives.always` rule matches.
-Each brief carries the excerpt, not the plan body
-([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
-rule 8).
+- **`L0`** on every builder return — the evidence table, grep-verified by
+  this orchestrator; an unverifiable row goes back to the builder once.
+- **`L1`** at every leaf join, per WP in its own worktree before merge —
+  **1** `reviewer` (focus `spec`, phase `post-implementation`, `quality`
+  folded in), reading `git diff <base>..<head>` and the excerpt only
+  ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+  rule 8), **1 round**, inside its budget.
+- **`L2`** once, at this run's end-of-run join over the feature branch,
+  only when **two or more** WPs landed — **1** deep-reasoning `reviewer`
+  carrying the `review=full` checklist
+  ([`overlays.md`](overlays.md#review-axis)): spec and quality, plus
+  security when the diff touches security-sensitive paths, performance
+  when it touches a hot path or async code, doc-drift when triggers match,
+  and any `perspectives.always` rule that matches. Leaf verdicts are
+  inputs. Skipped at `N = 1`.
+
+A `sec`, `hot` or `door` flag, or a `risk` cell, raises the WP one level,
+never a round. A WP arriving under a decomposing coordinator is already
+reviewed at `L1` per sub-WP and `L2` at its join; it is not re-reviewed
+at `L1` here.
 
 **Cross-model code-diff review** (when `adversary=on` — auto-on for
-one-way-door signals, or explicit `--adversary`): after the loop converges,
-run the configured adversary skill once in `code-diff` scope against the
-branch diff. One-shot, 4-way triage, actionable fixes get one `builder`
-(focus `implement`) fix pass, re-verified; graceful skip when unavailable
+one-way-door signals, or explicit `--adversary`): after the `L2` seat
+returns, run the configured adversary skill once in `code-diff` scope
+against the branch diff. One-shot, 4-way triage, actionable fixes get one
+`builder` (focus `implement`) fix pass, re-verified; graceful skip when
+unavailable
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the loop's
-[exit gate](../hex-core/references/loop.md#the-review-fix-loop), at this
-phase's 3-round cap; deferred findings (native-panel and cross-model) are
-documented.
+[exit gate](../hex-core/references/loop.md#the-review-fix-loop) at each
+level's `rounds`; deferred findings, budget residue and cross-model
+findings are documented.
 
 ## Phase 7: Merge and commit
 
@@ -201,7 +203,7 @@ When the target is a plan artifact, mutate its Status block:
 
 ```
 - Tier: medium
-- Overlays: review=full, loop-rounds=3, adversary=<on|off>
+- Overlays: review=full, loop-rounds=1, adversary=<on|off>
 ```
 
 The handoff block also prints the **six-figure rollup** of the run's timings,

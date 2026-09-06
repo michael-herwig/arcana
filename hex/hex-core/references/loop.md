@@ -64,8 +64,8 @@ recorded in the schedule log
 **What is given up is stated**: the *temporal* property is recovered —
 surface before tests, tests before implementation, read off the branch's
 commit graph by a party that did not write it — but **author≠verifier is
-not**, and the two backstops for it are the `review=minimal` batch's `spec`
-reviewer and the ceiling-tier branch review below. **Model-cell
+not**, and its backstop is the `L1` leaf review, which runs at every tier
+([Review by join level](#review-by-join-level)). **Model-cell
 resolution**: the collapsed spawn resolves all three source cells
 (`builder:stub`, `builder:implement`, `tester`) and reads the highest, never
 the lowest, disclosed like any other override-driven raise
@@ -76,9 +76,10 @@ byte.
 
 **The loop:**
 
-- **Round 1** — run every tier-selected perspective on the diff,
-  concurrently. Perspectives most likely to find blockers go first (spec,
-  correctness). Classify each finding:
+- **Round 1** — run the join level's seat on the diff ([Review by join
+  level](#review-by-join-level)); where a level resolves to more than one
+  seat, run them concurrently, blockers-first (spec, correctness).
+  Classify each finding:
   - **Actionable** — a builder fixes it; re-run only the affected
     perspectives next round.
   - **Deferred** — surface it in the summary with context; never block the
@@ -86,8 +87,9 @@ byte.
 - **Subsequent rounds** — re-run only the perspectives with actionable
   findings from the prior round. A finding that surfaces two rounds running
   (oscillating) auto-defers.
-- **Loop cap** — scales with tier and **scope**. Code-diff scope: 1 round
-  at `low`, up to 3 at `medium` and `high`. **Plan-artifact scope** (a
+- **Loop cap** — keyed on the **join level** ([Review by join
+  level](#review-by-join-level)), never on tier: the level's `rounds`
+  value, shipped `L0` 0 · `L1` 1 · `L2` 1. **Plan-artifact scope** (a
   draft plan or ADR under review by its own orchestrator): **one** panel
   round → the orchestrator applies actionable fixes → **one** re-validation
   pass by `reviewer` (focus `spec`) *whenever any actionable fix was
@@ -100,78 +102,22 @@ byte.
   is hit, **stop and escalate to the user** with the outstanding list —
   do not loop past the cap.
 - **A `loop rounds` value in `hex.md › Preferences` is a ceiling, never a
-  default and never a raise.** It caps the code-diff scope's per-tier round
-  count *and* any `--loop-rounds` flag: the effective cap is the **lower of
-  the stored value and the run's resolved request** — `--loop-rounds` when
-  passed, the tier default otherwise. **In a plan carrying the generation
-  marker that lower-of-two gains a third term**, and the cap is the lowest
-  of the stored value, the run's resolved request, and the effective tier's
-  per-tier default — `low` → 1, `medium` and `high` → 3, the shipped
-  per-tier defaults read per WP ([the effective
-  tier](decompose.md#the-effective-tier)). The stored value never raises the tier
-  default and never lifts `low` above 1 round; a `--loop-rounds` flag may
-  still loosen a run up to (never past) the stored ceiling. `limits.*` sit
-  **outside** the later-wins [spawn-selection
-  precedence](protocol.md#spawn-selection-precedence) — a user flag may lower a limit,
-  never raise it past the stored ceiling. The stored value never affects
-  plan-artifact scope — that scope moves only via the explicit `artifact
-  loop rounds: N` limit named above. Both limits are announced at the gate
-  with their source, like every other resolved axis.
-- **Per-WP review budget** — when the plan's Parallelization table carries
-  a `Review` column, it scales this loop per work package:
-  - `self` — **no reviewer spawns in this loop, and the WP skips the
-    Verify-Architecture reviewer**: the builder's self-check
-    ([`workers.md`](workers.md) universal rule 7), the Implement gate's
-    unconditional [scoped check](verify.md#scoped-check), and **the WP's resolved
-    verification** at the exit gate below
-    ([Parallel-by-default decomposition](decompose.md#parallel-by-default-decomposition))
-    are the only WP-level checks. A
-    `self` WP is deliberately un-reviewed at the WP level — which makes the
-    branch-level `/hex-review` pass **mandatory before the feature branch
-    lands on the trunk** for any plan containing one; the execution
-    handoff records it.
-  - `light` — one `reviewer` (focus `spec`, phase `post-implementation`),
-    one round.
-  - `panel` — the tier's full Round-1 set and round cap (the ceiling); in
-    a plan carrying the generation marker "the tier" here is the **plan's
-    ceiling**, never the WP's own effective tier, so the hatch below has
-    something to raise to, under the `min` cap stated with that hatch.
-
-  **In a plan without the generation marker** the budget only **lowers**
-  breadth below the tier baseline, never raises it, and a missing column or
-  cell means `panel` — pre-budget plans run unchanged. **In a plan carrying
-  it** the derived breadth is the baseline instead ([the effective
-  tier](decompose.md#the-effective-tier)), so the column reads **raise-only against the
-  derived breadth, capped at the ceiling**: a cell naming a breadth at or
-  below the derived one is inert — honoured as a no-op, never a defect —
-  and a cell above it is honoured up to the ceiling. **`Review: panel`
-  raises the WP's effective tier to the ceiling, all four axes, and is the
-  one escape hatch**; the run's own resolved limits then apply as a `min`
-  cap over the resulting per-axis values — the stored `loop rounds`
-  ceiling, `limits.*`, and the run's resolved `review` breadth axis, never
-  `/hex-execute`'s run-tier argument, and never the tier itself (C-948).
-  In a `low`-tier plan the hatch is a no-op, because the ceiling is
-  already `low`. **The column is not renamed.**
-
-  **The branch-review precondition has two independent halves** — a legacy
-  `self` WP or any WP whose effective tier fell below its ceiling ([the
-  effective tier](decompose.md#the-effective-tier)) — and either alone arms it, so a
-  plan with no `self` row still arms it whenever a WP was reduced. A plan
-  that armed it **does not reach its terminal review state** — `done`, or
-  `landing` for a plan carrying a `Repo` column — until a branch-level
-  `/hex-review` has run at no less than the plan's ceiling tier.
-  `/hex-review` is already the sole writer of that state, so this is a
-  second precondition on the same write, never a second writer. **The
-  ceiling floors, never caps**: the resolved tier is `max(classified,
-  ceiling)`, so a large diff on a `medium`-ceiling plan is still reviewed
-  at `high` when its own classifier says so, and a lower `--tier` flag is
-  **honoured for the run and does not discharge this precondition** — the
-  pass announces `ceiling high (plan) floors --tier low — this pass does
-  not satisfy the adr_0012 backstop` and the precondition stays armed.
-  **What it blocks is stated plainly:** a field in a markdown Status block,
-  not a forge submit requirement — the borrowed property is *"no tier low
-  enough to skip it"*, and the borrowed enforcement is not available and is
-  not claimed.
+  default and never a raise.** It caps every level's `rounds` *and* any
+  `--loop-rounds` flag: the effective cap at a level is the **lowest of**
+  the stored value, the run's resolved request — `--loop-rounds` when
+  passed, the level's `review.<level>.rounds` otherwise — and the hard
+  maximum of 3. The stored value never raises a level's `rounds`; a
+  `--loop-rounds` flag may still loosen a run up to (never past) the
+  stored ceiling. `limits.*` sit **outside** the later-wins
+  [spawn-selection precedence](protocol.md#spawn-selection-precedence) — a
+  user flag may lower a limit, never raise it past the stored ceiling. The
+  stored value never affects plan-artifact scope — that scope moves only
+  via the explicit `artifact loop rounds: N` limit named above. Both limits
+  are announced at the gate with their source, like every other resolved
+  axis.
+- **Seats, class, input scope and budget** are set per join level, once,
+  in [Review by join level](#review-by-join-level) below — there is no
+  per-WP review budget and no tier-scaled perspective panel in this loop.
 - **Adversary gate** (optional, tier-scaled) — after the loop converges,
   one cross-model pass on the diff; see [Adversary contract](adversary.md#adversary-contract).
   One-shot, never loops.
@@ -186,6 +132,106 @@ byte.
   worktree, before merge**; the plan's terminal verification is a
   separate, un-lowerable gate enumerated by the merge rule
   ([Worktree work-package mechanics](worktree.md#worktree-work-package-mechanics)).
+
+### Review by join level
+
+**Review depth is keyed on where a diff joins, never on tier.** Tier scales
+execution — phases and model class ([the effective
+tier](decompose.md#the-effective-tier)) — and nothing else. Every diff is
+reviewed once at the level where it joins, by one seat, reading the diff
+and nothing prose-shaped. Four levels, closed and versioned (`adr_0015`
+C-980):
+
+| Level | Fires at | Seats | Class | Rounds | Budget | Input |
+|---|---|---|---|---|---|---|
+| `L0` inline | every builder return | 0 spawns | — | 0 | — | the builder's evidence table, verified mechanically |
+| `L1` leaf | a leaf's join: a WP or sub-WP branch lands | 1 `reviewer` | fast-balanced | 1 | 10 min | `git diff <base>..<head>` + the WP's contract excerpt |
+| `L2` aggregate | a node joins **N ≥ 2** leaves | 1 `reviewer` | deep-reasoning | 1 | 20 min | the aggregate diff + the leaf verdicts |
+| `L3` trunk | `/hex-review`, on explicit invocation only | that skill's staged panel | that skill's | that skill's | — | the feature branch |
+
+Shipped defaults; the `L1` and `L2` cells are the `review.<level>.*` keys
+in `hex.md › Preferences` ([`config.md`](config.md#key-vocabulary)), and a
+project overrides them **per level, never per role**. **Every diff passes
+`L1` once, at the join nearest the builder that wrote it; every aggregate
+passes `L2` once, at the node that assembled it.** A node whose child
+already ran its own `L2` takes that verdict as input and does not re-run
+`L1` over the child's diff — the rule is the same at every nesting depth.
+
+- **`L0`** — the builder returns, with its files-changed list, an
+  **evidence table**: one row per requirement ID its excerpt carried,
+  `<ID> → <path>:<line>`, naming the line that satisfies it (a test, a
+  symbol, a doc line). The orchestrator verifies each row **mechanically**
+  — the path is in the diff and the line matches the ID's contract text by
+  grep — and an unverifiable row is an actionable finding sent straight
+  back to the builder, one fix pass. No reviewer is spawned. **A WP is
+  `L0`-only — it runs no `L1` — when its actual diff is documentation
+  only**: every path in `git diff --name-only <base>..<head>` is a markdown
+  file or lies under the project's documented docs convention (`hex.md ›
+  Pointers`), a mechanical read of the file list re-validation already
+  produces. **A doc WP is checked by grep against the implementation it
+  documents, never by a prose panel.** Every other WP runs `L0` and then
+  `L1` at its join.
+  Universal rule 7 is unchanged — the self-check still carries no weight;
+  the evidence table is verified by a party that did not write it, which
+  is what gives it weight.
+- **`L1`** — fires once per leaf join for every WP that is not `L0`-only,
+  at every tier and in every plan shape. One `reviewer` (focus `spec`, phase `post-implementation`, the
+  `quality` checklist folded into the same brief) reads the leaf's diff
+  against its recorded base and the contract excerpt — never the plan
+  body, never a summary, never the tree. **A finding must sit on a diff
+  line or name a contradiction the diff introduced**; anything else is
+  out of scope and dropped, not deferred. One round: actionable findings
+  get one `builder` fix pass, re-verified by the WP's resolved
+  verification, and the loop ends. The Verify-Architecture reviewer at
+  effective `medium`/`high` is untouched — it is a phase gate, not a join.
+- **`L2`** — fires when a coordinator, the orchestrator, or any
+  sub-orchestrator between them joins **two or more** leaves whose `L1`
+  passed. One deep-reasoning seat reads the aggregate diff of the join
+  and the leaf verdicts as inputs, looking for what no leaf could see:
+  semantic conflicts between independently correct leaves, a shared
+  symbol changed on one side and called on the other, contract coverage
+  across the set. **At `N = 1` the level is skipped** — there is no
+  aggregate, and the `L1` verdict stands (C-981). The orchestrator's own
+  `L2` fires **once, at the end of the run**, over `<base>..HEAD` of the
+  feature branch with `N` = the WPs merged — never once per merge. The
+  run's `review` overlay axis selects this seat's checklist breadth
+  ([`hex-execute/overlays.md`](../../hex-execute/overlays.md#review-axis)):
+  the checklist grows, the seat count does not.
+- **`L3`** — the feature branch to the trunk. **Only `/hex-review`, only
+  when invoked.** Nothing in `/hex-execute` arms it, requires it, or
+  records a precondition for it; a plan reaches its terminal review state
+  through `/hex-review` because that skill is the state's sole writer,
+  not because a lower level owed it a backstop. The execution handoff
+  names what `L1`/`L2` deferred and every budget residue, so a trunk
+  pass, if the user runs one, starts from the residue rather than the
+  whole branch.
+
+**Risk raises one level, never the round count** (C-983). A WP whose
+`sec`, `hot` or `door` flag reads `true` ([the effective
+tier](decompose.md#the-effective-tier)) — at spawn time, or at the
+merge-time re-derivation over the actual diff — reviews **one level above**
+the join it is at, in place of that join's own level: `L0 → L1` (a docs-only
+WP gets a leaf reviewer after all); `L1 → L2` (its leaf join runs the `L2`
+seat instead of the `L1` one — the one single-leaf `L2` that runs at
+`N = 1`); `L2 → L2` with the `security` and `performance` checklists forced
+on. It never adds a round and never reaches `L3`. The
+plan's `Review` cell is an author-declared fifth source: `risk` raises the
+same way, legacy `panel` reads `risk`, `self` and `light` are inert, a
+missing column or cell is no hint.
+
+**The budget ends the loop** (C-984). Every level carries a wall-clock
+budget (`review.<level>.budget-minutes`); a seat that has not returned
+inside it is stopped, `review budget expired: <level> <WP> — residue:
+<what was not reviewed>` goes to the handoff's deferred list, and the WP
+**proceeds** — it merges with residue recorded, never waits. Expiry is a
+deferred finding, never a failure and never a re-run.
+
+**Retired, stated so no reader looks for it** (C-986): the per-WP
+`self | light | panel` budget and its guard, the `panel` escape hatch,
+the branch-review precondition (the `adr_0012` backstop), and the
+three-scope "review grows by diversity" model. The loop's other sections
+— anchor, validation, delta scope, the diminishing-returns stop — are
+unchanged and read "round cap" as this section's per-level `rounds`.
 
 ### The last-reviewed anchor
 
@@ -258,16 +304,17 @@ Round N ≥ 2 reads **`<last-reviewed>..HEAD` plus finding-adjacent files** —
 the files named by the prior round's actionable findings, in full, even
 where the delta does not touch them, because a fix's correctness is judged
 against its surroundings. Round 1 reads the anchor's range where one is
-valid, the full diff otherwise — **except at tier `low`, where a valid anchor
-never narrows round 1**: the 1-round cap makes that single round the whole
-loop, so it reads the full scope and *is* the mandatory converged pass. **One
+valid, the full diff otherwise — **except at a level whose `rounds` is 1, where a
+valid anchor never narrows round 1**: the 1-round cap makes that single
+round the whole loop, so it reads the full scope and *is* the mandatory
+converged pass — the shipped `L1` and `L2` case. **One
 full pass is mandatory at the converged gate** — after actionable findings
-reach zero and before the exit gate — **never delta-scoped, never skipped, not lowerable by any budget
-column.** It is a pass, not a second read: a converging round that already
+reach zero and before the exit gate — **never delta-scoped, never skipped, not lowerable by any
+config key.** It is a pass, not a second read: a converging round that already
 read the full scope **satisfies** it, and a further read is owed only where
-that round was delta-scoped. A `self` WP runs no loop and therefore has no
-WP-level converged gate at all — the mandatory branch-level `/hex-review` is
-its backstop, as the review budget above already states. **"Full" resolves per the two scopes above and is not the feature
+that round was delta-scoped. An `L0`-only WP runs no loop and has no
+converged gate; its evidence table is its whole review, and the run's `L2`
+aggregate, when one fires, reads its diff like any other. **"Full" resolves per the two scopes above and is not the feature
 branch in both:** a **WP-scope** loop's converged pass reads
 **the WP branch's own full diff against its recorded base** — the scope that
 loop has reviewed all along — and a **branch-scope** pass reads the

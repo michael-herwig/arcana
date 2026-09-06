@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Review depth is keyed on join level, never on tier** (`adr_0015`, `hex/DESIGN.md` round 20). Four levels, defined once in [`loop.md` § Review by join level](hex-core/references/loop.md#review-by-join-level): `L0` — every builder return carries a `<ID> → <path>:<line>` evidence table the orchestrator greps, no spawn; `L1` — one fast-balanced reviewer, delta-only (`git diff <base>..<head>` + the contract excerpt), one round, 10-minute budget, at every leaf join at every tier; `L2` — one deep-reasoning seat over the aggregate diff with the leaf verdicts as inputs, only where a node joins **two or more** leaves (skipped at `N = 1`), once at a decomposing coordinator's WP join and once at `/hex-execute`'s end-of-run join over the feature branch; `L3` — the trunk pass, only when `/hex-review` is invoked. A `sec`, `hot` or `door` flag, or a `risk` cell, raises a WP one level, never a round. A level's budget ends its loop with residue recorded in the handoff, never a failure
+- **New config keys, vocabulary v3**: `review.<level>.{seats, class, rounds, budget-minutes, delta-only}` for `l1` and `l2`, overridden per level, never per role ([`config.md`](hex-core/references/config.md#key-vocabulary)). `review.<level>.class` wins over `models.overrides` for review seats; `limits.loop-rounds` becomes a ceiling over every level's `rounds` (default 3); `perspectives.always` adds a checklist item to the `L2` brief in `/hex-execute` and a seat in `/hex-review`'s `L3` panel. The `--review` overlay axis now selects the `L2` seat's checklist breadth (`minimal | full | adversarial`), never a seat count; `--loop-rounds` caps every level and defaults to `1` at every tier
+- **The plan's `Review` column is an optional risk hint, not a budget**: `risk` or empty. Legacy cells are read, never migrated — `panel` reads `risk`, `self` and `light` are inert. The `hex-init` plan template and `/hex-plan`'s Decompose phases write the hint; the budget histogram is the effective-tier line in every plan shape
+
+### Removed
+
+- The per-WP `self | light | panel` review budget and both halves of its guard, the `Review: panel` escape hatch (effective-tier resolution step 5), the branch-review precondition and its `adr_0012 backstop` announce line in `/hex-review` (C-947), the three-scope "review grows by diversity" model in `hex-execute/SKILL.md`, and every per-tier round cap (1 / 3 / 3) and tier-scaled perspective panel in the execute tier files. `adr_0012`'s byte-for-byte promise for unmarked plans now covers execution only; every plan shape reviews by join level
+
 ## [0.4.0] - 2026-09-06
 
 ### Changed

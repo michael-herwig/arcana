@@ -106,15 +106,6 @@ overlay axis — it rewrites this axis's tier baseline (a layer-1 rewrite, not a
 [`SKILL.md`](SKILL.md) step 6 prints the final resolved config with each
 axis's source.
 
-**Exception: the resolved tier itself.** "Later wins" above governs the
-overlay axes, not a plan's ceiling. An explicit `--tier` flag is honoured
-for the run but does not lower the ceiling backstop
-([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)):
-**a lower `--tier` flag is honoured for the run and does not discharge
-this precondition** — the pass announces
-`ceiling high (plan) floors --tier low — this pass does not satisfy the
-adr_0012 backstop` and the precondition stays armed.
-
 ## Per-tier defaults (cheat-sheet)
 
 | Axis | low | medium | high |

@@ -27,106 +27,61 @@ the exception, not the default shape:
   lines) → `S`; a single-area change of ordinary scope → `M`; large or
   cross-area work → `L`. **Who reads the cell is conditioned on the plan's
   generation.** In a plan without the generation marker **`Size` is never
-  read at launch, worktree or verification time**: the one rule that reads
-  it is the downward budget guard below, which takes it as **one conjunct**
-  alongside the `Expected Files` set — the upward direction never reads
-  this cell, and `Expected Files` is decisive in both. In a plan carrying
-  the marker that guard is suppressed and the cell is read instead at each
-  WP's own spawn time, as the first derivation input of [the effective
-  tier](#the-effective-tier); worktree and verification time still never
-  read it, and the merge-time re-derivation reads this cell once more —
-  the plan-time value it compares against is recomputed, never stored
-  (**Nothing is persisted**, below). **A missing column or cell means `L`
-  for that guard**, leaving the conjunct unmet, so a pre-column plan
-  behaves unchanged — as `Review`'s missing-cell `panel` does in a legacy
-  plan; the **legacy `<Size>:<Review>`** histogram line below **omits** an
-  unsized WP rather than bucketing it as `L`, which would assert a size
-  nobody wrote — the effective-tier histogram that replaces it under the
-  marker buckets every WP, because an absent `Size` reads `L` there and
-  resolves to the ceiling.
-- **Every WP declares its review budget at planning time.** The
-  Parallelization table's `Review` column holds `self | light | panel`,
-  assigned when the WP is cut: docs-only or tiny low-risk work (~≤50
-  expected lines, no security-sensitive or hot-path files) → `self`;
-  a single-area moderate change → `light`; large, cross-area, security-
-  or hot-path-touching work → `panel`. Consumed by the
-  [Review-Fix Loop](loop.md#the-review-fix-loop); a sub-WP inherits its parent's
-  budget when absent; a missing column means `panel`. **That assignment
-  heuristic is the legacy one**: in a plan carrying the generation marker
-  an empty `Review` cell means the derived breadth, not `panel`, a missing
-  column reads the same way, and the cell is raise-only against that
-  baseline ([the effective tier](#the-effective-tier)). **Budgets are
-  re-validated at merge time**: alongside the merge-time file-set
-  re-validation, a WP whose actual diff outgrew its budget class (size
-  well past the `self` heuristic, or any security-/hot-path file touched)
-  escalates to the next budget and its review re-runs at that breadth
-  before the merge — a plan-time estimate never caps review of what was
-  actually built. **Under the generation marker that re-validation is an
-  effective-tier re-derivation**: the same function is re-run against the
-  actual merge diff — `Size` from the diff against the size vocabulary
-  there, `sec` and `hot` from the actual changed-file list, `hub` from the
-  actual changed-file list too, never carried forward from planning time,
-  because the declared set is not a guaranteed upper bound and file-set
+  read at launch, worktree or verification time** — it is reporting
+  vocabulary only, since the budget guard that once read it is retired
+  (`adr_0015` C-986). In a plan carrying the marker the cell is read at
+  each WP's own spawn time, as the first derivation input of [the
+  effective tier](#the-effective-tier); worktree and verification time
+  still never read it, and the merge-time re-derivation reads this cell
+  once more — the plan-time value it compares against is recomputed, never
+  stored (**Nothing is persisted**, below). **A missing column or cell
+  reads `L`** in that derivation and resolves to the ceiling; the histogram
+  below buckets every WP.
+- **The `Review` column is an optional risk hint, not a budget.** The cell
+  holds `risk` or is empty; `risk` is an author-declared risk source that
+  raises the WP's review **one join level**, exactly as `sec`, `hot` and
+  `door` do ([Review by join level](loop.md#review-by-join-level), C-983).
+  Legacy cells are read, never migrated: `panel` reads `risk`, `self` and
+  `light` are inert, a missing column or cell is no hint, and a sub-WP
+  inherits its parent's cell. The former `self | light | panel` budget,
+  its two-direction guard and the `panel` escape hatch are retired
+  (`adr_0015` C-986) — nothing at the Decompose gate, at spawn or at merge
+  reads them, and the column is not renamed.
+- **Merge-time re-derivation.** Alongside the merge-time file-set
+  re-validation, the effective-tier function is re-run against the actual
+  merge diff — `Size` from the diff against the size vocabulary above,
+  `sec` and `hot` from the actual changed-file list, `hub` from the actual
+  changed-file list too, never carried forward from planning time, because
+  the declared set is not a guaranteed upper bound and file-set
   re-validation's own remedy for an out-of-set diff is to *widen* the
-  declaration, and `door` unchanged as an authored declaration. It uses the
-  file list `git diff --name-only <base>..<wp-branch>` that re-validation
-  already produces, so it adds no command. If the re-derived tier is above
-  the plan-time one, review re-runs at the re-derived breadth before the
-  merge. **The limit is stated rather than papered over: only review can be
-  restored — the collapsed phases and the model class are already spent.**
-- **The budget guard runs in both directions, and the WP's declared
-  `Expected Files` set is the discriminator in both.** Stated once, here;
-  every other file links this bullet rather than restating it. The two
-  halves are conditioned on the plan's generation: in a plan carrying the
-  generation marker the downward half is suppressed and the upward half is
-  vacuous — suppressed rather than merely vacuous, because it would
-  otherwise declare the sanctioned `panel` escape hatch a plan defect, and
-  vacuous because a cell at or below the derived breadth is already inert
-  there ([the effective tier](#the-effective-tier)); both halves stay live
-  and unchanged in a plan without the marker.
-  - **Upward** — `self` or `light` on a security-sensitive, hot-path, large
-    or cross-area WP is a **plan defect**: the budget claims a safety the
-    file set contradicts.
-  - **Downward** — `panel` on a size **S** or **M**, **single-area** WP
-    whose `Expected Files` set contains **no** security-sensitive and no
-    hot-path file is equally a **plan defect**: a full panel on a docs-only
-    WP buys nothing and costs a wave. A file set that *does* carry such a
-    file is no defect at any budget — the file set decides, never the size
-    cell alone.
-
-  Both directions are raised as actionable findings against the plan, at the
-  Decompose gate — never at merge time, where the re-validation above only
-  escalates a budget the actual diff outgrew.
-- **The budget histogram — one line, one grammar, stated once here.** Buckets
-  are keyed `<Size>:<Review>` and dot-separated, ordered by `Size` then
-  `Review` in the order each vocabulary declares them (`S`, `M`, `L`;
-  `self`, `light`, `panel`), each key followed by its count, a zero-count
-  bucket omitted:
-  `S:light 2 · M:panel 1 · L:panel 3`.
-  `/hex-execute` prints it in its announce block and `/hex-plan` at the
-  Decompose gate; both link this grammar rather than restating it.
-  **In a plan carrying the generation marker the bucket key is the WP's
-  effective tier instead** — same grammar, same ordering rule, buckets
-  ordered `low`, `medium`, `high` and the plan's ceiling closing the line:
-  `effective tier: low 6 · medium 2 · high 1 (ceiling high)`. It replaces
-  rather than joins the size:review line in a derived-generation plan,
-  because a `Review` cell at or below the derived breadth is inert there,
-  so the `<Size>:<Review>` key no longer describes what a WP runs; that
-  line stays exactly as it is for legacy plans ([the effective
-  tier](#the-effective-tier)).
+  declaration, and `door` unchanged as an authored declaration. It uses
+  the file list `git diff --name-only <base>..<wp-branch>` that
+  re-validation already produces, so it adds no command. If `sec`, `hot`
+  or `door` fires there, the WP's review runs **one join level up before
+  the merge** ([Review by join level](loop.md#review-by-join-level)) — a
+  plan-time estimate never caps review of what was actually built. **The
+  limit is stated rather than papered over: only review can be restored —
+  the collapsed phases and the model class are already spent.** It runs in
+  every plan shape; the generation marker gates the spawn-time
+  derivation, not this one.
+- **The histogram — one line, one grammar, stated once here.** Buckets are
+  keyed by the WP's effective tier, ordered `low`, `medium`, `high`, each
+  key followed by its count, a zero-count bucket omitted, and the plan's
+  ceiling closing the line:
+  `effective tier: low 6 · medium 2 · high 1 (ceiling high)`.
+  In a plan without the generation marker every WP runs at the ceiling, so
+  the line degenerates to one bucket. `/hex-execute` prints it in its
+  announce block and `/hex-plan` at the Decompose gate; both link this
+  grammar rather than restating it.
 - **Every WP declares its merge-verification budget at planning time.** The
   Parallelization table's `Verify` column holds `scoped | full` and sits
-  **immediately after `Review`** — the two budget columns adjacent so the
-  family reads as one, the positional discipline C-302 applied in fixing
-  `Repo` at the second position. A **budget column** scales one axis of per-WP
-  effort away from the shipped default **in exactly one direction, fixed per
-  column**, and the direction is chosen so the *unsafe* direction is
-  unreachable: a column whose baseline is the maximum may only lower
-  (`Review`, against the tier's panel baseline — in a plan carrying the
-  generation marker `Review`'s baseline is the derived breadth, not the
-  maximum, and the same fixed-direction rule reads raise-only against it;
-  in a plan without the marker this parenthetical is unchanged); a column
-  whose baseline is the minimum may only raise. `Verify` is **raise-only**
+  **immediately after `Review`** — the positional discipline C-302 applied
+  in fixing `Repo` at the second position. It is the one **budget column**
+  left (`Review` is a risk hint, above). A budget column scales one axis of
+  per-WP effort away from the shipped default **in exactly one direction,
+  fixed per column**, and the direction is chosen so the *unsafe* direction
+  is unreachable: a column whose baseline is the minimum may only raise.
+  `Verify` is **raise-only**
   — there is deliberately no value below `scoped`, because a merge check
   with neither contract tests nor an assembly proof is not a check. It sets
   **one verification budget for one merge boundary** — the WP's **merge
@@ -292,7 +247,9 @@ the exception, not the default shape:
 ### The effective tier
 
 Every work package runs at its own **effective tier** — the tier that scales
-its phases, its model class, its review breadth and its loop rounds. It is
+its phases and its model class. **Review depth is keyed on join level, not
+tier** ([Review by join level](loop.md#review-by-join-level)), and the tier
+does not scale it. The effective tier is
 derived from cells the plan already carries, never written into the table:
 the plan's Status-block `Tier:` is a **ceiling**, not the baseline. **The
 effective tier is never above the ceiling and is never authored.** The
@@ -313,10 +270,9 @@ made for the run reads the plan tier.**
 **Five derivation inputs, and no others**: the WP's `Size` cell, and four
 **risk flags**. Each flag reads a cell, a declared file set, or a pointer
 this protocol already reads — the ceiling `T` bounds the derivation and is
-not an input to it. **No flag adds a command.** The two floors and
-the escape hatch below are not derivation inputs — they read the WP's own
-structure and its `Review` cell, and they apply **after** the derivation,
-to its result. The flag enumeration is **closed and versioned**: exactly
+not an input to it. **No flag adds a command.** The two floors below are
+not derivation inputs — they read the WP's own structure and apply
+**after** the derivation, to its result. The flag enumeration is **closed and versioned**: exactly
 four, named `sec`, `hot`, `hub`, `door`; a fifth arrives by amending this
 text in a later ADR, never by analogy at an edge case.
 
@@ -330,7 +286,7 @@ not one shared table. `M` is ~≤500 expected lines and ≤15 expected files;
 over six files is `M`, not `S` — and an absent, empty, unrecognized or
 ambiguous cell reads `L`. No new numbers are introduced: ≤3 files is
 [§ Tier grammar](protocol.md#tier-grammar)'s own `low` row, ~≤50 lines is this
-section's overhead floor and `self` heuristic, and ≤15 files / ≤500 lines
+section's overhead floor, and ≤15 files / ≤500 lines
 are `hex-review/classify.md`'s shipped `medium` row.
 
 **The four flags.**
@@ -373,20 +329,19 @@ are `hex-review/classify.md`'s shipped `medium` row.
    they name one-way-door risk, which is what the ceiling was authored for.
 3. **First floor — `hub`.** A true `hub` floors the WP at `min(T, medium)`,
    never at the ceiling: a shared file is a merge-order risk, which four
-   phases and a full panel already cover, not the one-way-door risk the
+   phases already cover, not the one-way-door risk the
    other three flags name.
 4. **Second floor — the coordinator floor**: a WP a coordinator splits
    into dotted sub-WPs floors at `min(T, medium)`. Applied after `hub`, so
    the two compose as *the highest floor that fired*; the reasoning and the
    no-sub-WPs case are below.
-5. **The escape hatch, last** — the WP's `Review` cell may raise the result
-   ([The Review-Fix Loop](loop.md#the-review-fix-loop)).
 
-Every step is capped by `T`, and that cap is applied last.
+Every step is capped by `T`, and that cap is applied last. The WP's
+`Review` cell is not an input and raises nothing here — it is a review-level
+hint, read only by [Review by join level](loop.md#review-by-join-level).
 
 **Sub-WPs and decomposing-coordinator-owned parents.** A sub-WP's effective
-tier is its parent's, unless the sub-WP's own `Review` cell raises it — no
-new inheritance mechanism, no fifth status. A decomposing-coordinator-owned
+tier is its parent's — no new inheritance mechanism, no fifth status. A decomposing-coordinator-owned
 parent derives from its own cells, and because the plan template writes `—` in its
 `Verify` cell, `door` reads `false` there. That is harmless: that row's
 merge already pays the project's full documented verification under merge
@@ -458,10 +413,12 @@ migration this design refuses; and `door` is the only one of the four whose
 source is an authored cell rather than a discovered convention. The
 reconciliation with the rule above is recorded as **residual risk, not
 direction**: three independent backstops survive the checkpoint trigger's
-vacuous clause, and one — the ceiling-tier branch review ([The Review-Fix
-Loop](loop.md#the-review-fix-loop)) — survives a fail-open reduction here. The
-merge-time re-derivation is **not** that backstop: it leaves `door`
-unchanged as an authored declaration, so it cannot see this failure.
+vacuous clause, but nothing automatic survives a fail-open reduction here:
+the merge-time re-derivation leaves `door` unchanged as an authored
+declaration, so it cannot see this failure, and the trunk review is opt-in
+([Review by join level](loop.md#review-by-join-level)). A mis-declared
+`Verify` cell is caught by the human reading the handoff's `Reduced:`
+lines, or not at all.
 
 **The generation marker.** One optional Status-block line,
 `- Effective-tier: derived`. **Presence** ⇒ this subsection's semantics.
@@ -478,8 +435,7 @@ marker; the value is the text between the `:` and the first field
 separator, trimmed, matched exactly. **A line present with an empty value
 is a refusal, not an absence.** **A marker on a plan with no `Verify`
 column is a refusal** — that column is `door`'s only source, and
-hand-adding the marker to a legacy plan would flip every blank `Review`
-cell from meaning `panel` to meaning the derived breadth, silently and in
-bulk; that refusal's `Fix:` line says to run the plan through `/hex-plan`.
+hand-adding the marker to a legacy plan would flip every WP from the
+ceiling to a derived tier, silently and in bulk; that refusal's `Fix:` line says to run the plan through `/hex-plan`.
 **No `Plan-Schema:` field is added and none may be inferred.**
 

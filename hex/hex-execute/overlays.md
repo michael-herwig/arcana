@@ -21,14 +21,17 @@ Matches the [`SKILL.md`](SKILL.md) parser:
 
 ## review axis
 
-Controls which reviewer perspectives populate Round 1 of the
-[Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop).
+Selects the **checklist breadth of the `L2` aggregate seat** in the
+[Review-Fix Loop](../hex-core/references/loop.md#review-by-join-level) — one
+deep-reasoning `reviewer`, one brief; the axis grows what that brief asks
+for, never the seat count. `L1` always runs the `minimal` checklist and this
+axis does not touch it.
 
-| Value | Effect |
+| Value | `L2` checklist |
 |---|---|
-| `minimal` | `reviewer` (focus `quality`) + `reviewer` (focus `spec`, phase `post-implementation`). Nothing else. |
-| `full` | the `minimal` set, plus `reviewer` (focus `security`) when the diff touches security-sensitive paths (auth/crypto/signing, a new dependency manifest, a CI workflow file), `reviewer` (focus `performance`) when the diff touches a hot path or async code, and `doc-reviewer` when doc-drift triggers match. |
-| `adversarial` | the `full` set, plus `architect` (ADR-compliance / boundary check) and `researcher` (SOTA-gap / known-pitfall check). |
+| `minimal` | spec traceability (`post-implementation`) + quality. Nothing else. |
+| `full` | the `minimal` set, plus security when the diff touches security-sensitive paths (auth/crypto/signing, a new dependency manifest, a CI workflow file), performance when the diff touches a hot path or async code, and doc-drift when doc-drift triggers match. |
+| `adversarial` | the `full` set, plus the ADR-compliance / boundary check (the seat reads the named ADR in full) and the SOTA-gap / known-pitfall check. |
 
 Per-tier defaults:
 
@@ -38,46 +41,34 @@ Per-tier defaults:
 | medium | `full` |
 | high | `adversarial` (mandatory) |
 
-**In a plan carrying the generation marker** the breadth follows each WP's own
-[effective tier](../hex-core/references/decompose.md#the-effective-tier) — the
-table above, read per WP — and the run's resolved axis then applies as a `min`
-cap over the result. **The order is part of the rule**, since `min` alone would
-contradict the escape hatch: `Review: panel` raises the derived *tier* to the
-ceiling first, the run's resolved axes cap the result second. So a `panel` WP
-under `--review=full` runs the ceiling's phases and model cells with `full`
-breadth.
+The axis reads the plan tier `T`, never a WP's effective tier — the `L2` seat
+reviews an aggregate, not a WP. A `sec`, `hot` or `door` flag on any joined
+WP forces the security and performance items on at every value
+([`loop.md`](../hex-core/references/loop.md#review-by-join-level)).
 
 ## loop-rounds axis
 
-Controls the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
-round cap.
+Caps the [Review-Fix Loop](../hex-core/references/loop.md#review-by-join-level)
+round count at every join level.
 
 | Value | Effect |
 |---|---|
-| `1` | Single round: one perspective batch, one builder fix pass, one re-verification. No iteration. |
-| `2` | Up to two rounds. |
-| `3` | Up to three rounds — the loop's canonical cap at `medium` and `high`. |
+| `1` | Single round at every level: one seat, one builder fix pass, one re-verification. The shipped `L1` and `L2` value. |
+| `2` | Up to two rounds where a level's `review.<level>.rounds` allows it. |
+| `3` | The hard maximum. |
 
-Per-tier defaults: low → `1`, medium → `3`, high → `3`. This axis lets a run
-tighten or loosen the tier's baseline cap without changing tier — but a
-stored `loop rounds` limit in `hex.md › Preferences` is a **ceiling** on it:
-the flag may loosen only up to the stored value, never past it
+Per-tier default: `1` at every tier — rounds are a per-level setting
+(`review.<level>.rounds`, [`config.md`](../hex-core/references/config.md#key-vocabulary)),
+not a tier one. This axis and a stored `loop rounds` limit in `hex.md ›
+Preferences` are both **ceilings** over a level's `rounds`: the effective
+cap is the lowest of the three
 ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
-**In a plan carrying the generation marker** the cap follows each WP's own
-effective tier — the defaults above, read per WP — under the `min` cap
-[`loop.md`](../hex-core/references/loop.md#the-review-fix-loop) states,
-in the same order as the `review` axis.
-
-**Both axes being lowered per WP by the `Review` cell is the pre-marker
-reading, and the generation marker makes it false** — named here because it
-sits outside both axis sections above. Without the marker it stands unchanged:
-a WP's `Review` budget in the plan table lowers both axes per WP, and `self`
-and `light` also force a 1-round loop for that WP regardless of this axis.
-With the marker the cell is **raise-only** against the derived breadth — it
-lowers neither axis, a cell at or below the derived value is inert, and
-`self`/`light` force nothing
-([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+**The plan's `Review` cell touches neither axis.** It is a risk hint that
+raises a WP's review one join level
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition));
+it never lowers breadth, never forces a round count, and a legacy
+`self`/`light` cell is inert.
 
 ## adversary axis (code-diff scope)
 

@@ -2,8 +2,8 @@
 
 The full treatment for **one-way-door-high** plans — a new module or
 package, a breaking API, a cross-area refactor, a protocol or
-storage-layout change. Preserves contract-first TDD, and adds mandatory
-`adversarial` review breadth (architect + researcher perspectives) and a
+storage-layout change. Preserves contract-first TDD, and adds the
+`adversarial` `L2` checklist (ADR-compliance and known-pitfall checks) and a
 mandatory cross-model code-diff gate before commit. That skeleton is the shape
 at effective tier `high`: in a plan carrying the generation marker a WP whose
 [effective
@@ -73,10 +73,8 @@ workspace of the repo the gate runs in, never a cross-repo aggregate (C-321).
 
 ## Phase 3: Verify-Architecture (reviewer + architect)
 
-Launch **in a single concurrent batch**, per work package (a `self`-budget
-WP — rare at this tier — skips this phase per the budget rule, in a plan
-without the generation marker; under the marker the cell skips nothing and a WP
-skips this phase only by deriving `low` ([the effective
+Launch **in a single concurrent batch**, per work package (a WP skips this
+phase only by deriving `low` ([the effective
 tier](../hex-core/references/decompose.md#the-effective-tier))). Each brief
 carries the excerpt, not the plan body
 ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
@@ -129,42 +127,37 @@ written there ([Phase 2](#phase-2-stub)), which paid this gate.
 **Gate** — the [scoped check](../hex-core/references/verify.md#scoped-check)
 passes.
 
-## Phase 6: Review-Fix Loop (up to 3 rounds, adversarial breadth)
+## Phase 6: Review-Fix Loop (by join level, `adversarial` checklist)
 
 Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
-— capped at **3 rounds** (**in a plan carrying the generation marker** the
-cap is the WP's own effective-tier default instead — a WP that resolves `low`
-caps at **1**), `review=adversarial` breadth (mandatory). Each WP
-runs at its declared Review budget (`self`/`light` lower the set below per
-WP; `panel` = this tier's full set) — rare at this tier, and bounded by the
-[budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition).
-**In a plan carrying the generation marker** the derived breadth is the
-baseline instead, the cell is raise-only against it, `panel` raises the WP to
-the ceiling, and the budget guard's downward half is suppressed ([the effective
-tier](../hex-core/references/decompose.md#the-effective-tier); the guard itself
-is owned by [parallel-by-default
-decomposition](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
+at the join levels [`loop.md` § Review by join
+level](../hex-core/references/loop.md#review-by-join-level) defines — the
+sole definition, never restated here:
 
-**Round 1** — launch concurrently: `reviewer` (focus `quality`), `reviewer`
-(focus `spec`, phase `post-implementation`), `reviewer` (focus `security`)
-when security-sensitive paths are touched, `reviewer` (focus `performance`)
-when a hot path or async code is touched, `doc-reviewer` when doc-drift
-triggers match, `architect` (ADR-compliance / boundary check), `researcher`
-(SOTA-gap / known-pitfall check), or when a `perspectives.always` rule
-matches. A `perspectives.always` addition on top of this round is what
-merge rule 6's phase ceiling displaces first
-([`config.md` § Merge rules](../hex-core/references/config.md#merge-rules)).
-Each brief carries the excerpt, not the plan body
-([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
-rule 8) — except the `architect`, which reads in full the ADR or design
-document its brief names as its compliance target, per that rule's
-architect carve-out.
+- **`L0`** on every builder return — the evidence table, grep-verified by
+  this orchestrator; an unverifiable row goes back to the builder once.
+- **`L1`** at every leaf join, per WP in its own worktree before merge —
+  **1** `reviewer` (focus `spec`, phase `post-implementation`, `quality`
+  folded in), reading `git diff <base>..<head>` and the excerpt only
+  ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+  rule 8), **1 round**, inside its budget.
+- **`L2`** once, at this run's end-of-run join over the feature branch,
+  only when **two or more** WPs landed — **1** deep-reasoning `reviewer`
+  carrying the `review=adversarial` checklist
+  ([`overlays.md`](overlays.md#review-axis)): the `full` set, plus the
+  ADR-compliance / boundary check and the SOTA-gap / known-pitfall check,
+  and any `perspectives.always` rule that matches. For the compliance
+  check this seat reads in full the ADR or design document its brief
+  names, per rule 8's architect carve-out. Leaf verdicts are inputs.
+  Skipped at `N = 1`.
 
-A finding that oscillates between `architect` and `reviewer` two rounds
-running auto-defers, per the canonical loop's oscillation rule.
+A `sec`, `hot` or `door` flag, or a `risk` cell, raises the WP one level,
+never a round; at `L2` it forces the security and performance checklists
+on. A WP arriving under a decomposing coordinator is already reviewed at
+`L1` per sub-WP and `L2` at its join; it is not re-reviewed at `L1` here.
 
 **Cross-model code-diff review — a default part of this tier's flow.** After
-the loop converges, invoke the configured adversary skill once in
+the `L2` seat returns, invoke the configured adversary skill once in
 `code-diff` scope against the branch diff. One-shot, no loop; 4-way triage
 (actionable / deferred / stated-convention / trivia); actionable findings
 get one `builder` (focus `implement`) fix pass, re-verified. If that one-shot
@@ -177,9 +170,9 @@ did not complete one — log
 prominently in the handoff**, since one review layer was missed.
 
 **Gate** — the loop's
-[exit gate](../hex-core/references/loop.md#the-review-fix-loop), at this
-phase's 3-round cap; both panel and cross-model deferred findings are
-documented.
+[exit gate](../hex-core/references/loop.md#the-review-fix-loop) at each
+level's `rounds`; deferred findings, budget residue and cross-model
+findings are documented.
 
 ## Phase 7: Merge and commit
 
@@ -235,7 +228,7 @@ Mutate the plan's Status block: `State: review`, `Updated` refreshed,
 
 ```
 - Tier: high
-- Overlays: review=adversarial, loop-rounds=3, adversary=on
+- Overlays: review=adversarial, loop-rounds=1, adversary=on
 ```
 
 The handoff block also prints the **six-figure rollup** of the run's timings,

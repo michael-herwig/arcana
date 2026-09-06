@@ -278,7 +278,7 @@ holds the value's semantics).
 - **Parallelization** — decomposed to maximize parallel execution
   ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
   a work-package table (id, repo, scope, expected files, size, wave,
-  depends-on, review and verify — the `self | light | panel` review budget and
+  depends-on, review and verify — the optional `risk` review hint and
   the `scoped | full` verify budget, one budget over the WP's merge gate and
   the Review-Fix Loop's exit gate that immediately precedes it, and nothing
   beyond those two — and status, initialized `pending`), its Scope column

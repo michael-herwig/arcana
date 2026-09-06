@@ -84,9 +84,13 @@ never emits them; an explicit request for either runs `high` instead.
 
 In `/hex-execute`, a plan's tier is a **ceiling**: each work package derives
 its own effective tier from cells the plan already carries — never authored,
-never above the ceiling — and that is what scales its phases, model class,
-review breadth and loop rounds ([`decompose.md` § The effective
-tier](hex-core/references/decompose.md#the-effective-tier)).
+never above the ceiling — and that is what scales its phases and model class
+([`decompose.md` § The effective
+tier](hex-core/references/decompose.md#the-effective-tier)). Review depth
+is keyed on **join level** instead — one fast leaf reviewer where a WP
+lands, one deep aggregate seat where two or more join, the trunk pass only
+when `/hex-review` is run ([`loop.md` § Review by join
+level](hex-core/references/loop.md#review-by-join-level)).
 
 Per-tier **content** — phase spawn counts (via `tiers`), and later the phase
 plan itself (via `workflows`, reserved for a future release) in

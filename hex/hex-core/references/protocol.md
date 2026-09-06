@@ -62,9 +62,9 @@ Three tiers plus `auto`:
 
 | Tier | Intent | Typical spawns | Gate depth |
 |---|---|---|---|
-| `low` | Two-way door: flag/option change, doc edit, ≤3 files, one area | 1 explorer; inline design; 1 reviewer, single pass | 1 approval; 1 review round; no adversary |
-| `medium` | One-way-door medium: new command, new storage/index layout, 1–2 areas | architecture-explorer + 2–4 explorers; 1 researcher; architect; review panel | 1 approval; up to 3 review rounds; adversary on one-way-door signals |
-| `high` | One-way-door high: new module/package, breaking API, cross-area, protocol change | medium set + mandatory architect, mandatory multi-axis research | 1 approval; up to 3 rounds; adversary a default part of the flow |
+| `low` | Two-way door: flag/option change, doc edit, ≤3 files, one area | 1 explorer; inline design; 1 reviewer, single pass | 1 approval; join-level review; no adversary |
+| `medium` | One-way-door medium: new command, new storage/index layout, 1–2 areas | architecture-explorer + 2–4 explorers; 1 researcher; architect; review panel | 1 approval; join-level review, `full` `L2` checklist; adversary on one-way-door signals |
+| `high` | One-way-door high: new module/package, breaking API, cross-area, protocol change | medium set + mandatory architect, mandatory multi-axis research | 1 approval; join-level review, `adversarial` `L2` checklist; adversary a default part of the flow |
 | `auto` (default) | Classifier picks low / medium / high from signals | — | — |
 
 `auto` is the default; the classifier resolves it to one of the three real
@@ -128,8 +128,8 @@ Spawn set:
 Models: <fast-balanced model> default; architect + reviewer:security →
         <deep-reasoning model> (hex.md preference instantiated — see models.md)
 Adversary: codex-adversary, plan-artifact scope   (hex.md preference)
-Limits: workers 8 (clamped from 12 · hex.md preference) · loop rounds 3
-        (loop rounds · tier default — a stored limit or a batched phase
+Limits: workers 8 (clamped from 12 · hex.md preference) · loop rounds 1
+        (loop rounds · level default — a stored limit or a batched phase
         shows here with its source)
 Degraded: blocking adversary call — no pollable output; process_only backstop 15 min
 ```
@@ -393,7 +393,7 @@ orchestrator picks the coordinator's fan-out mechanism:
    coordinators fan out via nested subagent spawns (watch session budget and
    ref collision; isolation only for true-isolation sub-WPs).
 3. else **degraded flattening**: no coordinators — every WP runs a single
-   builder plus the normal per-WP panel. Announce:
+   builder plus its `L1` leaf review. Announce:
 
 ```
 Degraded: flat execution — no nested spawn; coordinators inlined

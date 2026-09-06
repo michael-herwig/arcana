@@ -66,15 +66,11 @@ required, even if it is one work package with no dependencies
 ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics))
 — the tier's ≤3-file scope is itself the justification, no extra line
 needed. Single WP: the "Shippable after wave" line is exempt — delete it,
-since the sole WP is the shippable unit. The WP still carries **both budget
-cells — a `Verify` cell and a `Review` budget**, the latter typically `self`
-or `light` at this tier
+since the sole WP is the shippable unit. The WP still carries a `Verify` cell
+and a `Review` cell — the latter empty, or `risk` when the author knows
+more than the file set shows
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition));
 a plan carrying the generation marker needs the `Verify` column present.
-**In a plan carrying that marker the `Review` direction is flipped**: the
-baseline is the WP's derived breadth and the cell is raise-only against it
-([the effective
-tier](../hex-core/references/decompose.md#the-effective-tier)).
 
 **Federation.** When `hex.md › Pointers` carries `Federation:` bullets and
 the target's scope lies in a satellite, Decompose offers that satellite's
@@ -85,7 +81,7 @@ applies the `(Repo, path)` disjointness key, not bare paths (C-316).
 `/hex-plan` never runs the C-303 pre-flight and never writes into a
 satellite (C-314). Absent `Federation:` bullets, unchanged.
 
-Print the **budget histogram** at this point, linking rather than
+Print the **effective-tier histogram** at this point, linking rather than
 restating its grammar
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 
@@ -100,9 +96,6 @@ actionable findings; only a Block-tier finding earns one reviewer re-run
 When project context names a constitution (cached in `hex.md › Pointers`),
 this same reviewer also applies the
 [constitution gate](../hex-core/references/protocol.md#constitution-gate).
-The reviewer also applies the
-[budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition)
-to the WP's Review budget.
 
 **Gate** — the plan is ready for `/hex-execute`.
 

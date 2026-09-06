@@ -295,13 +295,10 @@ no active plan is found — never invent one. An Approve never writes the
 terminal review state — `done`, or `landing` for a plan carrying a `Repo`
 column — where the run ended with a non-empty stranded set
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
-Nor does it write that state while a WP's ceiling-floor precondition
-([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop))
-stays armed — a lower `--tier` flag is honoured for the run and does not
-discharge it, and the pass announces the downward override
-([`overlays.md` § Precedence](overlays.md#precedence)). `/hex-review`
-remains the sole writer of the terminal review state; this is a second
-precondition, never a second writer.
+This skill is the `L3` trunk level of [Review by join
+level](../hex-core/references/loop.md#review-by-join-level): it runs only
+when invoked, nothing in `/hex-execute` requires it, and it remains the sole
+writer of the terminal review state.
 Writing the `Reviewed:` anchor is a Status-block write, the class of write
 `hex-review` already performs — a branch-scope pass only
 ([`loop.md`](../hex-core/references/loop.md#the-last-reviewed-anchor)).

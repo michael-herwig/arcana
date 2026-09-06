@@ -115,9 +115,9 @@ Break the design into right-sized tasks for contract-first TDD execution,
   sequential steps of one WP.
 - Waves are computed from the dependency graph (topological levels); the
   critical path is identified and marked.
-- Every WP gets a **Review budget** (`self | light | panel`) per the
-  protocol heuristic, and a WP below the overhead floor **folds into its
-  nearest sibling** as sequential steps
+- A WP the author knows is riskier than its file set shows gets a `risk`
+  hint in its `Review` cell (otherwise empty), and a WP below the overhead
+  floor **folds into its nearest sibling** as sequential steps
   ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 - The plan's Parallelization section carries the WP table (id, scope,
   expected files, size, wave, depends-on, review, verify, status — status
@@ -137,7 +137,7 @@ Break the design into right-sized tasks for contract-first TDD execution,
   column (C-314). Absent `Federation:` bullets, no offer, no column, plan
   unchanged.
 
-Print the **budget histogram** at this gate, linking rather than restating
+Print the **effective-tier histogram** at this gate, linking rather than restating
 its grammar
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 
@@ -159,10 +159,7 @@ canonical loop's artifact-scope rule, never restated here.
   C-/S- ID maps to at least one WP Scope cell and at least one test step; an
   uncovered ID is an actionable finding
   ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
-  Also checks the Parallelization table for an unjustified sub-overhead WP,
-  and applies the
-  [budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition)
-  to every WP's Review column.
+  Also checks the Parallelization table for an unjustified sub-overhead WP.
 - `architect` — are the trade-offs honest, the alternatives considered, any
   boundary violations introduced? *(required for one-way-door decisions)*
 - `researcher` — does the plan miss a trending pattern, a known pitfall, or a
