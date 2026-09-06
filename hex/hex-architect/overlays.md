@@ -30,10 +30,12 @@ the axis **selection** is a gate interaction, not a flag default — see
 | `1` | One `researcher` on the single axis picked at the gate from [`classify.md`](classify.md)'s ranked candidates (default: the top-ranked candidate on plain approval). |
 | `3` | Three `researcher` workers in parallel, one per axis picked at the gate (default: the top-3 candidates). |
 
-Per-tier defaults: `low` → `skip`, `medium` → `1`, `high` → `3` (mandatory).
-`--research=3` at `medium` promotes research breadth alone — the rest of the
+Per-tier defaults: `low` → `skip`, `medium` → `skip`, `high` → `1`,
+`xhigh` → `3` (mandatory), `max` → `5` (mandatory, one axis
+`competitive-research`; `adr_0017` C-995).
+`--research=3` at `high` promotes research breadth alone — the rest of the
 tier (single architect worker, ADR-only artifact, bounded review) stays at
-`medium`'s rules. `--axes=<a,b,c>` names axes explicitly, bypassing the
+`high`'s rules. `--axes=<a,b,c>` names axes explicitly, bypassing the
 interactive picker; it is still echoed at the gate for confirmation, and its
 length must match the resolved count (extra names beyond the count are
 dropped with a note, fewer names fall back to classifier candidates for the
@@ -67,9 +69,11 @@ Per-tier defaults:
 
 | Tier | adversary default |
 |---|---|
-| low | `off` (two-way door — cost outweighs value; no design panel either) |
-| medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals, and auto-on on dossier fast-path input ([`SKILL.md`](SKILL.md#a-discussion-dossier-as-decision)); explicit via `--adversary` |
-| high | `on` (a default part of the flow; a skip is surfaced prominently) |
+| low | `off` (inline tier); explicit `--adversary` runs it alone |
+| medium | `off` (two-way door — cost outweighs value; no design panel either) |
+| high | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals, and auto-on on dossier fast-path input ([`SKILL.md`](SKILL.md#a-discussion-dossier-as-decision)); explicit via `--adversary` |
+| xhigh | `on` (a default part of the flow; a skip is surfaced prominently) |
+| max | `on` — **every** entry of a list-valued `adversary` key, in the Round 1 batch; below `max` the first entry only (`adr_0017` C-995) |
 
 When the adversary produces no review — the named skill is unavailable, or it
 ran and did not complete one — log
@@ -90,9 +94,11 @@ Per-tier defaults:
 
 | Tier | artifact default |
 |---|---|
-| low | `inline` (an ADR is written only if the user asks — `--artifact=adr`) |
-| medium | `adr` |
-| high | `adr`, with `system-design` added when [`classify.md`](classify.md)'s cross-area / external-contract / new-module signal fires |
+| low | `inline` (a decision note in the handoff; never an ADR) |
+| medium | `inline` (an ADR is written only if the user asks — `--artifact=adr`) |
+| high | `adr` |
+| xhigh | `adr`, with `system-design` added when [`classify.md`](classify.md)'s cross-area / external-contract / new-module signal fires |
+| max | `adr` + `system-design` (both mandatory) |
 
 ## Precedence
 

@@ -1,4 +1,4 @@
-# Tier: medium
+# Tier: high
 
 The **default** planning tier — medium-scope, one-way-door-medium work: a new
 command, a new index or storage layout, a change spanning 1–2 areas. This is
@@ -72,7 +72,7 @@ Determine reversibility and scope; record it in the plan header:
 
 Artifact formats follow the project's documented conventions; the templates
 shipped with `/hex-init` are the fallback. If this resolves to Large, **stop
-and re-run** as `/hex-plan high "…"` — no silent upgrade mid-pipeline.
+and re-run** as `/hex-plan xhigh "…"` — no silent upgrade mid-pipeline.
 
 **Gate** — scope and reversibility documented in the plan header.
 

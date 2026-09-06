@@ -70,17 +70,21 @@ The four orchestrators — `hex-plan`, `hex-execute`, `hex-review`,
 `hex-architect` — scale their work through one shared tier **vocabulary**.
 `hex-init`, `hex-discuss` and `hex-finalize` are not orchestrators and have
 no tiers.
-`low|medium|high`+`auto` mean the same thing in every project:
+`low|medium|high|xhigh|max`+`auto` mean the same thing in every project:
 
 | Tier | Intent |
 |---|---|
-| `low` | Two-way door: flag/option change, doc edit, ≤3 files, one area |
-| `medium` | One-way-door, medium blast radius: new command, new storage/index layout, 1–2 areas |
-| `high` | One-way-door, high blast radius: new module/package, breaking API, cross-area, protocol change |
-| `auto` (default) | The orchestrator classifies signals and picks one of the above, shown at the approval gate |
+| `low` | Trivial two-way door: one file, ≤30 lines — the orchestrator does it inline, zero spawns |
+| `medium` | Two-way door: flag/option change, doc edit, ≤3 files, one area |
+| `high` | One-way-door, medium blast radius: new command, new storage/index layout, 1–2 areas |
+| `xhigh` | One-way-door, high blast radius: new module/package, breaking API, cross-area, protocol change |
+| `max` | `xhigh` plus every configured adversary, five research axes and usage simulation by four user patterns — explicit only, never classified into |
+| `auto` (default) | The orchestrator classifies signals and picks `low` … `xhigh`, shown at the approval gate |
 
-`xhigh` and `max` are reserved for future overlay stacks — the classifier
-never emits them; an explicit request for either runs `high` instead.
+A plan written before the five-tier grammar (no `- Tier-grammar: 5` line
+in its Status block) has its `Tier:` shifted one step up on read and
+announced, never rewritten
+([`protocol.md` § Tier grammar](hex-core/references/protocol.md#tier-grammar)).
 
 In `/hex-execute`, a plan's tier is a **ceiling**: each work package derives
 its own effective tier from cells the plan already carries — never authored,

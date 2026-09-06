@@ -1,4 +1,4 @@
-# Tier: low
+# Tier: medium
 
 Minimal plan for **two-way-door** changes — a flag or option, a doc edit, a
 fixture, a single-area tweak of ≤3 files. Keep the contract-first TDD skeleton
@@ -41,7 +41,7 @@ rather than silently upgrading mid-flow.
 
 Confirm the two-way-door scope inline in the plan header. If Discover revealed
 the change is *not* two-way (it touches a public surface, a stored format, a
-protocol), **stop and re-run** as `/hex-plan medium "…"` — never silently
+protocol), **stop and re-run** as `/hex-plan high "…"` — never silently
 upgrade mid-pipeline.
 
 ## Phase 4: Design (inline)
@@ -108,7 +108,7 @@ with:
 
 ```
 - Scope: small (two-way door)
-- Tier: low
+- Tier: medium
 - Overlays: (none)
 ```
 

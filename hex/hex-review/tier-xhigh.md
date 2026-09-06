@@ -1,4 +1,4 @@
-# Tier: high
+# Tier: xhigh
 
 The full adversarial treatment for **one-way-door-high** diffs: >15 files,
 a new package/module, a breaking API, cross-area changes, a security-
@@ -13,7 +13,7 @@ Shared vocabulary is linked, not restated: roles in
 [`models.md`](../hex-core/references/models.md), and the outer contracts in
 [`protocol.md`](../hex-core/references/protocol.md).
 
-**Meta-plan preview is mandatory.** At `high`, the gate in
+**Meta-plan preview is mandatory.** At `xhigh`, the gate in
 [`SKILL.md`](SKILL.md) step 5 always blocks for explicit approval — this
 tier is expensive, and the preview catches a misclassification before
 workers launch.
@@ -35,7 +35,7 @@ enumerated.
 
 ## Phase 2: Stage 1 — Correctness (parallel, 2 workers)
 
-Same shape as `medium`, launched **in a single batch** so they run
+Same shape as `high`, launched **in a single batch** so they run
 concurrently
 ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)):
 
@@ -51,7 +51,7 @@ concurrently
   access, and failure modes.
 
 Model class per [`models.md`](../hex-core/references/models.md) rows
-`reviewer:spec` / `reviewer:quality`, tier `high` — both escalate to the
+`reviewer:spec` / `reviewer:quality`, tier `xhigh` — both escalate to the
 `deep-reasoning` class at this tier. Stub → Specify → Implement traceability
 matters extra here: flag any implementation behavior with no corresponding
 test or design-record anchor.
@@ -68,10 +68,10 @@ matching `perspectives.always` rule adds):
   surface (CLI, API, UI), this slot spawns as focus `user-feedback`
   instead (UX/product consistency, grounded in the project's product
   knowledge via `hex.md › Pointers`); plain `quality` otherwise.
-- `reviewer` (focus `security`) — always at `high` (treat the diff as
+- `reviewer` (focus `security`) — always at `xhigh` (treat the diff as
   security-sensitive until proven otherwise).
-- `reviewer` (focus `performance`) — always at `high`.
-- `doc-reviewer` — always at `high` (doc drift at scale is the default
+- `reviewer` (focus `performance`) — always at `xhigh`.
+- `doc-reviewer` — always at `xhigh` (doc drift at scale is the default
   failure mode).
 - `architect` — boundary respect, dependency direction, trade-off
   honesty; checks the diff against any ADR covering the area.
@@ -99,7 +99,7 @@ displaces first
 If the diff clearly doesn't need
 `researcher` (e.g. a pure refactor with no algorithmic change), skip it —
 a diff-content judgement, not a cap accommodation. Model class per
-[`models.md`](../hex-core/references/models.md), tier `high` — most rows
+[`models.md`](../hex-core/references/models.md), tier `xhigh` — most rows
 escalate to `deep-reasoning` here. Each reviewer classifies findings
 actionable or deferred and tags each with a
 [severity](../hex-core/references/severity.md#finding-severity); a
@@ -118,7 +118,7 @@ Apply Five Whys to every Block, High, and Warn finding:
 **Related findings**: <other findings sharing this root, if any>
 ```
 
-Coverage is deliberately wider than `medium` — big cross-area diffs often
+Coverage is deliberately wider than `high` — big cross-area diffs often
 share systemic causes. Cluster findings that trace to the same root; note
 the pattern (e.g. "three findings all trace to a missing cancellation guard
 in the worker pool").
@@ -155,7 +155,7 @@ Produce the review report using the skeleton from
 ## Code Review: [target]
 ### Summary
 - Verdict: Approve | Needs Work | Request Changes
-- Tier: high
+- Tier: xhigh
 - Baseline: <base>
 - Diff: N files, +L / -L lines, S areas
 - Cross-model: ran | skipped: <reason>
@@ -211,7 +211,7 @@ the handoff from [`SKILL.md`](SKILL.md) with:
 
 ```
 - Scope: large (one-way door, high)
-- Tier: high
+- Tier: xhigh
 - Baseline: <base>
 - Overlays: breadth=adversarial, rca=on, adversary=on
 ```
@@ -219,8 +219,8 @@ the handoff from [`SKILL.md`](SKILL.md) with:
 If actionable findings exist:
 
 ```
-/hex-execute <plan path> "apply high-tier review findings"   <!-- a tracked plan exists -->
-/hex-execute "apply high-tier review findings"                <!-- no tracked plan yet -->
+/hex-execute <plan path> "apply xhigh-tier review findings"   <!-- a tracked plan exists -->
+/hex-execute "apply xhigh-tier review findings"                <!-- no tracked plan yet -->
 ```
 
 If a SOTA gap or an architectural concern needs its own decision record,

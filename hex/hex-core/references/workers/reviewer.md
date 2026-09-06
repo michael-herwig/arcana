@@ -54,7 +54,7 @@ not from memory. Verify claims by reading the code. No hedging verdicts
 Classify EVERY finding:
 - Actionable — fixable without human input (give file:line + remediation).
 - Deferred — needs a human decision (give file:line + the specific question).
-- Severity — tag each finding [Block | High | Warn | Suggest]; omit at tier low
+- Severity — tag each finding [Block | High | Warn | Suggest]; omit below tier `high`
   ([`severity.md`](../severity.md#finding-severity)).
 
 Return:

@@ -1,9 +1,9 @@
-# Tier: low
+# Tier: medium
 
 Minimal execution for **two-way-door** plans — a flag or option, a doc edit
 plus code, a single-area tweak of ≤3 files. A WP whose [effective
 tier](../hex-core/references/decompose.md#the-effective-tier)
-resolves `low` runs the **collapsed** pipeline — Stub, Specify and Implement
+resolves `medium` runs the **collapsed** pipeline — Stub, Specify and Implement
 in one builder spawn, under the conditions
 [`loop.md`](../hex-core/references/loop.md#the-review-fix-loop) states.
 In a plan without the generation marker the four-phase skeleton below runs
@@ -20,7 +20,7 @@ Shared vocabulary is linked, not restated: roles in
 ## Phase 1: Discover
 
 Read the plan artifact (or, for a free-text target, the task description
-directly) and its Parallelization table — low tier is normally a single work
+directly) and its Parallelization table — medium tier is normally a single work
 package. In parallel, read the project rules for the area touched (project
 context, cached in `hex.md › Pointers`,
 [`memory.md`](../hex-core/references/memory.md#the-three-sections)) and the
@@ -45,7 +45,7 @@ rule 8).
 
 **A WP whose [effective
 tier](../hex-core/references/decompose.md#the-effective-tier)
-resolves `low` runs the collapsed builder instead — Stub, Specify and Implement
+resolves `medium` runs the collapsed builder instead — Stub, Specify and Implement
 in one spawn**
 ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 Every other WP, and every WP in a plan without the generation marker, runs
@@ -56,7 +56,7 @@ this phase unchanged.
 ## Phase 3: Verify-Architecture — skipped
 
 Two-way door, ≤3 files: skip the `reviewer` architecture pass. If Discover
-revealed a larger scope, **stop and re-run** as `/hex-execute medium <target>`
+revealed a larger scope, **stop and re-run** as `/hex-execute high <target>`
 rather than silently upgrading mid-flow.
 
 **Gate** — the skip is logged in the announcement; proceed to Specify.
@@ -105,7 +105,7 @@ its brief carrying the `spec` + `quality` sections of
 delta-only, **1 round**, inside its budget. Each brief carries the excerpt,
 not the plan body ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
 rule 8). `L2` fires only when this run joins **two or more** WPs — the
-usual single-WP `low` plan skips it. A `sec`, `hot` or `door` flag, or a
+usual single-WP `medium` plan skips it. A `sec`, `hot` or `door` flag, or a
 `risk` cell, raises the WP one level, never a round.
 
 **Gate** — the loop's
@@ -119,7 +119,7 @@ Two-way door: skip (`adversary: off` at this tier). If the user passes
 [adversary contract](../hex-core/references/adversary.md#adversary-contract)
 — launched in the same batch as the `L1` seat, last, its actionable findings
 joining that seat's single fix pass; otherwise log
-`Cross-model review skipped: tier=low default` and continue.
+`Cross-model review skipped: tier=medium default` and continue.
 
 ## Phase 8: Merge and commit
 
@@ -164,7 +164,7 @@ block to mutate — note that instead. Then emit the handoff from
 [`SKILL.md`](SKILL.md) with:
 
 ```
-- Tier: low
+- Tier: medium
 - Overlays: (none)
 ```
 
@@ -174,4 +174,4 @@ per [`protocol.md` § Handoff contract](../hex-core/references/protocol.md#hando
 Its only required artifacts are the commit itself and, when a plan exists,
 its advanced Status block. No ADR or research artifact at this tier — if the
 pipeline reveals a need for either, stop and re-route through
-`/hex-plan medium`.
+`/hex-plan high`.

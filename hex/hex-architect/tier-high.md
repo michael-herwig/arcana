@@ -1,4 +1,4 @@
-# Tier: medium
+# Tier: high
 
 The **default** architecture tier — one-way-door-medium decisions: a storage
 layout, a caching strategy, an internal contract spanning a module or two.
@@ -155,11 +155,11 @@ Determine blast radius and reversibility; record it in the record header:
 
 | Scope | Reversibility | Artifacts |
 |---|---|---|
-| Small decision | Two-way door | inline note only — should have been `low`; re-run if so |
+| Small decision | Two-way door | inline note only — should have been `medium`; re-run if so |
 | Medium decision | One-way door (medium) | ADR |
 | Large decision | One-way door (high) | ADR + system-design + persisted research |
 
-If this resolves to Large, **stop and re-run** as `/hex-architect high "…"`
+If this resolves to Large, **stop and re-run** as `/hex-architect xhigh "…"`
 — no silent upgrade mid-pipeline.
 
 **Gate** — blast radius and reversibility documented in the record header.

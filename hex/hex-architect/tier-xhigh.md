@@ -1,4 +1,4 @@
-# Tier: high
+# Tier: xhigh
 
 The full treatment for **one-way-door-high** decisions — a public API
 shape, a wire protocol, an auth boundary redesign, a data model migration
@@ -14,7 +14,7 @@ Shared vocabulary is linked, not restated: roles in
 [`models.md`](../hex-core/references/models.md), and the outer contracts in
 [`protocol.md`](../hex-core/references/protocol.md).
 
-**Meta-plan preview is mandatory.** At `high`, the gate in
+**Meta-plan preview is mandatory.** At `xhigh`, the gate in
 [`SKILL.md`](SKILL.md) step 4 always blocks for explicit approval — this tier
 is expensive, and the preview catches a misclassification, and confirms the
 research-axis selection, before workers launch.
@@ -29,13 +29,13 @@ conventions for every area touched, and all prior ADRs/plans/research in the
 convention-resolved artifact home for the whole domain.
 
 **With a dossier**, Phase 1 shrinks to the bounded claim diff exactly as the
-`medium` tier defines it — containment-first canonicalization, both failure
+`high` tier defines it — containment-first canonicalization, both failure
 modes, the git-history discriminator, and the derived staleness anchor live in
-[`tier-medium.md` Phase 1](tier-medium.md#phase-1-discover-single-worker) and
+[`tier-high.md` Phase 1](tier-high.md#phase-1-discover-single-worker) and
 are not restated here. This tier's delta is the **residual ground**: what the
 dossier does not cover is larger here, spanning every area the decision
 touches plus the whole domain's prior ADRs/plans/research as above, not the
-`medium` tier's single feature area.
+`high` tier's single feature area.
 
 Which makes the Phase-1 shrink **marginal at this tier**: the
 `architecture-explorer` still runs at full breadth over that residual ground,
@@ -43,10 +43,10 @@ so the claim diff displaces reads rather than removing them. The fast path's
 real saving here is
 [Phase 2](#phase-2-research-3-axes-gate-selected--mandatory)'s skipped
 researchers — read the gate's cost preview that way, and never promise a
-cheap Discover at `high`.
+cheap Discover at `xhigh`.
 
 **Gate** — a full architecture map is produced, or, with a dossier, the claim
-diff (per [`tier-medium.md` Phase 1](tier-medium.md#phase-1-discover-single-worker))
+diff (per [`tier-high.md` Phase 1](tier-high.md#phase-1-discover-single-worker))
 covers every path the dossier names and the residual ground is explored;
 every prior decision record in the domain is enumerated.
 
@@ -68,7 +68,7 @@ substantial findings are expected.
 
 **With a dossier**, the per-axis research skip applies here unchanged — the
 cite-and-unexpired predicate and its announcement format are defined in
-[`tier-medium.md` Phase 2](tier-medium.md#phase-2-research-1-axis-gate-selected)
+[`tier-high.md` Phase 2](tier-high.md#phase-2-research-1-axis-gate-selected)
 and are not restated here. The delta is count: **3** axes are selected at this
 tier rather than 1, so up to **3** independent skip announcements are
 possible, and a dossier covering all three may legitimately resolve to
@@ -77,14 +77,14 @@ does not override the skip.
 
 **Gate** — every selected axis either persisted a research artifact or was
 announced skipped with its cited dossier source (C-724, per
-[`tier-medium.md` Phase 2](tier-medium.md#phase-2-research-1-axis-gate-selected));
+[`tier-high.md` Phase 2](tier-high.md#phase-2-research-1-axis-gate-selected));
 axis choices recorded with their source (classifier default or user pick).
 
 ## Phase 3: Classify (sequential)
 
 Confirm **one-way-door high** in the record header. If the classification
 fails (the decision is actually medium), **downgrade and re-run** as
-`/hex-architect medium "…"` — never silently over-specify a medium decision
+`/hex-architect high "…"` — never silently over-specify a medium decision
 or under-specify a large one.
 
 Required artifacts this tier:
@@ -104,7 +104,7 @@ Launch **1** `architect` worker; its model class is `deep-reasoning`
 honored but never silent — the announce block flags it. Produce the ADR
 and, when scope warrants, the system-design doc.
 
-Design must include everything the `medium` tier requires, plus:
+Design must include everything the `high` tier requires, plus:
 
 - **Trade-off matrix** — at least **3** options (not 2), weighted criteria,
   risks, reversibility, and a recommendation with rationale.

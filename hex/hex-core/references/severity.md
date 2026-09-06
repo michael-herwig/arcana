@@ -23,8 +23,9 @@ finding above the label's floor.
 | Warn    | A minor defect or smell — naming, small duplication, a narrow edge case. | Needs Work |
 | Suggest | An optional improvement; no defect. | none — reported, but never gates the verdict |
 
-Medium/high construct: at tier low the ladder is not applied — a low finding
-carries only its class, the tag is absent, and the low verdict runs off its
+High-and-above construct: at tier `low` and `medium` the ladder is not
+applied — a finding there carries only its class, the tag is absent, and
+the verdict runs off its
 enumerated triggers. Presence of the tag is the signal that a run graded
 severity; there is no schema-version marker.
 

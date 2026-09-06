@@ -12,20 +12,23 @@ tier/overlay grammar). Inventory + analysis: session 2026-07-19.
 
 ## Shared shape (all orchestrators)
 
-parse args → classify tier (`low|medium|high`, `auto` default) → resolve
+parse args → classify tier (`low|medium|high|xhigh|max`, `auto` default; `max` explicit only) → resolve
 overlays → single meta-plan approval gate (never mid-flow questions) →
 announce resolved config with per-axis source attribution → dispatch to
 tier file.
 
 Skill layout: `SKILL.md` dispatcher + `classify.md` + `overlays.md` +
-`tier-{low,medium,high}.md`.
+`tier-{low,medium,high,xhigh,max}.md`.
 
 **Tier rename (locked 2026-07-19):** grammar is now `low | medium | high`
 (+ `auto` default), mapped from the OCX-era `low | high | max`: old low →
 low, old high → medium (the new default tier), old max → high. `xhigh`
 and `max` are reserved for future overlay stacks — documented, never
 emitted by the classifier; an explicit request for either announces
-"reserved, running high" and runs `high`.
+"reserved, running high" and runs `high`. **Superseded by round 22
+(2026-09-06, `adr_0017`):** the grammar is now five tiers,
+`low | medium | high | xhigh | max`, every 2026-07-19 tier shifted one step
+up and a zero-spawn inline `low` inserted below.
 
 ## Two-layer knowledge model (revised 2026-07-19, round 2)
 

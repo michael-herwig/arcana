@@ -1,4 +1,4 @@
-# Tier: low
+# Tier: medium
 
 Minimal inline trade-off for **two-way-door** decisions — a builder-vs-
 constructor call, sync-vs-async for an internal helper, a naming convention.
@@ -34,14 +34,14 @@ API.
 **Gate** — the skip is logged in the record header
 (`Research: skipped — two-way door`). If the inline check surfaces a
 surprise that makes this not a two-way door, **stop and re-run** as
-`/hex-architect medium "…"` rather than silently upgrading mid-flow.
+`/hex-architect high "…"` rather than silently upgrading mid-flow.
 
 ## Phase 3: Classify (inline)
 
 Confirm the two-way-door reversibility and single-area blast radius inline
 in the record header. If Discover revealed the decision is *not* two-way (it
 touches an external contract, a stored format, or spans areas), **stop and
-re-run** as `/hex-architect medium "…"` — never silently upgrade
+re-run** as `/hex-architect high "…"` — never silently upgrade
 mid-pipeline.
 
 ## Phase 4: Reason & Design (inline)
@@ -83,7 +83,7 @@ Then emit the handoff from [`SKILL.md`](SKILL.md) with:
 ```
 - Blast radius: single area
 - Reversibility: two-way
-- Tier: low
+- Tier: medium
 - Overlays: research=skip, adversary=off, artifact=inline (or adr, if asked)
 ```
 

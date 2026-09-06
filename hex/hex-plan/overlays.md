@@ -2,7 +2,7 @@
 
 Overlays are single-axis adjustments layered on the tier
 [`classify.md`](classify.md) chose. They let `auto` mode assemble a mixed
-config (e.g. a `medium` base that still delegates the architect for a weighty
+config (e.g. a `high` base that still delegates the architect for a weighty
 design) without compound tier names. [`classify.md`](classify.md) decides
 *when* an overlay fires from signals; this file defines *what each axis means*
 and how it changes the pipeline. Grammar only lives here — the shared overlay
@@ -32,9 +32,11 @@ Per-tier defaults:
 
 | Tier | architect default |
 |---|---|
-| low | `inline` |
-| medium | `inline` for two-way-door scope; `on` for one-way-door medium |
-| high | `on` (mandatory, with an ADR) |
+| low | `inline` (a one-line design note; zero spawns) |
+| medium | `inline` |
+| high | `inline` for two-way-door scope; `on` for one-way-door medium |
+| xhigh | `on` (mandatory, with an ADR) |
+| max | `on` (mandatory, with an ADR) |
 
 ## research axis
 
@@ -46,7 +48,9 @@ Controls the Research phase worker count.
 | `1` | One `researcher` on the single most relevant axis (technology *or* patterns *or* domain). |
 | `3` | Three `researcher` workers in parallel, one per axis: technology / patterns / domain. |
 
-Per-tier defaults: low → `skip`, medium → `1`, high → `3` (mandatory).
+Per-tier defaults: low → `skip`, medium → `skip`, high → `1`, xhigh → `3`
+(mandatory), max → `5` (mandatory, one axis `competitive-research`;
+`adr_0017` C-995).
 Researcher model class is `fast-balanced` at every tier
 ([`models.md`](../hex-core/references/models.md)); literal model choices and
 per-role overrides live in `hex.md › Preferences`, never in a flag.
@@ -72,9 +76,11 @@ Per-tier defaults:
 
 | Tier | adversary default |
 |---|---|
-| low | `off` (two-way door — cost outweighs value) |
-| medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
-| high | `on` (a default part of the flow; a skip is surfaced prominently) |
+| low | `off` (inline tier); explicit `--adversary` runs it alone |
+| medium | `off` (two-way door — cost outweighs value) |
+| high | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
+| xhigh | `on` (a default part of the flow; a skip is surfaced prominently) |
+| max | `on` — **every** entry of a list-valued `adversary` key, in the Round 1 batch; below `max` the first entry only (`adr_0017` C-995) |
 
 When the adversary produces no review — the named skill is unavailable, or it
 ran and did not complete one — log

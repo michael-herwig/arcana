@@ -2,7 +2,7 @@
 
 Overlays are single-axis adjustments layered on the tier
 [`classify.md`](classify.md) chose. They let `auto` mode assemble a mixed
-config (e.g. a `medium` base that still runs `adversarial` review breadth for
+config (e.g. a `high` base that still runs `adversarial` review breadth for
 a security-sensitive diff) without compound tier names. [`classify.md`](classify.md)
 decides *when* an overlay fires from signals; this file defines *what each
 axis means* and how it changes the pipeline. Grammar only lives here — the
@@ -38,9 +38,11 @@ Per-tier defaults:
 
 | Tier | review default |
 |---|---|
-| low | `minimal` |
-| medium | `full` |
-| high | `adversarial` (mandatory) |
+| low | `minimal` — the inline orchestrator's own `spec` + `quality` pass; no `L2` at one WP |
+| medium | `minimal` |
+| high | `full` |
+| xhigh | `adversarial` (mandatory) |
+| max | `adversarial` (mandatory) |
 
 The axis reads the plan tier `T`, never a WP's effective tier — the `L2` seat
 reviews an aggregate, not a WP. A `sec`, `hot` or `door` flag on any joined
@@ -86,7 +88,7 @@ the `code-diff` scope; `/hex-plan` runs the same skill in `plan-artifact`
 scope.
 
 **This axis reads the plan tier `T`, never a WP's effective tier.** A WP that
-derived `low` inside a `high` plan **still runs the cross-model gate**: the pass
+derived `medium` inside a `xhigh` plan **still runs the cross-model gate**: the pass
 is a run-level assurance decision, and a per-WP size estimate must not become a
 global skip switch
 ([the effective tier](../hex-core/references/decompose.md#the-effective-tier)).
@@ -100,9 +102,11 @@ Per-tier defaults:
 
 | Tier | adversary default |
 |---|---|
-| low | `off` (two-way door — cost outweighs value) |
-| medium | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
-| high | `on` (a default part of the flow; a skip is surfaced prominently) |
+| low | `off` (inline tier); an explicit `--adversary` runs it, batched with the optional `L1` backstop or alone |
+| medium | `off` (two-way door — cost outweighs value) |
+| high | `off`, auto-on when [`classify.md`](classify.md) fires `adversary=on` for one-way-door signals; explicit via `--adversary` |
+| xhigh | `on` (a default part of the flow; a skip is surfaced prominently) |
+| max | `on` — **every** entry of a list-valued `adversary` key launches in the same batch, findings union-triaged with duplicate merge; below `max` the first entry only (`adr_0017` C-995) |
 
 When the adversary produces no review — the named skill is unavailable, or it
 ran and did not complete one — log
@@ -116,10 +120,10 @@ turn fold in `hex.md › Preferences` hints on top of the tier baseline —
 later wins
 ([spawn-selection precedence](../hex-core/references/protocol.md#spawn-selection-precedence)).
 When [`classify.md`](classify.md) infers `review=adversarial` but the user
-passes `--review=full`, the user wins — including at `high` tier, where
+passes `--review=full`, the user wins — including at `xhigh` tier, where
 `review=adversarial` and `adversary=on` are the defaults. A downward
 override there is honored but never silent: the announce block flags it
-("high tier recommends adversarial review — running `full` per user flag")
+("xhigh tier recommends adversarial review — running `full` per user flag")
 so the risk the tier signalled stays visible at the gate.
 `tiers.hex-execute.<tier>.overlays` sets a per-project default for an
 overlay axis — it rewrites this axis's tier baseline (a layer-1 rewrite, not a project hint — see [`config.md` § tiers](../hex-core/references/config.md#tiers)), below any user flag.

@@ -1,4 +1,4 @@
-# Tier: medium
+# Tier: high
 
 The **default** review tier for one-way-door-medium diffs: ≤15 files, ≤500
 lines changed, 1–2 areas, no one-way-door-high signal. This is the baseline
@@ -43,7 +43,7 @@ Launch **in a single batch** so they run concurrently
   fixes have regression tests, edge cases are covered.
 
 Model class per [`models.md`](../hex-core/references/models.md) rows
-`reviewer:spec` / `reviewer:quality`, tier `medium`. If Stage 1 turns up
+`reviewer:spec` / `reviewer:quality`, tier `high`. If Stage 1 turns up
 actionable findings, surface them prominently — polishing code that
 doesn't meet spec or lacks tests wastes downstream effort. Stage 2 still
 runs in parallel (not gated on Stage 1), but Stage 1's actionable findings
@@ -84,7 +84,7 @@ its own focus. Each reviewer classifies findings actionable or deferred and tags
 [severity](../hex-core/references/severity.md#finding-severity); a
 Suggest-severity finding is reported but never gates the verdict. Model class
 per
-[`models.md`](../hex-core/references/models.md), tier `medium`. Peak
+[`models.md`](../hex-core/references/models.md), tier `high`. Peak
 concurrency: up to 4 Stage 2 workers (Stage 1's 2 already done) — within the
 effective cap `min(8, max-workers)`; a lower cap batches Stage 2 per
 [`protocol.md`](../hex-core/references/protocol.md#worker-coordination)
@@ -108,7 +108,7 @@ For every finding classified Block or High, apply Five Whys:
 
 Stop early if the causal chain terminates before five levels — quality
 matters more than depth. Note when a finding shares a root cause with
-another. Warn-tier findings skip RCA at this tier (`high` applies it to
+another. Warn-tier findings skip RCA at this tier (`xhigh` applies it to
 those too).
 
 **Gate** — RCA is complete for every Block/High finding.
@@ -146,7 +146,7 @@ Produce the review report using the skeleton from
 ## Code Review: [target]
 ### Summary
 - Verdict: Approve | Needs Work | Request Changes
-- Tier: medium
+- Tier: high
 - Baseline: <base>
 - Diff: N files, +L / -L lines, S areas
 ### Stage 1 — Correctness
@@ -196,7 +196,7 @@ the handoff from [`SKILL.md`](SKILL.md) with:
 
 ```
 - Scope: medium (one-way door, where signals fire)
-- Tier: medium
+- Tier: high
 - Baseline: <base>
 - Overlays: breadth=full, rca=on, adversary=<off|on>
 ```
@@ -205,5 +205,5 @@ If actionable findings exist:
 
 ```
 /hex-execute <plan path> "apply review findings"   <!-- a tracked plan exists -->
-/hex-execute "apply medium-tier review findings"   <!-- no tracked plan -->
+/hex-execute "apply high-tier review findings"   <!-- no tracked plan -->
 ```

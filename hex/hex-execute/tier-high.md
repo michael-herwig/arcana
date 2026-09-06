@@ -1,13 +1,13 @@
-# Tier: medium
+# Tier: high
 
 The **default** execution tier — one-way-door-medium plans: a new command, a
 new index or storage layout, work spanning 1–2 areas. Preserves the
 contract-first TDD skeleton (Stub → Specify → Implement → Review-Fix) with
 the join-level Review-Fix Loop with a `full` `L2` checklist. That skeleton is
-the shape at effective tier `medium`: in a plan carrying the generation marker
+the shape at effective tier `high`: in a plan carrying the generation marker
 a WP whose [effective
 tier](../hex-core/references/decompose.md#the-effective-tier)
-resolves `low` runs the collapsed builder and skips Verify-Architecture
+resolves `medium` runs the collapsed builder and skips Verify-Architecture
 instead ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
@@ -55,7 +55,7 @@ rule 8).
 
 **A WP whose [effective
 tier](../hex-core/references/decompose.md#the-effective-tier)
-resolves `low` runs the collapsed builder instead — Stub, Specify and Implement
+resolves `medium` runs the collapsed builder instead — Stub, Specify and Implement
 in one spawn**
 ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 Every other WP, and every WP in a plan without the generation marker, runs
@@ -69,7 +69,7 @@ Launch **1** `reviewer` (focus `spec`, phase `post-stub`) per work package to
 validate stubs against the plan's component contracts: signatures match,
 module boundaries align, error variants cover the documented failure modes.
 *Optional when the whole plan touches ≤3 files. A WP skips this phase only
-by deriving `low` ([the effective
+by deriving `medium` ([the effective
 tier](../hex-core/references/decompose.md#the-effective-tier)).*
 Each brief carries the excerpt, not the plan body
 ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
@@ -205,7 +205,7 @@ When the target is a plan artifact, mutate its Status block:
 [`SKILL.md`](SKILL.md) with:
 
 ```
-- Tier: medium
+- Tier: high
 - Overlays: review=full, loop-rounds=1, adversary=<on|off>
 ```
 
@@ -216,4 +216,4 @@ Required artifacts: the plan (Status block advanced to `review`), the
 commit(s) on the feature branch, and any research artifact Implement
 uncovered a surprise worth persisting (rare at this tier — an ADR-level
 surprise means the plan was underspecified; re-route through
-`/hex-plan high` rather than inlining one here).
+`/hex-plan xhigh` rather than inlining one here).

@@ -1,4 +1,4 @@
-# Tier: low
+# Tier: medium
 
 Minimal review for **two-way-door** diffs — a flag or option change, a doc
 edit, a fixture, a single-area tweak of ≤3 files. The adversarial stance
@@ -29,7 +29,7 @@ worker is needed for this.
 
 Launch **1** `reviewer` (focus `spec`, phase `post-implementation`) on the
 diff. Model class per [`models.md`](../hex-core/references/models.md) row
-`reviewer:spec`, tier `low`. Its brief carries the composed `spec` +
+`reviewer:spec`, tier `medium`. Its brief carries the composed `spec` +
 `quality` sections of
 [`checklist.md`](../hex-core/references/checklist.md#composition) — the
 single-reviewer case the checklist exists for. It applies both jobs a
@@ -57,7 +57,7 @@ Two-way-door scope (`breadth=minimal`): no security, performance,
 documentation, architect, or researcher perspective. If Discover surfaced a
 signal the classifier should have caught (e.g. a dependency-manifest change
 hiding inside a diff that looked doc-only), **stop and re-run** as
-`/hex-review medium <target>` — never silently upgrade mid-pipeline.
+`/hex-review high <target>` — never silently upgrade mid-pipeline.
 
 **Gate** — the skip is logged in the output; proceed to verdict.
 
@@ -65,7 +65,7 @@ hiding inside a diff that looked doc-only), **stop and re-run** as
 
 `rca: off`. The reviewer reports findings with proximate cause and
 remediation only. A systemic-smelling finding is still flagged **deferred**
-with a reason — a human can escalate to `/hex-review medium` for Five Whys.
+with a reason — a human can escalate to `/hex-review high` for Five Whys.
 
 ## Phase 5: Cross-model — skipped
 
@@ -74,7 +74,7 @@ run the pass anyway (user override) in the scope the target implies
 (`code-diff` for a diff, `plan-artifact` for a markdown target) — launched
 in the same batch as the Phase 2 reviewer, last, and triaged here
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
-Otherwise log `Cross-model review skipped: tier=low default` and continue.
+Otherwise log `Cross-model review skipped: tier=medium default` and continue.
 
 ## Phase 6: Verdict & Output
 
@@ -85,7 +85,7 @@ Produce the review report using the skeleton from
 ## Code Review: [target]
 ### Summary
 - Verdict: Approve | Needs Work | Request Changes
-- Tier: low
+- Tier: medium
 - Baseline: <base>
 - Diff: N files, +L / -L lines, 1 area
 ### Stage 1 — Correctness
@@ -114,7 +114,7 @@ from [`SKILL.md`](SKILL.md) with:
 
 ```
 - Scope: small (two-way door)
-- Tier: low
+- Tier: medium
 - Baseline: <base>
 - Overlays: breadth=minimal, rca=off, adversary=off
 ```
@@ -122,5 +122,5 @@ from [`SKILL.md`](SKILL.md) with:
 If actionable findings exist and the caller wants them applied:
 
 ```
-/hex-execute "apply low-tier review findings"
+/hex-execute "apply medium-tier review findings"
 ```

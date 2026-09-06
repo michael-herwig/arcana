@@ -1,13 +1,13 @@
-# Tier: high
+# Tier: xhigh
 
 The full treatment for **one-way-door-high** plans — a new module or
 package, a breaking API, a cross-area refactor, a protocol or
 storage-layout change. Preserves contract-first TDD, and adds the
 `adversarial` `L2` checklist (ADR-compliance and known-pitfall checks) and a
 mandatory cross-model code-diff gate before commit. That skeleton is the shape
-at effective tier `high`: in a plan carrying the generation marker a WP whose
+at effective tier `xhigh`: in a plan carrying the generation marker a WP whose
 [effective
-tier](../hex-core/references/decompose.md#the-effective-tier) resolves `low`
+tier](../hex-core/references/decompose.md#the-effective-tier) resolves `medium`
 runs the collapsed builder and skips Verify-Architecture instead
 ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
@@ -18,7 +18,7 @@ Shared vocabulary is linked, not restated: roles in
 [`SKILL.md`](SKILL.md#work-packages), and the outer contracts in
 [`protocol.md`](../hex-core/references/protocol.md).
 
-**Meta-plan preview is mandatory.** At `high`, the gate in
+**Meta-plan preview is mandatory.** At `xhigh`, the gate in
 [`SKILL.md`](SKILL.md) step 5 always blocks for explicit approval — this
 tier is expensive, and the preview catches a misclassification before
 workers launch.
@@ -60,7 +60,7 @@ rule 8).
 
 **A WP whose [effective
 tier](../hex-core/references/decompose.md#the-effective-tier)
-resolves `low` runs the collapsed builder instead — Stub, Specify and Implement
+resolves `medium` runs the collapsed builder instead — Stub, Specify and Implement
 in one spawn**
 ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 Every other WP, and every WP in a plan without the generation marker, runs
@@ -74,7 +74,7 @@ workspace of the repo the gate runs in, never a cross-repo aggregate (C-321).
 ## Phase 3: Verify-Architecture (reviewer + architect)
 
 Launch **in a single concurrent batch**, per work package (a WP skips this
-phase only by deriving `low` ([the effective
+phase only by deriving `medium` ([the effective
 tier](../hex-core/references/decompose.md#the-effective-tier))). Each brief
 carries the excerpt, not the plan body
 ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
@@ -230,7 +230,7 @@ Mutate the plan's Status block: `State: review`, `Updated` refreshed,
 [`SKILL.md`](SKILL.md) with:
 
 ```
-- Tier: high
+- Tier: xhigh
 - Overlays: review=adversarial, loop-rounds=1, adversary=on
 ```
 
@@ -240,4 +240,4 @@ per [`protocol.md` § Handoff contract](../hex-core/references/protocol.md#hando
 Required artifacts: the plan (Status block advanced to `review`), the
 commit(s) on the feature branch, and — if implementation revealed a decision
 the original ADR didn't cover — a follow-up ADR request escalated to
-`/hex-plan high` rather than inlined here.
+`/hex-plan xhigh` rather than inlined here.

@@ -1,4 +1,4 @@
-# Tier: high
+# Tier: xhigh
 
 The full treatment for **one-way-door-high** work — a new module or package,
 a breaking API, a cross-area refactor, a protocol or storage-layout change.
@@ -11,14 +11,14 @@ Shared vocabulary is linked, not restated: roles in
 [`models.md`](../hex-core/references/models.md), and the outer contracts in
 [`protocol.md`](../hex-core/references/protocol.md).
 
-**Meta-plan preview is mandatory.** At `high`, the gate in
+**Meta-plan preview is mandatory.** At `xhigh`, the gate in
 [`SKILL.md`](SKILL.md) step 5 always blocks for explicit approval — this tier
 is expensive, and the preview catches a misclassification before workers
 launch.
 
 ## Phase 1: Discover (parallel, full)
 
-Same shape as `medium`, launched in a single concurrent batch:
+Same shape as `high`, launched in a single concurrent batch:
 
 - **1** `architecture-explorer` — map the architecture, trace dependencies,
   find reusable code and patterns.
@@ -61,7 +61,7 @@ signals checked on all axes.
 
 Confirm **one-way-door high** in the plan header. If the classification fails
 (the change is actually medium), **downgrade and re-run** as
-`/hex-plan medium "…"` — never silently over-specify a medium change or
+`/hex-plan high "…"` — never silently over-specify a medium change or
 under-specify a large one.
 
 Required artifacts this tier:
@@ -84,7 +84,7 @@ override is honored but never silent — the announce block flags it ("high
 tier recommends a delegated architect — running inline per user flag").
 Produce an ADR and, when scope warrants, a system-design doc.
 
-Design must include everything the `medium` tier requires, plus:
+Design must include everything the `high` tier requires, plus:
 
 - **Trade-off analysis** — at least **3** options (not 2), weighted criteria,
   risks, reversibility, and a recommendation with rationale.

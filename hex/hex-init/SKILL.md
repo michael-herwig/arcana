@@ -325,12 +325,13 @@ are defined once, in
 do not restate them here. The block is the **first content** under
 `## Preferences`, prose bullets continuing below it
 ([placement](../hex-core/references/config.md#carrier-and-placement)). Use
-vocabulary v3: v1's six keys (`models`, `adversary`, `limits`,
+vocabulary v4: v1's six keys (`models`, `adversary`, `limits`,
 `perspectives`, `research-axes`, `tiers`), plus `workflows`, the fork
 pointer written into this same block by the
 [workflow-fork flow](#workflow-forks-hex-init-workflows)
 ([`config.md` § Workflows](../hex-core/references/config.md#workflows)),
-plus `review` (`adr_0016` C-990).
+plus `review` (`adr_0016` C-990); tier segments take the five-value grammar
+and `adversary` may be a list (v4, `adr_0017` C-997).
 
 Present the assembled block as one diff against the file's current state
 (one line per changed key, old → new), gated by the
@@ -399,7 +400,7 @@ this flow only creates and tracks the files, and asks through the
 [wizard](#the-wizard):
 
 1. **List** the forkable skill × tier pairs (the four orchestrators ×
-   `low`/`medium`/`high`), each with its shipped phase list and a
+   `low`/`medium`/`high`/`xhigh`/`max`), each with its shipped phase list and a
    `[forked]` marker where `workflows.<skill>.<tier>` already points at a
    file.
 2. **Fork.** On selection, copy the shipped `hex-<skill>/tier-<tier>.md`

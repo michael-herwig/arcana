@@ -46,6 +46,14 @@ user-owned config above the skill-managed sections. (C-202)
 - **v3 — v2 plus `review`**, the per-join-level review settings
   ([`loop.md` § Review by join level](loop.md#review-by-join-level),
   `adr_0015` C-985). A v2 reader treats it as unknown the same way.
+- **v4 — v3 under the five-value tier segment** (`adr_0017` C-997): the
+  `<tier>` segment of `tiers.<skill>.<tier>` and `workflows.<skill>.<tier>`
+  is `low | medium | high | xhigh | max`, and `adversary` also accepts a
+  list. **No new top-level key** — merge rule 8's enumeration is unchanged.
+  A block whose comment says `v3` or lower is read with every tier segment
+  shifted one step up (`low` → `medium`, `medium` → `high`, `high` →
+  `xhigh`), announced once at the gate, never rewritten
+  ([`protocol.md` § Tier grammar](protocol.md#tier-grammar)).
 
 The block's opening `# hex config, vocabulary vN` comment states the version
 the file was **written** against; merge rule 8's key enumeration lists the
@@ -56,7 +64,7 @@ version the **reader** implements.
 | `models.fast-balanced` | ✅ | string (literal model name) | unset → shipped class prose | Instantiates the class for this harness. |
 | `models.deep-reasoning` | ✅ | string | unset | As above. Never an orchestrator-class model (`adr_0001` C-002). |
 | `models.overrides` | ✅ | map `role[:focus]` → capability class | `{}` | Per-role class override at every tier, for every **non-review** role. A `reviewer[:focus]` entry is superseded by `review.<level>.class` for the join-level seats — review seats are configured per level, never per role. Escalation above the shipped cell still requires the announced reason ([`models.md`](models.md)). |
-| `adversary` | ✅ | string skill name, or `none` | unset → adversary contract's per-tier default | Names the cross-model adversary skill ([`adversary.md`](adversary.md#adversary-contract)). |
+| `adversary` | ✅ | string skill name, a list of skill names (v4 — every entry launches at tier `max`, the first entry only below it, `adr_0017` C-995), or `none` | unset → adversary contract's per-tier default | Names the cross-model adversary skill ([`adversary.md`](adversary.md#adversary-contract)). |
 | `limits.max-workers` | ✅ | int ≥ 1 | 8 | **A concurrency ceiling, never a floor and never a panel size.** Its enforcement (effective cap `min(8, max-workers)`, recursive count, batch-never-drop-baseline) is C-201, defined in [`protocol.md` § Worker coordination](protocol.md#worker-coordination); its ceiling is that section's 8 ([merge rule 9](#merge-rules)). This file adds only the phase ceiling that bounds preference-added spawns ([merge rule 6](#merge-rules)). |
 | `limits.loop-rounds` | ✅ | int ≥ 1 | 3 | Ceiling over every `review.<level>.rounds` **and** on `--loop-rounds`. Never raises a level's `rounds`; its own ceiling is the hard maximum 3 ([merge rule 9](#merge-rules), [`loop.md`](loop.md#the-review-fix-loop)). |
 | `limits.artifact-loop-rounds` | ✅ | int ≥ 1 | 1 | Plan/ADR-scope loop rounds. Opt-in only; `1` is shipped behaviour. **No ceiling** — the one limit a value raises, honoured as written ([`loop.md`](loop.md#the-review-fix-loop)'s explicit re-enable). |
@@ -72,7 +80,7 @@ version the **reader** implements.
 | `review.<level>.budget-minutes` | v3 | int ≥ 1 | `l1` 10, `l2` 20 | Wall-clock budget; expiry ends the loop with residue recorded, never a failure. |
 | `review.<level>.delta-only` | v3 | bool | `true` | `false` lets the seat read finding-adjacent files in full beyond the diff. Findings must still sit on a diff line. |
 | `review.<level>.checklist` | v3 | list of focus names (`spec`, `quality`, `security`, `performance`, `docs`, `architecture`, `pitfalls`, `user-feedback`) | derived from the level ([`checklist.md` § Composition](checklist.md#composition)) | Replaces the derived section set for that level's brief (`adr_0016` C-990). The only breadth knob `L1` has; at `L2` an explicit `--review` flag still wins under the ordinary later-wins precedence. |
-| `tiers.<skill>.<tier>.inherits` | ✅ | one of `low\|medium\|high` | unset | This project's `<tier>` starts from the shipped `<inherits>` baseline instead of its own. Resolved **first** ([tiers](#tiers)). |
+| `tiers.<skill>.<tier>.inherits` | ✅ | one of `low\|medium\|high\|xhigh\|max` | unset | This project's `<tier>` starts from the shipped `<inherits>` baseline instead of its own. Resolved **first** ([tiers](#tiers)). |
 | `tiers.<skill>.<tier>.counts` | ✅ | map `<Phase>.<role[:focus]>` → int ≥ 0 | `{}` | Sets the spawn count for that role in that phase, against the resolved `inherits` baseline. `0` removes the spawn. `<Phase>` is a [phase identifier](#phase-identifiers). A `Review-Fix.*` entry for `hex-execute` is superseded by `review.<level>.seats` — ignored with the merge-rule-9 warning shape. |
 | `tiers.<skill>.<tier>.overlays` | ✅ | map axis → value | `{}` | Per-project default for an overlay axis (e.g. `review: full`), below a user flag in precedence. Applied last within `tiers`. |
 | `workflows.<skill>.<tier>` | **v2** | path to a markdown file | unset | Dispatch reads this file instead of the shipped `tier-<tier>.md`. File format: [§ Workflows](#workflows). A v1 reader warns and ignores it (merge rule 8). |
@@ -101,7 +109,7 @@ map (merge rule 2).
   warned. Never a silent merge of two shapes.
 
 The `<skill>` segment is `hex-plan` / `hex-execute` / `hex-review` /
-`hex-architect`; the `<tier>` segment is `low` / `medium` / `high` (never
+`hex-architect`; the `<tier>` segment is `low` / `medium` / `high` / `xhigh` / `max` (never
 `auto` — `auto` is a classifier input, not a tier).
 
 ## Perspectives
@@ -175,8 +183,8 @@ outcome, not a warning.
 `hex.md` also declares it) is **not** applied to the inheriting tier — a
 redefinition is always one sentence: "high here = shipped medium, plus these
 deltas." `inherits` naming the declaring tier itself, or a value outside
-`low|medium|high`, is malformed (merge rule 9): ignored, warned, shipped
-baseline stands. Tier *vocabulary* stays `low|medium|high` + `auto`; only
+`low|medium|high|xhigh|max`, is malformed (merge rule 9): ignored, warned, shipped
+baseline stands. Tier *vocabulary* stays `low|medium|high|xhigh|max` + `auto`; only
 tier *content* is redefinable (C-206).
 
 ## Phase identifiers
@@ -481,7 +489,7 @@ implements.
 ## Preferences
 
 ```yaml
-# hex config, vocabulary v3. Unknown keys warn once and are ignored.
+# hex config, vocabulary v4. Unknown keys warn once and are ignored.
 # (v1 = these keys minus `workflows` and `review`; see Key vocabulary.)
 models:
   fast-balanced: <this harness's fast-balanced model>

@@ -21,7 +21,7 @@ every other file links here.** Diff-scoped, bounded, tier-scaled.
    WP's `Verify` cell, which budgets the merge boundary only — that WP's
    Review-Fix-Loop exit gate and the merge that immediately follows it
    ([Parallel-by-default decomposition](decompose.md#parallel-by-default-decomposition)).
-   **The backstop is stated:** tier `high` thereby gives up its pre-merge
+   **The backstop is stated:** tier `xhigh` (and `max`) thereby gives up its pre-merge
    proof over untouched modules, and what catches a defect in a module no WP
    touched is [merge rule](worktree.md#worktree-work-package-mechanics) trigger (ii), a
    [checkpoint](verify.md#checkpoints) — `M = 3` merges, a cleared dependency level,
@@ -39,8 +39,8 @@ every other file links here.** Diff-scoped, bounded, tier-scaled.
    exist there and a WP under one pays this gate in full.
 4. **Review-Fix** — the loop below.
 
-**The collapse at effective tier `low`.** The four-phase list above is the
-shape at effective `medium` and `high`; at effective tier `low`, Stub +
+**The collapse at effective tier `medium`.** The four-phase list above is the
+shape at effective `high` and above; at effective tier `medium`, Stub +
 Specify + Implement collapse into one builder spawn ([the effective
 tier](decompose.md#the-effective-tier)). One builder writes the public surface, then the
 failing tests, then the implementation, in a single turn, and
@@ -71,7 +71,7 @@ resolution**: the collapsed spawn resolves all three source cells
 the lowest, disclosed like any other override-driven raise
 ([`models.md`](models.md#rules)).
 
-At effective `medium` and `high` the four-phase list is unchanged in every
+At effective `high` and above the four-phase list is unchanged in every
 byte.
 
 **The loop:**
@@ -190,7 +190,7 @@ already ran its own `L2` takes that verdict as input and does not re-run
   out of scope and dropped, not deferred. One round: actionable findings
   get one `builder` fix pass, re-verified by the WP's resolved
   verification, and the loop ends. The Verify-Architecture reviewer at
-  effective `medium`/`high` is untouched — it is a phase gate, not a join.
+  effective `high` and above is untouched — it is a phase gate, not a join.
 - **`L2`** — fires when a coordinator, the orchestrator, or any
   sub-orchestrator between them joins **two or more** leaves whose `L1`
   passed. One deep-reasoning seat reads the aggregate diff of the join
@@ -348,8 +348,8 @@ applied. Severity is orthogonal to the actionable/deferred class
 ([Finding severity](severity.md#finding-severity)), so the stop names both axes or it
 counts a naming nit against a data-loss bug. `Warn` and `Suggest` are
 excluded: a round that converts one `Block` into three `Warn`s has
-converged, and a count blind to that would call it oscillation. **At tier
-low the severity ladder is not applied** and the tag is absent, so `A(N)`
+converged, and a count blind to that would call it oscillation. **Below tier
+`high` the severity ladder is not applied** and the tag is absent, so `A(N)`
 there counts all actionable findings — the same degrade every other
 severity consumer takes. **The stop fires when both hold:**
 `A(N) ≥ A(N−1)` for `N ≥ 2` — the `Block`/`High` count did not **strictly**

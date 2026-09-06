@@ -13,6 +13,13 @@ points at an adversary skill from another.
   `plan-artifact` (a markdown plan or ADR file).
 - **One-shot — never loops.** Two-family stylistic thrash is the failure
   mode it exists to avoid.
+- **`adversary` may name a list** (`config.md` v4, `adr_0017` C-995). At
+  tier `max` **every** listed skill launches in the same batch under the
+  concurrent-launch bullet below, and their findings are union-triaged
+  with the same duplicate merge; below `max` only the first entry runs.
+  One configured entry at `max` runs it and announces
+  `max: 1 adversary configured`. Each listed skill resolves its own
+  observation mode and bound; the join waits for all of them.
 - **Concurrent launch — a member of the join's batch, never a serial tail**
   (`adr_0016` C-987). When the axis is on, the adversary is launched **in
   the same batch as the native seat of the join it gates**: the `L2`
@@ -156,7 +163,7 @@ points at an adversary skill from another.
   read it there rather than guessing at one here. In **both** cases log
   "Cross-model review skipped: `<reason>`", carrying the reason the skill
   itself gave, and continue — it is a gate, not a blocker. The skip is
-  surfaced **prominently at tier `high`**, where the adversary pass is a
+  surfaced **prominently at tier `xhigh` and `max`**, where the adversary pass is a
   default part of the flow.
 - **Reason attribution — orthogonal under (a) and (b), a disclosed race
   under (c).** The skip-line grammar above is unchanged, and in every mode an
