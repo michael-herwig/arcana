@@ -61,7 +61,7 @@ grim add ghcr.io/michael-herwig/arcana/nox
 
 One skill, `nox-review`, plus the zero-dependency Python zipapp it shells
 to; scopes are `code-diff` and `plan-artifact`, so it satisfies hex's
-[adversary contract](hex/hex-core/references/protocol.md#adversary-contract)
+[adversary contract](hex/hex-core/references/adversary.md#adversary-contract)
 as `/hex-review`'s cross-model gate. Findings come back as prose, stamped
 untrusted, under a `containment:` line saying what the run actually
 established rather than what it assumed. Details in

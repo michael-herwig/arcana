@@ -118,7 +118,7 @@ migration plan is present, and the contracts are testable.
 
 ## Phase 5: Review (adversarial design panel + mandatory cross-model)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 on the design artifact — **plan-artifact scope: one panel round**; fix
 application, conditional re-validation, and escalation follow the
 canonical loop's artifact-scope rule, never restated here.
@@ -144,7 +144,7 @@ the panel converges, run the configured adversary skill once in
 One-shot, no loop; 4-way triage (actionable / deferred / stated-convention /
 trivia); actionable fixes re-validated by a single `reviewer` (focus `spec`)
 pass
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 If the adversary produces no review — the skill is unavailable, or it ran and
 did not complete one — log
 `Cross-model design review skipped: <reason>` and continue — but **surface

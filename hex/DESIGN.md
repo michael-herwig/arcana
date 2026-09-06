@@ -201,7 +201,7 @@ announcement always shows the resolved set with per-item source
   gitGraph rejected — brittle syntax, silent render failures); plan
   stays fully actionable from the table alone.
 
-**Erratum pointer (2026-08-30):** round 12 (§ Execution-performance round, below) amends this section by pointer, bytes intact: it supersedes round 4's "verification after every merge" (`:172`) — the per-merge default is now the scoped check, with full verification at the checkpoints round 12 names — and retro-claims the 2026-07-20 Review-budget addendum (`:187-189`) under C-905, semantics unchanged, joined by a `Verify` sibling.
+**Erratum pointer (2026-08-30):** round 12 (§ Execution-performance round, below) amends this section by pointer, bytes intact: it supersedes round 4's "verification after every merge" (`:172`) — the per-merge default is now the scoped check, with full verification at the checkpoints round 12 names — and retro-claims the 2026-07-20 Review-budget addendum (`:187-189`) under C-905, semantics unchanged, joined by a `Verify` sibling; and (2026-09-06) round 17 (§ Per-WP effective-tier round, below) supersedes that same addendum's "lower-only vs the tier baseline, missing = panel" (`:188`) — in a plan carrying the `- Effective-tier: derived` marker the per-WP `Review` budget is raise-only against an effective tier each work package derives, the plan tier is a ceiling rather than the baseline, `self` / `light` are inert, and a missing column or blank `Review` cell reads that derived breadth, not `panel`.
 
 ### Staleness (how memory stays true)
 
@@ -411,6 +411,21 @@ above) is **honoured, not deviated**: the `Preferences` block is bounded
 by the frozen vocabulary, and the one thing that would genuinely bloat
 the file — workflow DAGs — lives in its own file behind a one-line
 pointer, exactly as the rule prescribes.
+
+**Erratum (2026-09-05, review):** `adr_0003`'s frozen v1 vocabulary types
+`limits.loop-rounds` as `int 1–3`. What ships is `int ≥ 1`, the tier
+default standing as the key's ceiling: a higher value clamps and announces
+under merge rule 9 rather than being rejected as malformed, so the `Type`
+column no longer restates a bound the ceiling owns. The vocabulary is not
+reopened — no key is added, renamed or given new meaning. The ADR is frozen
+and stays as written; the live type is
+[`config.md` § Key vocabulary](hex-core/references/config.md#key-vocabulary).
+That record's rendered gate block is superseded too: it prints `Limits:
+max-workers 6 (hex.md), loop-rounds 3 (tier baseline)`, where the shipped
+`<name>` derivation — the leaf key with `limits.` dropped, hyphens read as
+spaces, `max-workers` shortening to `workers` — renders `workers 6` and
+`loop rounds 3`
+([`protocol.md` § The meta-plan approval gate](hex-core/references/protocol.md#the-meta-plan-approval-gate)).
 
 ## Archive & fold-back round (2026-07-22, round 7)
 
@@ -980,6 +995,8 @@ no tier file gains a rule; two take a one-clause qualifier and the rest
 are untouched. **`config.md` gains no key** and its `<skill>` enumeration
 is not reopened.
 
+**Erratum pointer (2026-09-05):** round 14 (§ Execution-performance quick-wins round, below) amends this round by pointer, bytes intact: amendment 2's `Verify` cell now sets the Review-Fix-Loop exit gate that immediately precedes the merge it already governs as well (`adr_0010` C-905 → C-924), the Implement-phase gate amendment 1's contract declared unchanged becomes the scoped check at every tier (`adr_0010` C-901 → C-925), and the closing "`config.md` gains no key" audit clause is superseded by C-921's additive `limits.adversary-timeout` — true as of this round's date, and left as written. Amendment 1's final-gate clause is unchanged and is preserved verbatim by C-926.
+
 ## Adversary no-review round (2026-09-04, round 13)
 
 `adr_0011` (nox — multi-harness adversarial review) amends **one position
@@ -1067,3 +1084,1066 @@ contract change became a ten-file diff. Recorded as a known cost, not
 repaired here — the repair is for `protocol.md` to own the sentence and
 the tier files to link it, which is a `hex/` change outside `adr_0011`'s
 scope. **`config.md` gains no key.**
+
+## Execution-performance quick-wins round (2026-09-05, round 14)
+
+The Wave 0 quick-wins plan
+(`.agents/plans/plan_wave0_quick_wins.md`) amends **three positions
+recorded above** — two of round 12's and the standing frozen-vocabulary
+audit clause — and lands **one repair round 13 prescribed**. There is no
+ADR: every item amends a decision `adr_0010` or `adr_0003` already
+adjudicated, none opens a new door, and the plan's own
+§ Constitution Deviations carries the full adjudication. All three
+amendments supersede **by pointer**: round 12's text is left as written
+and its region gains one erratum pointer, per round 11's convention, and
+the `config.md` gains no key clause — stated across rounds 9 through
+13, grounded in round 6's frozen v1 vocabulary — is amended here rather
+than at each of those five sites, each of which is true as of its own
+date and stays as written. The wall-clock cost this round exists to cut
+is measured in
+`.agents/research/rca-review-fix-loop-wall-clock.md`.
+
+1. **The `Verify` cell's reach widens by exactly one adjacent gate.**
+   Round 12's amendment 2 shipped the budget-column family, whose
+   `Verify` member "sets the WP's **merge gate** (C-901) and nothing
+   else" (`adr_0010` C-905, shipped in `protocol.md` § Parallel-by-default
+   decomposition). C-924 replaces "and nothing else" with **one
+   verification budget for one merge boundary**: the cell sets that WP's
+   merge gate **and the Review-Fix-Loop exit gate that immediately
+   precedes it**, and nothing beyond those two. The superseded clause was
+   written when the merge gate was the only scoped-check site; running the
+   project's full documented verification at the loop exit and then a
+   scoped check at the merge moments later is incoherent, and that pair is
+   exactly where the RCA measures the cost. **What round 12 actually
+   defends is preserved verbatim** — "the final gate is unchanged,
+   mandatory, and un-lowerable by any per-WP budget" — because C-926
+   separates two gates that clause was being read across: the loop's exit
+   gate fires **once per work package, in that WP's own worktree, before
+   merge**, while the plan's terminal verification is a separate gate,
+   mandatory, un-lowerable, and reached by every run that completes. No
+   budget cell can lower it, and none could before. Rejected alternative:
+   **coupling the Implement-phase gate to the same cell**, which makes a
+   `Verify: full` work package pay three full documented runs for one WP —
+   Implement, loop exit, merge — where the one at the merge boundary is
+   the check that matters; the Implement gate is deliberately left
+   uncoupled (item 2), which is what holds this amendment to one adjacent
+   gate rather than two. Also rejected: **a second per-WP verification
+   column** for the loop gate, which would reopen the live *Plan
+   visualization* column lock a fourth time for no gain in expressiveness,
+   and **inferring the budget from WP size**, which round 12 already
+   settled — inference "drops the author-judgment cases the predicate
+   cannot see". **The sole definition site is `protocol.md`
+   § Parallel-by-default decomposition** (the cell's grammar and its two
+   gates), with § Verification › Scoped check enumerating the sites that
+   run the check; the `hex-execute` tier files **link** both and restate
+   neither (C-927), and every site whose sentence stays true is untouched.
+
+2. **The Implement-phase gate becomes the scoped check, unconditionally
+   at every tier.** `adr_0010` C-901 states "**The Implement-phase
+   verification is not this gate and does not change**", and grounds it in
+   `protocol.md` § The Review-Fix Loop phase 3 "already reads *for changed
+   files*". C-925 changes it: phase 3 runs the **scoped check** — the WP's
+   own contract tests plus the project's cheapest documented assembly gate
+   — at every tier, replacing all three shipped phrasings ("for changed
+   files", "each work package's changed files", "across the whole
+   workspace") with one vocabulary. **The reason C-901 gave is preserved
+   and sharpened, not discarded**: "for changed files" was the scoped idea
+   without a name, and naming it retires two competing phrasings rather
+   than adding a fourth. The superseded sentence is a scope statement
+   about `adr_0010`'s own delta — what that ADR did not touch — never a
+   policy that the Implement gate must stay as it was. The
+   leaf-under-coordinator compile-only carve-out is unchanged. **What tier
+   `high` gives up is stated, and its backstop is named rather than
+   assumed**: it loses its only pre-merge whole-workspace proof, and what
+   catches a defect in a module no work package touched is checkpoint
+   trigger (ii) — `M = 3` merges, a cleared dependency level, or a
+   high-risk merge, whichever fires first — with `adr_0010` C-904's
+   bounded bisection attributing the failure across at most three merges,
+   trigger (i) at a coordinator join, and the terminal final gate.
+   Rejected alternative: **keeping the tier-conditional Implement gate**
+   (whole workspace at `high`, changed files below), which pays the full
+   workspace at the phase that repeats most often in a run and is the
+   three-phrasing drift the rewrite exists to end. Also rejected:
+   **making the Implement gate follow the `Verify` cell**, item 1's
+   rejected coupling, for the same arithmetic. **The sole definition
+   site is `protocol.md` § Verification › Scoped check**, which now
+   enumerates its three gate sites; § The Review-Fix Loop phase 3 links
+   it, and the three `hex-execute` tier files link rather than restate
+   (C-927).
+
+3. **The frozen six-key config vocabulary admits one additive key:
+   `limits.adversary-timeout`.** `adr_0003` C-203 owns the key vocabulary
+   and C-223 froze its v1 at six top-level keys at the first
+   `grim release`, and five rounds above state "`config.md` gains no
+   key". C-921 adds
+   `limits.adversary-timeout` — integer minutes ≥ 1, default per liveness
+   class (`semantic` 2, `byte_activity` 5), **ceiling semantics like every
+   other limit** (a project value below the resolved class default lowers
+   the window; above it clamps to that default and the clamp prints on the
+   gate's `Limits:` line) — carrying the stall bound C-920 states in
+   § Adversary contract. **The freeze's stated harm is renaming** —
+   "renaming a frozen key is a silent no-op in every consumer `hex.md`" —
+   and this is **additive under an existing frozen top-level key**,
+   neither a rename nor a seventh key: a reader predating it meets an
+   unknown key under `limits` and degrades correctly by merge rule 8
+   (warn once, ignore, continue) to the resolved liveness-class default, so
+   no consumer `hex.md` breaks and **`config.md`'s
+   `# hex config, vocabulary vN` comment is unchanged**. Rejected
+   alternative: **a fixed bound with no escape**, which leaves a project
+   whose adversary is genuinely slow — a large diff, a cold harness, a
+   rate-limited account — no way out except unpinning the skill, turning a
+   tunable into an abandonment. Also rejected: **Preferences prose**, the
+   carrier C-918 chose for `M = 3`: that posture fits a shipped constant no
+   project is expected to vary, while a stall window against a
+   third-party harness is precisely the value that varies by project and
+   machine. And **a new top-level key**, which would bump the vocabulary
+   version for a value that already has a home. **The sole definition
+   site is `config.md` § Key vocabulary**; `memory.md`'s Preferences row
+   enumerates it, and the bound itself is defined once in `protocol.md`
+   § Adversary contract, which every tier file links and none restates
+   (C-923).
+
+**Round 13's prescribed repair, landed — not a fourth deviation.** Round
+13 recorded the single-source rule as "upheld in shape and weakened in
+practice" and named the repair: "for `protocol.md` to own the sentence and
+the tier files to link it". C-928 does exactly that for the review-budget
+guard, and states it in **both directions** with the WP's declared
+`Expected Files` set as the discriminator in each: **upward** — `self` or
+`light` on a security-sensitive, hot-path, large or cross-area WP is a
+plan defect, unchanged in substance — and **downward** — `panel` on a size
+S or M, single-area WP whose file set carries no security-sensitive and no
+hot-path file is equally a plan defect. Both are raised as actionable
+findings at the Decompose gate, never at merge time, where the existing
+budget re-validation only escalates a budget the actual diff outgrew.
+**This is not a fourth deviation from a locked position**: the `Review`
+column is still lower-only against the tier's panel baseline and the
+direction rule is untouched — what is new is that *leaving* the baseline
+where the file set does not warrant it is now nameable, which the
+2026-07-20 perf pass already implied in shipping review breadth that
+"scales with WP size, not plan tier alone" and never wrote down. The three
+`hex-plan` tier files' two byte-identical restatements and tier-low's
+narrower one-direction sentence are deleted in favour of a link (C-929),
+and the same discipline lands for the adversary bound (C-923) and the two
+verification gates (C-927).
+
+**Considered and not deviated** (unchanged by this round): the **single
+approval gate** — its count and its position are untouched; nothing here
+asks the user anything, and the budget histogram prints inside gates that
+already exist. **Capability classes** — vacuously upheld: no spawn, no
+role, no `models.md` row, and no shipped file this round touches names a
+literal model or a harness tool; the stall bound is stated in minutes
+against the *pluggable* adversary skill named in `hex.md › Preferences`,
+never against a named harness, and the reason vocabulary stays the
+skill's own. **The two-layer knowledge model** — untouched:
+`limits.adversary-timeout` bounds hex's own waiting, which is Layer-0
+protocol and not a project fact, and the budget guard's discriminator is
+the plan's own `Expected Files` cell rather than anything hex authors
+about the project. **`hex never pushes` / `hex never commits` outside
+execution** — untouched; round 10's scoping stands as written. **The
+depth-1 coordinator invariant and one-hop spawn** (`adr_0010` C-914) —
+vacuously upheld: no new role, no recursion ≥ 2, no per-coordinator state;
+the brief-excerpt rule constrains what a leaf is *handed*, never who may
+spawn it. **`adr_0004`'s federation contracts** are unchanged: per-repo
+verification (C-321) and global merge serialization (C-306) apply to the
+scoped check verbatim at both of its new in-worktree sites. **`adr_0005`'s
+fold path** — untouched: `hex-review` still writes only the Status block,
+the convergence check, and — on an approved converged fold — the spec file
+and receipt; C-401, C-410 and C-412 are unchanged. **The *Plan
+visualization* lock** — not reopened: no column is added, renamed or
+moved, and the canonical enumeration is byte-identical. Only the `Verify`
+**cell's** reach widens (item 1), which is why this round is not a fifth
+amendment to that lock. **The adversary contract's graceful skip** —
+unchanged as round 13 left it: the stall bound adds a new *cause*
+routed into the existing skip rather than a second skip path, an empty
+finding list is still never a clean pass, and C-922 keeps the passthrough
+rule intact — a skill that names its own outcome is logged with the
+skill's word, and `deadline` is written only where hex saw the stall window
+pass with no progress signal.
+
+**Touched, and recorded above** — five positions, and the direction each
+moves: the `Verify` cell's merge-gate scope (item 1) and the
+Implement-phase gate (item 2), both amendments to `adr_0010`; the frozen
+config vocabulary (item 3), amended additively; and the
+parallel-by-default lock's budget guard together with the **single-source
+rule** (the repair paragraph), the one pair this round moves *toward*
+rather than away from — three restatement families become links, no tier
+file gains a rule, and round 13's recorded cost is paid down rather than
+merely noted again.
+
+**Erratum pointer (2026-09-05):** round 15 (§ Adversary liveness round,
+below) amends this round by pointer, bytes intact: C-921's per-class
+default enumeration ("`semantic` 2, `byte_activity` 5") is widened to three
+classes with `process_only` — the default and fail-safe class — taking a
+**20-minute total wall-clock backstop** the same key governs, and the
+*Considered and not deviated* clause scoping `deadline` to "where hex saw
+the stall window pass with no progress signal" is widened to whichever
+bound the resolved class takes. Both are true as of this round's date and
+are left as written; C-923's single-source rule for the bound is unchanged,
+and this round's ceiling semantics and additive-key adjudication carry over
+verbatim.
+
+## Adversary liveness round (2026-09-05, round 15)
+
+The Wave 0 quick-wins plan's WP 17 amends **one position recorded above** —
+round 14's C-921 and the `deadline` scoping that accompanies it. There is
+no ADR: the change repairs C-920 / C-922 against a capability hex does not
+have, inside a contract `adr_0003` and `adr_0010` already adjudicated, and
+opens no new door. Like round 13, the change was **already shipped** by WP
+17 and is recorded here retroactively; the amendment supersedes **by
+pointer** — round 14's text is left as written and its region gains one
+erratum pointer.
+
+1. **`process_only` is the default class, and it takes a backstop, not a
+   stall window.** Round 14 enumerated two classes and was silent on a
+   third, which the contract it recorded held outside the key as a fixed
+   15-minute fallback. What ships is three classes — `semantic` (2 min
+   stall window), `byte_activity` (5 min stall window), `process_only`
+   (**no stall window; a 20-minute total wall clock over the whole call**)
+   — and **`limits.adversary-timeout` governs whichever bound the resolved
+   class takes, `process_only` included**, under the same ceiling semantics
+   round 14 adjudicated. The superseded shape was written on the assumption
+   that hex could observe an adversary's progress. It cannot: an adversary
+   is a pluggable external skill, not a hex worker; it writes no heartbeat,
+   and a one-shot skill call returns once, so between the call and the
+   return there is nothing to poll. **A class above `process_only`
+   therefore resolves only where the skill's own docs or outcome vocabulary
+   name *both* the class and the progress surface hex reads to observe it;
+   absent either it is `process_only`** — a bare class claim with no named
+   surface would have hex counting silence it cannot hear. `adr_0013`
+   (execution runtime contracts, **Proposed**) § A. The liveness contract
+   weighed reading a child's output stream and demoted it; its heartbeat
+   contract governs hex's **own** workers and this is the external-skill
+   case it cannot reach. The accepted cost is stated: a truly hung
+   adversary is abandoned at the backstop rather than at a stall window.
+   **No shipped file classifies any adversary skill by name** — the class
+   is resolved per run from the pinned skill's own docs, never asserted
+   about it in hex's text.
+
+2. **`deadline` follows the bound, and `process_only` is a disclosed
+   race.** Round 14 recorded `deadline` as written "only where hex saw the
+   stall window pass with no progress signal". It is written on the elapse
+   of **whichever bound the class resolved to** — stall window or backstop.
+   C-922's passthrough rule is otherwise intact: a skill that names its own
+   outcome is logged with the skill's word, and neither bound launders the
+   other **where hex has a stall window**. `process_only` is the **one
+   disclosed exception**: with no progress signal its backstop measures the
+   same quantity a skill's own timeout measures, so the two genuinely race,
+   and a `deadline` logged under that class asserts only that **hex stopped
+   waiting** — never that the adversary failed, timed out, or found
+   nothing. Naming the exception is the deviation-free move; pretending to
+   orthogonality hex cannot deliver is not.
+
+**Announce site.** The `process_only` backstop is a total wall clock rather
+than a stall bound, so it is **disclosed on the gate's `Limits:` line even
+at its shipped default** — the third trigger for that line, alongside a
+stored `hex.md` limit and a batched phase. The **single approval gate** is
+untouched in count and position: the disclosure prints inside a gate that
+already exists.
+
+**Considered and not deviated** (unchanged by this round): **capability
+classes** — vacuously upheld; the bound is stated in minutes against the
+*pluggable* adversary skill named in `hex.md › Preferences`, never against
+a named harness, and the reason vocabulary stays the skill's own. **The
+two-layer knowledge model** — untouched: the bound governs hex's own
+waiting, Layer-0 protocol, not a project fact. **The frozen config
+vocabulary** — not reopened: no key is added, renamed or retyped;
+`limits.adversary-timeout` gains a third class default under the meaning
+round 14 already adjudicated. **Single-source contracts (C-923)** — upheld
+and relied on: `protocol.md` § Adversary contract stays the sole definition
+site, and `config.md`, `memory.md` and every tier file link rather than
+restate. **The adversary contract's graceful skip** — unchanged as round 13
+left it: the backstop routes a new *cause* into the existing skip rather
+than adding a second skip path, and an empty finding list is still never a
+clean pass. **`hex never pushes` / `hex never commits` outside execution**
+and **`adr_0004`'s federation contracts** — untouched.
+
+**Touched, and recorded above** — one position: round 14's C-921 per-class
+default and the `deadline` scoping beside it, both widened rather than
+reversed. The direction is *toward* the single-source rule, not away from
+it: the classes, their defaults, how a class resolves and the `deadline`
+condition all live at one site, and the record catch-up this round
+necessitates is the removal of the restatements that had drifted.
+
+**Erratum pointer (2026-09-05):** round 16 (§ Adversary observation-mode
+round, below) amends this round by pointer, bytes intact: the *liveness
+class* this round made the carrier of the bound is replaced by the
+**observation mode of the call**. Item 1's three-class enumeration and its
+`process_only` total wall clock become (a) skill-enforced, (b) pollable
+background and (c) foreground blocking, whose fixed 15-minute backstop sits
+**outside** `limits.adversary-timeout` — the key narrows to (b)'s stall
+window, measured from last output growth rather than from invocation. Item
+2's disclosed race is rescoped from a class to mode (c), and the *Announce
+site* paragraph's `Limits:`-line disclosure becomes a `Degraded:` line.
+Round 15's rule that **no shipped file classifies any adversary skill by
+name** narrows to what it was defending — a *liveness class* asserted about
+a skill's internals. Naming a skill to illustrate how hex *invokes* it
+falls outside that rule, which is why round 16's contract may say
+`codex:rescue`
+is mode (c) as a foreground subagent and mode (b) when the orchestrator
+backgrounds it. Both are true as of this round's date and are left as
+written; C-923's single-source rule and round 14's ceiling semantics carry
+over verbatim.
+
+## Adversary observation-mode round (2026-09-05, round 16)
+
+The Wave 0 quick-wins plan's WP 17b amends **one position recorded
+above** — round 15's item 1, the `deadline` scoping in its item 2 and its
+*Announce site* paragraph — on an owner override of round 15's concession.
+There is no ADR: the change repairs C-920 / C-921 / C-922 inside a contract
+`adr_0003` and `adr_0010` already adjudicated, opens no new door, and moves
+no gate. The amendment supersedes
+**by pointer**, per round 11's convention: round 15's text is left as
+written and its region gains one erratum pointer.
+
+1. **The bound comes from the adversary's own published contract where it
+   states one, and otherwise from how hex invoked the call — never from a
+   class the skill claims.** Round 15 conceded that hex can observe nothing
+   between call and return and therefore made `process_only` the default
+   with a 20-minute total wall clock the key governed. The concession is
+   too broad: it is true of a *blocking* call and false of a background
+   one. What ships is three observation modes, resolved per run — **(a)
+   skill-enforced**, where the skill runs under its own liveness policy and
+   reports the outcome (`nox-review`'s published contract bounds a review
+   at 900 s of wall clock and 120 s of silence and reports `reason:
+   timed_out`), so hex trusts that verdict and keeps only the same fixed
+   15-minute backstop, **started by the elapse of the skill's own published
+   bound rather than at invocation**, against a skill *process* that never
+   returned after that bound should have fired; **(b) pollable
+   background**, where the call runs as a background task whose output the
+   orchestrator reads
+   without blocking, so hex observes `byte_activity` and the stall window
+   runs from the **last output growth, never from invocation**; and **(c)
+   foreground blocking**, where silence genuinely is unobservable, so a
+   fixed **15-minute** wall clock stands in and the contract tells the
+   orchestrator to prefer (b) wherever the harness offers it. **The rule is
+   a stall bound wherever silence is observable, and a total wall clock
+   only where it is not.** Rejected alternative: **keeping round 15's
+   single `process_only` default**, which prices every adversary at the
+   worst harness hex might be running on and makes the pollable case pay
+   for the blocking one. Also rejected: **a per-skill class table in
+   shipped text**, which round 15 removed for good reason — a mode is
+   a property of the *call*, which hex knows, so classifying `codex:rescue`
+   as (c) today, or (b) when the orchestrator backgrounds it, asserts
+   nothing about the skill's internals. Also rejected: **running (a)'s
+   backstop from invocation**, which is what "never double-count" cannot
+   survive — a skill whose own wall clock is 15 minutes, or any project that
+   raises it, would have hex stop waiting at or before the skill's own bound
+   and write `deadline` over the verdict the skill was about to report,
+   which is the laundering this round exists to prevent. Starting hex's
+   clock at that bound's elapse makes the backstop reach only a process that
+   never returned when it should have. **The sole definition site is
+   `protocol.md` § Adversary contract** (C-923 unchanged); every tier file
+   and reference links it and restates none of it.
+
+2. **`limits.adversary-timeout` narrows to the mode-(b) stall window.**
+   Round 14 gave the key two per-class defaults and round 15 widened it to
+   govern "whichever bound the resolved class takes, `process_only`
+   included". C-921 now scopes it to one thing — the stall window hex
+   measures over a pollable background call, default **5** — and states
+   that mode (c)'s backstop is **fixed and not this key**, because there is
+   nothing to observe and therefore nothing to tune. **The frozen config
+   vocabulary is not reopened**: no key is added, renamed or retyped, and
+   round 14's ceiling semantics and additive-key adjudication carry over
+   verbatim — a value below 5 lowers the window, a value above it clamps,
+   and the clamp prints under the existing clamp grammar. Rejected
+   alternative: **a second key for the (c) backstop**, which would be a
+   knob over an unobservable quantity and would bump the vocabulary for a
+   value no project can usefully vary.
+
+3. **`deadline` follows the mode, and only mode (c) is the disclosed
+   race.** Round 15 scoped orthogonality to "where hex has a stall window"
+   and named `process_only` the exception. Under the modes: **(a)** hex
+   defers to the skill's verdict outright and writes no `deadline` for a
+   call the skill's own bound reached, hex's clock not starting until that
+   bound has elapsed unheard; **(b)** is genuinely orthogonal — a
+   skill's own `timed_out` bounds its run from the inside, hex's `deadline`
+   is silence hex *actually observed* over the output, so neither launders
+   the other; **(c)** is the race — with no observable output the backstop
+   measures the same quantity a skill's own timeout would, so a `deadline`
+   logged there asserts only that **hex stopped waiting**, never that the
+   adversary failed, timed out, or found nothing. C-922's passthrough rule
+   is otherwise intact: an outcome the skill reported is logged with the
+   skill's own word in every mode.
+
+**Announce site.** Round 15 disclosed the backstop on the gate's `Limits:`
+line as that line's third trigger. It is a degrade, not a limit, so it
+moves to a **`Degraded:` line** — `Degraded: blocking adversary call — no
+pollable output; process_only backstop 15 min` — under the rule already
+shipped for every other gated capability: one line per degraded axis, and
+they stack. The `Limits:` line returns to its two triggers, and its
+closed attribution-source list drops the `shipped default` entry added
+solely for the withdrawn item. The **single approval gate** is untouched in
+count and position: the disclosure prints inside a gate that already
+exists, and no new mechanism is introduced.
+
+**Considered and not deviated** (unchanged by this round): **capability
+classes** — upheld and, on the narrow reading, strengthened: the modes are
+capability classes of the *call* (blocking versus pollable background),
+never harness primitive names, and `codex:rescue` appears only as an
+example of how hex invokes a skill, with both readings stated. Round 15's
+**no shipped file classifies any adversary skill by name** is upheld for
+`nox-review` too: the shipped contract cites its published § How long a
+review takes and states none of its figures, so no shipped file asserts
+that skill's internals or pins a number a project can retune. The figures
+appear in this record and in the plan, dated, which is what a record does. **The
+two-layer knowledge model** — untouched: the bound governs hex's own
+waiting, Layer-0 protocol, not a project fact. **Single-source contracts
+(C-923)** — upheld and relied on: `protocol.md` § Adversary contract stays
+the sole definition site; `config.md`, `memory.md`, the four `overlays.md`
+enumerations and every tier file link or name rather than restate, and the
+overlay enumerations gain the second bound's *name* and no substance.
+**The adversary contract's graceful skip** — unchanged as round 13 left
+it: both kinds of bound route the same cause into the existing skip, and
+an empty finding list is still never a clean pass. **The frozen config
+vocabulary** — not reopened (item 2). **`hex never pushes` / `hex never
+commits` outside execution** and **`adr_0004`'s federation contracts** —
+untouched.
+
+**Touched, and recorded above** — one position: round 15's item 1, the
+`deadline` scoping beside it and its *Announce site* paragraph, narrowed
+rather than reversed. The direction
+is *toward* honesty about what hex can see: round 15 removed a claim hex
+could not support, and this round removes the over-correction it left —
+a total wall clock applied where silence is in fact observable.
+
+**Erratum (2026-09-05, review):** this round's item 1 states mode (a)'s and
+mode (c)'s fixed 15-minute backstop unconditionally; item 2 and the
+*Announce site* paragraph carry that framing forward, as does round 15's
+erratum pointer above. The backstop binds only where the invocation itself
+carries a **settable timeout** — a spawn hex handed a deadline it can
+enforce. Where the spawn carries none, hex regains control only when the
+call returns and the backstop is **nominal**: a bound hex documents but
+cannot enforce. This is a consequence of the round's own *terminates
+nothing* position rather than a new one, and it narrows the worked example
+rather than the rule — `codex:rescue` as a foreground subagent is mode (c)
+*and* the nominal case. The accepted cost is stated: an adversary that
+hangs under such a call blocks the run until it returns. Corrected here
+once rather than at each of the four sites above, each true as of its own
+date and left as written; the shipped condition and its render live at
+[`protocol.md` § Adversary contract](hex-core/references/adversary.md#adversary-contract).
+
+## Per-WP effective-tier round (2026-09-06, round 17)
+
+`adr_0012` (the per-WP effective tier — plan tier becomes a ceiling, each
+work package derives its own) makes **four amendments — items 1, 2, 4 and
+5 below**: **one position in § Worktrees**, **one canonical phase list in
+`protocol.md`**, **one presence-checks-not-a-version-field rule in
+`protocol.md`**, and **the thin-dispatcher / sole-definition rule as it
+applies to `hex-execute`'s three tier files** (`adr_0010` C-916's *"No tier
+file gains a rule"*). It **adds one new binding rule — item 3 — which
+amends no existing position above**: the mandatory ceiling-tier branch
+review as a precondition on the terminal review state. And it explicitly
+**declines to amend two further positions** — the *Plan visualization*
+lock, and `protocol.md`'s *"and nothing beyond those two"* on the `Verify`
+cell. The § Worktrees amendment supersedes **by pointer**: the 2026-07-20
+perf-pass addendum's bytes are left as written and the `### Worktrees`
+region's existing erratum pointer gains one clause, per round 11's
+convention and following the precedent that **round 12 already superseded
+that same addendum by pointer** when it retro-claimed the Review budget
+under `adr_0010` C-905. Full adjudication and the scored five-option
+comparison: `adr_0012` § Considered Options.
+
+1. **The per-WP Review budget's direction flips, and the plan tier becomes
+   a ceiling rather than a baseline.** The 2026-07-20 addendum above added
+   *"a per-WP Review budget (`self | light | panel`, **lower-only vs the
+   tier baseline, missing = panel**) — review breadth now scales with WP
+   size, not plan tier alone."* Its stated intent stands and is what this
+   amendment completes; its mechanism does not. **Each work package now
+   resolves an *effective tier* — derived from its declared size class, a
+   closed set of four risk flags, and nothing else; never authored, never
+   above the plan's tier — and the effective tier, not the plan tier,
+   drives four axes: which phases run, which `models.md` cell each
+   WP-scoped spawn reads, review breadth, and the loop-round cap.** The
+   `Review` column survives with its **direction flipped**: `adr_0010`
+   C-905's invariant — *a column whose baseline is the maximum may only
+   lower; a column whose baseline is the minimum may only raise* — is
+   **preserved by the flip, not broken by it**, because the derivation
+   moved `Review`'s baseline off the maximum. `Review` is now raise-only
+   against the derived breadth, capped at the ceiling; `panel` raises the
+   WP to the ceiling and is the one explicit escape hatch; `self` and
+   `light` are inert in a plan carrying the generation marker. **A risk
+   flag whose source is absent, unreadable, or malformed reads `true`,
+   never `false`** — fail-closed, on the AWS-IAM-implicit-deny /
+   SELinux-enforcing precedent, and against GitHub CODEOWNERS' silent
+   fail-open, which is the exact failure this forecloses. **`sec`
+   additionally reads hex's own shipped triggers** — the `classify.md`
+   structural markers for auth/crypto/signing paths, dependency manifests
+   and CI workflows — as an independent disjunct: **a project may widen
+   hex's security sensitivity, never subtract from it**, because at
+   effective `low` the review set is `minimal` and the conditional
+   `reviewer:security` cannot spawn at all. **The same `hex.md › Pointers`
+   row feeds two consumers, and this round records the consequence rather
+   than leaving it to be discovered: an attestation of an empty
+   security-sensitive set buys tier reduction *and* silently disarms
+   `adr_0010` C-903's high-risk checkpoint trigger.** The two absence
+   semantics for that one row are reconciled by **residual risk, not by
+   direction** — three independent backstops survive C-903's vacuous
+   clause, one survives a fail-open reduction here. The consequence the
+   round's compatibility rests on: **a project that has attested no
+   security-sensitive or hot-path convention runs at the ceiling on every
+   WP**, byte-identically to before this round **for plans whose `Review`
+   cells are absent or `panel`** — where such a plan carries `self` or
+   `light`, those cells go inert and it runs *more* review, never less.
+   So the safe default costs nothing in coverage and the speedup is an
+   opt-in bought with one attested line. Rejected alternative: **keeping
+   the column authored and binding the four axes to it** — the downward
+   guard (`panel` on a small flag-free WP declared a plan defect,
+   `plan_wave0_quick_wins` C-928, which ships regardless) plus the phase
+   collapse, model-class drop and round cap bound to `Review: self`. It
+   **ties on wall clock** — both options need the phase collapse, which is
+   the dominant lever — and loses by **fourteen points on a 125-point
+   scale**, a margin resting entirely on two criteria: an authored cell
+   that drives phases, model class, breadth and rounds **is a per-WP
+   `Tier` column with a misleading header**, and binding new meaning to a
+   cell already present in approved plans either reinterprets them
+   silently or needs the same generation marker. **The choice is a
+   judgment call and is recorded as one** (`adr_0012` § Judgment calls 8).
+   Also rejected: **a per-WP authored `Tier` column** — author error is the
+   traced root cause, and a fifth *Plan visualization* amendment for a
+   value derivable from existing cells is a cost with no return. **The sole
+   definition site is `protocol.md` § Parallel-by-default decomposition ›
+   The effective tier**; `models.md`, `hex-execute/overlays.md`,
+   `hex-review/classify.md` and the plan template link or take a
+   one-clause qualifier, and **every site whose sentence stays true is
+   untouched**. **The three `hex-execute` tier files are the stated
+   exception, and this round files it as its own amendment rather than as
+   a footnote here — item 5.**
+
+2. **The canonical four-phase contract-first TDD list collapses to one
+   spawn at effective tier `low`, against a check the builder cannot
+   write.** `protocol.md` § The Review-Fix Loop's phases 1–3 (Stub,
+   Specify, Implement) become a single `builder` spawn that **commits the
+   stubs and the specification tests as its first commit on the WP branch,
+   before the implementation commit**, and **the orchestrator runs the
+   project's test command at that commit and requires failure**. A
+   self-reported red→green transcript was the first draft's form and was
+   **rejected on review**: it is produced by the same worker whose claim it
+   checks, nothing re-runs it, and it is satisfied by writing the
+   implementation first and stashing it — leaving the deviation with no
+   defence, since its whole justification is that the property becomes
+   checkable. The committed-stub form costs no round trip (the builder
+   already commits; merge-time re-validation already shells out to `git`).
+   `hex-execute/tier-low.md`'s *"Keep the contract-first TDD skeleton
+   … unchanged"* becomes false and is amended. This is the round's largest
+   wall-clock lever: three serial round trips become one, and pipeline
+   depth stops being constant at every tier for the first time since round
+   4. **The phases' properties are preserved and one of them is
+   strengthened:** the surface is still written before the tests and the
+   tests before the implementation, and *"they MUST fail against the
+   stubs"* becomes **demonstrated by output** rather than assured by the
+   fact that a separate `tester` could not see an implementation that did
+   not exist. **What is given up is stated rather than argued away:
+   author≠verifier at the work-package level.** The check recovers the
+   temporal property, not independence; the backstops are the
+   `review=minimal` batch's spec reviewer and the branch-level pass below.
+   The collapse exists **only** at effective `low`. **The single spawn
+   resolves all three source cells and reads the highest** — the shipped
+   matrix has `builder:stub`, `builder:implement` and `tester` all
+   `fast-balanced` at `low`, but `models.md` Rule 2 puts an instantiated
+   `hex.md` matrix **above** the shipped default, so a project pinning any
+   one of the three makes them disagree; taking the highest means
+   collapsing never silently revokes a pin, and the raise is disclosed at
+   the gate. No matrix row is added. Rejected alternative: **collapsing
+   Stub into Specify only** — one trip of three, keeping the costliest
+   hand-offs. Also rejected: **collapsing against the builder's own
+   transcript**, above.
+
+3. **A new binding rule, not an amendment — the collapsed path's backstop
+   is made mechanical, reusing the one writer that already exists.** This
+   item **amends no existing position above**; it adds one. It is numbered
+   here with the amendments because it belongs to the same round, and it
+   is classed separately because calling a new rule an amendment would
+   leave the round's count wrong at three of its four statement sites.
+   `protocol.md` already declares the branch-level `/hex-review` mandatory
+   for any plan containing a `self` WP — as prose enforced by nothing.
+   This round binds it: **a plan containing any WP whose effective tier
+   fell below its ceiling does not reach its terminal review state
+   (`done`, or `landing` when a `Repo` column is present) until a
+   branch-level `/hex-review` has run at no less than the plan's ceiling
+   tier**, the ceiling acting as a floor on the review's own classified
+   tier and never as a cap. `/hex-review` is already the sole writer of
+   that state (`adr_0005` C-410) and already carries one precondition of
+   this shape (`adr_0010` C-913(f)), so this is a second precondition on
+   the same write, not a second writer. **The ceiling floors an explicit
+   `--tier` flag too** — `overlays.md` § Precedence would otherwise let a
+   user flag lower it and remove the backstop with one argument — and the
+   ceiling `T` is read from the plan's Status-block `Tier:`, never from
+   `/hex-execute`'s run tier. This borrows the **discipline** every
+   surveyed system pairs with a fast path (Zuul's gate re-testing
+   regardless of the check pipeline, Gerrit's `Verified` submit
+   requirement, CI smoke as pre-filter and never substitute) and **not
+   their enforcement, which hex does not have**: hex never pushes outside
+   `/hex-finalize`, whose gate is a human approval, so what this
+   precondition blocks is a plan reaching `done` / `landing` — a markdown
+   Status field, not a merge. Recorded plainly rather than left as an
+   implied equivalence. The **runtime** half rides `adr_0010`'s existing
+   merge-time budget re-validation, which becomes an effective-tier
+   re-derivation against the actual diff — **including `hub`, re-derived
+   from the actual changed-file list**, since a declared file set is
+   repaired by widening it and therefore does not bound the actual one.
+
+4. **The presence-checks-not-a-version-field rule takes one named
+   exception.** `protocol.md` § Worktree work-package mechanics states
+   *"there is no schema-version marker, the presence of the field is the
+   signal"*, and it holds for every field it covers, each of which carries
+   one meaning. **`- Effective-tier:` does not: it has a value space
+   (`derived` in v1) and a hard refusal on anything else**, including a
+   present-but-empty value, because a marker whose value hex cannot read
+   means a plan written against a generation hex cannot execute. That is a
+   version marker under another name and this round says so rather than
+   burying it in prose. **What survives verbatim is the half the rule
+   exists for: absence is never a version comparison** — an absent line is
+   legacy semantics, permanently, with no prompt, no error, no migration
+   and no rewrite. The value is a **literal, not a number to compare**, and
+   a future generation takes a new literal rather than redefining
+   `derived` — Go's own directive walk-back is the cited reason. The
+   marker is read line-initial, above the first `##`, to the first field
+   separator, trimmed and matched exactly, on `hex-architect/SKILL.md`'s
+   shipped `State:` discipline; **a marker on a plan carrying no `Verify`
+   column is refused**, because such a plan's blank `Review` cells would
+   otherwise flip in bulk from `panel` to derived — the one unsafe
+   direction of the flip.
+
+5. **The thin-dispatcher / sole-definition rule takes one scoped
+   amendment: `hex-execute`'s three tier files gain a rule, not a
+   qualifier.** Round 12's *"no tier file gains a rule; two take a
+   one-clause qualifier and the rest are untouched"*, round 13's repair
+   (*"the repair is for `protocol.md` to own the sentence and the tier
+   files to link it"*), and `adr_0010` **C-916's *"No tier file gains a
+   rule"*** all say the same thing, and round 10 is where it starts, in
+   that round's own words: *"the four bundle-wide restatement sites gain a
+   one-clause qualifier pointing there, and every skill-, worker- and
+   federation-scoped restatement is **unchanged, because it remains
+   true**."* (The often-quoted *"a site either links or takes a one-clause
+   qualifier"* is `adr_0010` C-916's **paraphrase** of that sentence, not
+   this file's own words; it is cited here as C-916's and is not adopted
+   as a self-quotation.) This round breaks the rule in exactly one place.
+   `tier-low.md`'s *"Keep the contract-first TDD skeleton … unchanged"*
+   becomes false and is rewritten (amendment 2); `tier-medium.md` and
+   `tier-high.md` must **condition their phase sections on the *WP's*
+   effective tier** rather than on the file they live in — **a behavioural
+   rule, not a qualifier**, because a tier file's phase list stops being a
+   property of the file. **It is filed as an amendment rather than as a
+   note under "considered and not deviated", where the first draft put it:
+   a rule is a deviation whatever heading it sits under.** **The intent is
+   upheld while the letter is broken** — the function is defined **once**,
+   in `protocol.md`, and the tier files carry only the conditioning, never
+   a second copy. It is the one place this round spends dispatcher
+   thinness, and it is spent because the phase list is exactly what the
+   round exists to scale. `adr_0010` C-916's sentence takes an erratum
+   (`adr_0012` § Interaction, erratum row 9).
+
+**Considered and not deviated** (unchanged by this round): the ***Plan
+visualization* lock is explicitly NOT amended** — this round adds **no
+column**, every input being a cell or pointer that already exists, and the
+one new artifact field is a Status-block line, for which `adr_0010`'s
+`Reviewed:` is the standing precedent. That enumeration has been amended by
+explicit act four times and a fifth was avoidable, so it was avoided;
+recorded here rather than left as an absence, because four prior amendments
+make "no amendment" the surprising outcome. **`protocol.md`'s *"and nothing
+beyond those two"* on the `Verify` cell is likewise NOT amended.** Round 14
+spent a whole amendment widening that cell's reach from one gate to two,
+and the shipped sentence now reads that the cell *"sets one verification
+budget for one merge boundary — the WP's merge gate … and the Review-Fix
+Loop's exit gate that immediately precedes it, and nothing beyond those
+two"*. This round's `door` flag **reads** that cell. **The sentence bounds
+what the cell *sets*, and `door` sets nothing**: it adds no gate, changes
+no verification budget, and runs no command — it blocks a tier reduction.
+So the sentence stays true; `door` is a **third reader**, never a third
+gate. **The cost is real and is stated rather than hidden**: `Verify: full`
+becomes the plan table's most expensive cell, and an author who wants only
+the one-way-door signal now pays for two verification gates to get it —
+priced in `adr_0012` § Judgment calls 2, not repaired here, because the
+alternative is a fifth flag with its own cell, its own *Plan
+visualization* lock amendment and its own way of being mis-authored. A
+reviewer of the shipped diff who reads "third consumer" as "third gate" is
+reading the wrong half of the sentence; if that reading ever prevails it
+becomes this round's item 6, and the question is settled in the record
+rather than at each reading. The **single approval gate** — count and
+position untouched; the derivation is computed before the gate and
+disclosed *at* it, and asks nothing. The **depth-1 coordinator invariant**
+(`adr_0010` C-914) — untouched and reaffirmed: no recursion ≥ 2, no new
+orchestrator role, and **nothing is persisted at all**, so the flat-state
+requirement is met by construction rather than by discipline. **Capability
+classes** — upheld: `models.md` gains one clause about *which tier column a
+cell is read from* and no literal model name appears in any changed shipped
+file. **`hex never pushes` / `hex never commits` outside execution** —
+untouched; round 10's scoping stands. **The two-layer knowledge model** —
+upheld and load-bearing: the security-sensitive / hot-path convention is a
+**Layer-1 project fact** reached through a `hex.md › Pointers` row, and hex
+records **where** it lives, never what it says — the row carries a
+location, never an inline glob set and never the literal `none`, so the
+attestation itself lives in project truth and the Pointers row stays the
+cache `memory.md` classes "never authoritative"; the fail-closed degrade is
+what keeps hex from inventing Layer-1 knowledge it does not have.
+**`adr_0005`'s fold path** — untouched; `hex-review` still writes only the
+Status block, the convergence check, and — on an approved converged fold —
+the spec file and receipt, and C-410's exclusive ownership of the terminal
+review state gains one precondition rather than a second writer.
+**`adr_0004`'s federation contracts** — unchanged: `hub` keys on
+`(Repo, path)` for C-316's reason, and the per-repo verification rule and
+global merge serialization are untouched. **Thin dispatchers + per-tier
+phase files** — upheld **outside `hex-execute`'s tier files**: canonical
+text lands once in `protocol.md` and every consumer takes a link or a
+one-clause qualifier — the repair round 13 named when it recorded that nine
+restatements turned a one-line contract change into a ten-file diff. **The
+three `hex-execute` tier files are *not* in this list: they gain a rule,
+and that is amendment 5 above, not a non-deviation.** **`config.md` gains
+no key** and its frozen key vocabulary is not reopened.
+
+## Execution-runtime round (2026-09-06, round 18)
+
+`adr_0013` (the execution runtime — worker liveness, resource limits,
+per-work-package sub-orchestration and run telemetry) amends **eight
+positions recorded above**. The items below are numbered by **the ADR's
+own amendment ledger rather than by position**, so the sequence runs **2
+through 9** and **number 1 is dead** — it was withdrawn at the ADR's
+design panel and is recorded as withdrawn at the end of this round, its
+number never reused. Numbers 2–8 are the ADR's own; **number 9 is added by
+the implementing plan**
+(`.agents/plans/plan_adr_0013_runtime_contracts.md` § Constitution
+Deviations) for a deviation the ADR did not record. Full adjudication, the
+four scored option axes and the deferred findings: `adr_0013` § Considered
+Options, § Constitution deviations / DESIGN.md amendments, and § Open
+Questions. The **`config.md` gains no key** clause — stated across rounds
+9 through 13 and again at round 17, and already amended once at round 14
+item 3 — is amended here rather than at any of those sites, each of which
+is true as of its own date and stays as written.
+
+2. **Amendment 2 — ephemeral runtime state.** Amends `adr_0010` driver 5
+   (*"No nested state files, at any depth"*) and `C-914`'s *"no
+   per-coordinator state"* clause: a run may hold live agent state outside
+   the checkout. **Boundary — four conditions, all of them**: the state is
+   **ephemeral** (deleted by teardown, outside every checkout, never
+   committed), **never authoritative**, **never read by resume**, and
+   lives in **one flat directory per run**. A silent death is only
+   detectable if something outside the dead agent records that it was
+   alive, which is the whole reason the position moves. `C-912`'s four
+   objections are answered or dissolved by those conditions: no split
+   record, **zero gitignore lines**, teardown already exists for the
+   scratch root, and resume still reads only the plan. Rejected
+   alternative: **keeping all state in the plan** — a plan is committed,
+   and a per-beat commit is a write storm on the one durable record. Also
+   rejected: **a per-coordinator directory** — driver 5's flat surface is
+   preserved literally here, not by analogy.
+
+3. **Amendment 3 — the concurrency cap counts live model-compute.** Amends
+   `protocol.md` § Worker coordination's recursive counting so that an
+   agent in state `blocked` does not occupy a slot. **Boundary:**
+   `blocked` is a **declared** state carrying a `blocked_on` value, never
+   an inference; recursive counting, the effective cap `min(8,
+   max-workers)`, the clamp and the federated single-lead read are
+   unchanged. This is deadlock avoidance, not an optimization — charging a
+   coordinator that waits on its own children against the pool those
+   children draw from is the Airflow `SubDagOperator` deadlock, and the
+   ADR's sub-orchestration part deadlocks by construction without it.
+   Rejected alternative: **raising the cap instead** — it removes the
+   bound rather than fixing the accounting, and the OOM evidence says the
+   bound is needed. Also rejected: **inferring blocked-ness** — an
+   inference cannot be audited at a merge gate.
+
+4. **Amendment 4 — the coordinator gate splits in two.**
+   `hex-execute/SKILL.md` § Coordinator spawn's single gate becomes **Q1**
+   (does this work package get a coordinator — yes when the ready set
+   holds ≥ 2 work packages and the harness can nest) and **Q2** (does it
+   further decompose — the existing ≥ 3-independent-sub-task judgment,
+   unchanged). **Boundary:** no new role, no new orchestration level, and
+   **no change to the join *rules* or the file-set intersection check**;
+   the Mission, Fan-out, Join and Tools/Model clauses gain a kind
+   qualifier and the spawn prompt gains input lines, and both of those
+   ride amendments 6 and 8 rather than this one. One gate had been
+   answering two unrelated questions — *is this work package internally
+   decomposable?* and *should its pipeline run concurrently with its
+   siblings'?* — and conflating them is what leaves a ready package queued
+   behind a sibling's review round. Rejected alternative: **a new
+   sub-orchestrator role** — it adds a level, a state and a persona for
+   behaviour the coordinator already has. Also rejected: **widening Q2's
+   threshold** — it would force decomposition on work packages that are
+   not decomposable.
+
+5. **Amendment 5 — one artifact enters the bundle's set:**
+   `hex-core/references/resources.md`, conditional-load. **Boundary:** a
+   **reference file inside the existing `hex-core` skill directory** —
+   `hex.toml` and `grimoire.toml` are untouched and no bundle member is
+   added — read only when a run will issue a heavy command, so a
+   parse-only project pays nothing for the contract. The resource contract
+   has nine sections of knob-sheet and ladder detail; putting it in
+   `protocol.md` would load all of it on every run of every skill for a
+   contract most runs never exercise. Rejected alternative: **folding it
+   into `protocol.md`** — rejected on load cost. Also rejected: **a second
+   bundle member** — the packaging surface buys nothing the reference
+   directory does not already give.
+
+6. **Amendment 6 — every `coordinator-owned` rider keys on the
+   *decomposing* kind.** Amends `protocol.md` § Worktree work-package
+   mechanics (the full-verification `join` trigger), § Checkpoints (the `M
+   = 3` counter reset), **§ Verification › Scoped check** (gate site 3 and
+   the merge-site scope bullet) and **§ The Review-Fix Loop** (the
+   leaf-under-a-coordinator carve-out, restated at § Scoped check, in
+   `workers/builder.md` and in `workers/coordinator.md` — four copies in
+   all) to read **decomposing**-coordinator-owned. **This changes
+   `adr_0010` `C-901`'s firing condition** and is stated as such at the
+   site. **Boundary:** only the firing condition moves — the scoped/full
+   distinction, `M = 3`, `C-901`'s other triggers and `C-904`'s bisection
+   walk are unchanged. Under Q1 every ready work package gets a
+   coordinator; unretargeted, the merge riders make every merge pay a full
+   verification run and reset the counter, and **the leaf carve-out
+   degrades every Implement gate to a compile-only check** whose stated
+   backstop — *the coordinator runs the one authoritative verification at
+   the work-package join* — is false for a pipeline coordinator, which has
+   no join. Rejected alternative: **leaving the riders on any
+   coordinator** — it charges the full gate to work that did not decompose
+   and removes the Implement gate from work that has no join to
+   compensate. Also rejected: **deleting the triggers** — a decomposing
+   coordinator's join genuinely warrants both.
+
+7. **Amendment 7 — review breadth is decoupled from coordinator
+   existence.** Deletes from `hex-execute/SKILL.md` § Coordinator spawn's
+   WP-merge bullet the clauses *"a coordinator WP is by definition
+   `panel`"* and *"`self`/`light` WPs never qualify for a coordinator"*,
+   **keeping** *"`panel` = the tier baseline"*. **Boundary:** the `Review`
+   cell's semantics, its lower-only budget and `adr_0012` `C-1112`'s
+   `Review: panel` escape hatch are unchanged; only the
+   coordinator-implies-`panel` inference is removed. Under Q1 every ready
+   work package gets a coordinator, so the first clause would raise
+   **every** package to `panel` and invert `adr_0010` `C-905`'s lower-only
+   budget, and the second contradicts Q1 head-on. Breadth is a property of
+   the work, not of who spawns the phases. Rejected alternative:
+   **exempting `self`/`light` packages from coordinators** — it
+   re-serializes exactly the small cheap packages this part exists to
+   overlap. Also rejected: **reading breadth from the coordinator kind** —
+   a second competing source for a value `C-905` and `adr_0012` already
+   resolve.
+
+8. **Amendment 8 — a pipeline coordinator's capability class follows the
+   work package.** Amends `models.md`'s `coordinator` row and its rule-5
+   tier gate: the matrix gains a **pipeline** row resolving per the work
+   package's own effective tier with **all three cells filled** (never
+   `—`), while the **decomposing** row keeps `deep-reasoning` and the
+   medium/high gate. **Boundary: capability classes only — no literal
+   model name enters `models.md`**; the decomposing row is unchanged, and
+   `C-1109`'s `min(T, medium)` floor stays scoped to the decomposing kind.
+   Under Q1 a `low`-tier work package would otherwise resolve against a
+   cell reading `—` (*never spawned at that tier*), which is the exact
+   unresolvable state the amendment exists to remove. Rejected
+   alternative: **keeping one row for both kinds** — it either over-spends
+   on trivial packages or leaves the gate unresolvable. Also rejected: **a
+   literal model name**, which the constitution forbids and which was
+   never considered.
+
+9. **Amendment 9 (plan-added) — the frozen six-key config vocabulary
+   admits a *second* additive key: `limits.heavy`.** **Boundary:**
+   additive under the existing frozen `limits` top-level key, **neither a
+   rename nor a seventh key**; `config.md`'s `# hex config, vocabulary vN`
+   comment is **unchanged** and the key is marked **v1**. This is the
+   identical move to round 14 item 3 (`limits.adversary-timeout`) and it
+   needs the same adjudication rather than riding that one. The freeze's
+   stated harm is **renaming**, and this is not a rename: a reader
+   predating the key meets an unknown key under `limits` and degrades
+   correctly by merge rule 8 to today's unbounded behaviour. Rejected
+   alternative: **a plan-table column** — a plan travels between machines
+   and this value is a property of the host, not of the work. Also
+   rejected outright: **renaming `limits.max-workers`** — renaming a
+   frozen key is a silent no-op in every consumer `hex.md`.
+
+**Amendment 1 — withdrawn, its number kept dead.** No client-specific
+enforcement is proposed. The carve-out would have been the first time hex
+writes executable configuration, for a mechanism nothing requires and
+nothing measures; `C-1209` is withdrawn with it, implemented by nothing
+and carrying a negative check in the implementing plan instead. The number
+is not reused, so the ADR's metadata, its § Constitution deviations table
+and this round all state one set: **numbered 1 through 9, eight live
+(2–9), amendment 1 withdrawn with `C-1209`**. Preserved as the ADR's
+deferred finding **D-4**.
+
+**Considered and not deviated** (unchanged by this round): **capability
+classes** — untouched, and no literal model name appears at any site this
+round writes. **Thin dispatchers + per-tier phase files** — upheld: the
+liveness contract has one home in `protocol.md` § Worker liveness and the
+resource contract one home in `resources.md`, and every other file takes a
+link rather than a restatement. **Single-source contracts** — upheld:
+`protocol.md` still owns the Review-Fix Loop, and the leaf carve-out's
+four copies are retargeted in place rather than multiplied. **`hex never
+pushes` / `hex never commits` outside execution** — untouched. **The
+two-layer knowledge model** — upheld and load-bearing: the measured
+resource profile is a **Layer-1 project fact** reached through a `hex.md ›
+Pointers` row, so hex records where it lives and never invents it. **The
+single approval gate** — untouched: the profile is measured at `/hex-init`
+inside the existing consent-gated diff and no new gate is added. **No new
+state file inside a checkout** — upheld in the strongest form available,
+since nothing this round writes enters a checkout at all and **no
+`.gitignore` line is added anywhere**. **`adr_0004`'s federation
+contracts** — unchanged. **Plan visualization** — untouched: the `##
+Schedule log` gains a second line kind, never a table column.
+
+## Instruction-diet round (2026-09-06, round 19)
+
+`adr_0014` (the instruction diet — `protocol.md` splits into a spine plus
+six sibling topic files under `hex-core/references/`) **amends one
+position recorded above and adds one new binding rule**. It changes no
+runtime semantics anywhere: every moved byte is moved verbatim, every
+heading is preserved, and the only text authored into the bundle is the
+spine's two pointer tables. The amendment generalises the single-source
+rule's *destination*; the new rule is **"Load only what runs"**, promoted
+from worker personas to the contracts orchestrators read. The rest of
+this round is record-keeping — the old→new section map that keeps three
+prior ADRs' heading citations resolvable, and one measured budget miss
+stated rather than engineered away. Full adjudication, the scored option
+comparison and the per-mode byte table: `adr_0014` § Considered Options
+and § Quantified Impact.
+
+1. **Amendment — the single-source rule's destination becomes a property
+   rather than a file name.** Round 17 states the rule as *"canonical
+   text lands once in `protocol.md` and every consumer takes a link or a
+   one-clause qualifier"*, and round 13 states the same repair in its own
+   words (*"the repair is for `protocol.md` to own the sentence and the
+   tier files to link it"*). It now reads: **canonical text lands once in
+   `hex-core/references/`, in the topic file whose consumer set it
+   serves**, and every consumer takes a link or a one-clause qualifier.
+   **Boundary: the rule's substance is unchanged and unweakened** — one
+   home per contract, consumers link and never restate, no contract
+   gaining a second home. Only the sentence's hardcoded file name becomes
+   a property of the contract. **This is a strengthening, not a
+   loosening**: the destination stops being a name a reviewer can only
+   memorize and becomes one they can check — *does this contract's
+   consumer set match the file it lives in?* — which is the question the
+   split itself was decided on. Rejected alternative: **one file per
+   consumer** — it cannot express a two-consumer contract without copying
+   it, which is the one thing the rule forbids. Also rejected: **leaving
+   the destination hardcoded and moving nothing** — it keeps the name
+   exact at the cost of the property the name was standing in for.
+   **Rounds 13 and 17 are not edited.** A round is a record of what was
+   decided when, and each of those sentences is true as of its own date;
+   the amendment is stated here, once.
+
+2. **New binding rule — "Load only what runs."** `hex/DESIGN.md` carries
+   **no prior position at all** on file size, context budget or load
+   scoping: the strings *"context budget"*, *"file size"* and *"load only
+   what runs"* appear nowhere in rounds 1 through 18. **This round adds a
+   position rather than amending one.** The rule already ships, for
+   workers only, in `hex-core/references/workers.md` above `## Universal
+   worker protocol`:
+
+   > **Load only what runs**: the orchestrator always reads this index;
+   > it reads a persona file only for roles in the resolved spawn set.
+
+   Nine personas were split out of one index on exactly that reasoning.
+   Round 19 extends it **one layer up, from worker personas to the
+   contracts orchestrators read**, with the spine's load map as its
+   table — the single definition site for what each mode opens.
+   **Boundary: this is a budget rule, not a permission.** A mode may
+   follow any link; it *opens* a topic file when a phase it is running
+   executes against that contract, never because prose mentions it.
+   Nothing enforces it — the budget is a review criterion, and that is
+   recorded as its known cost, not repaired here.
+
+3. **The old→new section map — the compatibility record.** Every heading
+   below is preserved **byte-identical in text and in level**, which is
+   why no past ADR needs an erratum and why every anchor slug survives
+   the move; only the basename in front of the `#anchor` changes.
+
+   | Heading (unchanged) | Now in |
+   |---|---|
+   | `## The Review-Fix Loop` | `loop.md` |
+   | `### The last-reviewed anchor` | `loop.md` |
+   | `### Anchor validation` | `loop.md` |
+   | `### Delta round scope` | `loop.md` |
+   | `### The diminishing-returns stop` | `loop.md` |
+   | `## Convergence contract` | `loop.md` |
+   | `## Parallel-by-default decomposition` | `decompose.md` |
+   | `### The effective tier` | `decompose.md` |
+   | `## Worktree work-package mechanics` | `worktree.md` |
+   | `## Verification` | `verify.md` |
+   | `### Scoped check` | `verify.md` |
+   | `### Checkpoints` | `verify.md` |
+   | `## Adversary contract` | `adversary.md` |
+   | `## Finding severity` | `severity.md` |
+
+   All six files are siblings of `protocol.md` in
+   `hex-core/references/`. **What the table is for:** `adr_0010`,
+   `adr_0012` and `adr_0013` cite these sections as *"`protocol.md` §
+   <Heading>"* dozens of times between them, and `hex/CHANGELOG.md` does
+   the same. **Those records are deliberately not edited**: they
+   state what was decided against the file as it stood, and a record
+   rewritten to match today's tree stops being a record. This table is
+   how a reader resolves them. Line-number pins in `adr_0010` and
+   `adr_0013` had already drifted before this ADR, by the project's own
+   record, and are not repaired here either.
+
+4. **This file's own citations are not rewritten either.** **Rounds 1
+   through 18 cite a moved section as *"`protocol.md` § <Heading>"*
+   eighteen times**, and every one of those lines stays as written, for
+   the same reason the ADRs do: they are the record of what was decided
+   when. The table in item 3 is their compatibility record — read them
+   against it, not as drift. (The markdown link *targets* in those lines
+   were repointed with the rest of the bundle, so nothing dead-ends; only
+   the file name visible in past prose is historical.)
+
+**The budget misses — known, bounded, and stated rather than engineered
+away.** `adr_0014`'s target (C-975) is **≤50% of the pre-cut
+protocol-family bytes for every orchestrator except `/hex-execute`**, and
+≤15% for every worker persona. Measured against the merged tree, with each
+closure walked from the mode's own files rather than read off the map,
+**three rows miss**: `/hex-review` at 72.0%, `/hex-plan` at 70.5%, and the
+`coordinator` persona at 70.5% against the ≤15% worker target — all three
+only once the map was corrected to name what each mode really opens.
+
+| Mode | Opens beyond the spine | Bytes | % of 149,072 |
+|---|---|---:|---:|
+| `/hex-architect` | `loop.md` | 73,012 | 49.0% |
+| `/hex-finalize` | `verify.md` | 64,933 | 43.6% |
+| `/hex-review` | `decompose.md`, `loop.md`, `severity.md` | 107,360 | **72.0%** |
+| `/hex-plan` | `decompose.md`, `loop.md` | 105,158 | **70.5%** |
+| `/hex-execute` | `decompose.md`, `worktree.md`, `loop.md`, `verify.md` | 140,076 | 94.0% |
+| `builder` worker | `verify.md` only | 14,603 | 9.8% |
+| `reviewer` worker | `severity.md` only | 2,202 | 1.5% |
+| `coordinator` worker | the spine, `loop.md`, `decompose.md` | 105,158 | **70.5%** |
+
+Conditionally: `adversary=on` adds 10,396 B to any row; a **federated**
+`/hex-review` also opens `worktree.md` — 127,675 B / 85.6%.
+
+Pre-cut, every row read 149,072 B. **Cause — two, not one.** `/hex-plan`
+and `/hex-architect` each **run the Review-Fix Loop as a numbered phase at
+every tier**, so both open `loop.md` (22,682 B); and `adr_0013` landed
+`### Worker liveness` — 16,139 B, inside a `## Worker coordination` that
+grew by ≈20 KB in all — **after** the target was set, and that section
+stays in the spine, which every mode pays for. `/hex-review` opens both
+plus `decompose.md`: its Approve cannot write the terminal review state
+without deriving the **stranded set**, whose sole definition lives there.
+The `coordinator` persona pays the same three: it opens the spine for
+`§ Worker coordination` and `§ Worker liveness`, `loop.md` for the
+leaf-verification carve-out, and `decompose.md` to re-run the file-set
+intersection check.
+**Why it is not fixed
+here:** the split that would recover it promotes `### Worker liveness` to
+its own topic file, and `adr_0014`'s own **C-970 forbids splitting any
+`##` section internally** — the rule that keeps all three prior ADRs'
+heading citations valid without editing one of them. Buying `/hex-plan`
+≈10.8 points by breaking that is **the same trade the ADR already resolved
+in `/hex-execute`'s favour**, where it states a 94.0% non-goal rather
+than hitting a number by cutting inside a heading. `/hex-execute` remains
+an **explicit non-goal**: it genuinely runs decomposition, worktree
+mechanics, the loop and verification, and its diet is a different file
+and a different ADR. **A follow-on round may promote `### Worker
+liveness` to a seventh topic file** — `/hex-plan` and `coordinator` would
+land at 59.7% and `/hex-review` at 61.2%, **still misses**, because
+`loop.md` (22,682 B) is the larger of the two causes; closing them needs
+the loop re-homed or the personas'
+cited contracts moved, which is a follow-up ADR's call, not this round's.
+The promotion is still the cheap kind of change the per-topic split was
+decided for: one `##` boundary, one basename, no contract touched.
+
+**Considered and not deviated** (unchanged by this round): **thin
+dispatchers + per-tier phase files** — unchanged, and not even in scope:
+the spine and all six topic files are Layer-0 reference text, not
+dispatchers, and no `SKILL.md`, `classify.md`, `overlays.md` or tier file
+gains or loses a rule. **Capability classes, never literal model names**
+— upheld; no literal model name appears in any moved line or in any line
+authored by this round. **The two-layer knowledge model** — untouched:
+every moved section is Layer-0 hex protocol, nothing crosses into or out
+of project context, and no Pointers row changes. **`config.md` gains no
+key** and its frozen key vocabulary is not reopened. **No runtime
+semantics change anywhere** — this is a relocation: no contract's text
+changes, `§ Untrusted-text echoes` and every other spine section stay
+where they are, and a run's behaviour before and after the cut is
+identical.

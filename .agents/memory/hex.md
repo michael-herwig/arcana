@@ -36,6 +36,77 @@ preferences, not copies. Team-shared — commit it.
 
 ## Memory
 
+- **Active plan (executed, reviewed Needs Work):**
+  `plans/plan_adr_0014_instruction_diet.md` (State: **executing**, tier
+  medium, `Effective-tier: derived`; WPs 1, 2, 2b, 5, 6 merged, WP 3/4
+  folded into WP 2, **WP 7 blocked**) — implements
+  `adrs/adr_0014_instruction_diet.md` (**Proposed**). Split
+  `hex-core/references/protocol.md` (149,072 B, 18 `##` sections as
+  re-measured at WP 1) into a spine plus 6 per-topic siblings (`loop`,
+  `decompose`, `worktree`, `verify`, `adversary`, `severity`), cut at
+  `##` boundaries only. **The split itself is clean**: all 26 headings
+  one home each and byte-intact, 794 anchors 0 dead, `grim build` 0 ×8,
+  `task publish -- --dry-run` 0, `hex/DESIGN.md` round 19 correct with
+  rounds 1–18 and their locks untouched.
+  **/hex-review round 1–2 (2026-09-06, tier medium artifact target,
+  breadth=full, cross-model skipped for budget): Needs Work, C-975
+  `partial`.** The load map (C-971) that C-975 measured against was
+  false — `/hex-plan` and `/hex-architect` run the Review-Fix Loop at
+  every tier but the map denied them `loop.md`, and `/hex-review` opens
+  `decompose.md` for the stranded-set Approve precondition. **C-975's
+  own *Testable* clause said "re-measure per the load map"** — the
+  artifact under test was the measuring instrument, which is how the
+  error survived execution. Root cause recorded in the plan; the clause
+  now walks each mode's own imperatives. Corrected: architect 49.0% and
+  finalize 43.6% pass; **`/hex-plan` 70.5%, `/hex-review` 72.0%,
+  `coordinator` 70.5% (≤15% target) miss**, and the ≤2,000 B
+  authored-spine sub-cap is breached at 2,162 B. Two review fix passes
+  landed the corrected map, `hex-core/SKILL.md`'s reference index, the
+  root `README.md` dead anchor, and the figure cascade through DESIGN
+  round 19, the plan, and `hex/CHANGELOG.md`'s unreleased 0.4.0 entry.
+  **WP 7 is blocked on a C-970 amendment** (promote `### Worker
+  liveness`, 16,139 B, to its own file; re-home `coordinator`'s cited
+  contracts) — an ADR-level scope call, Michael's. **`/hex-execute` at
+  94.0% is an explicit non-goal.** ADR erratum candidates recorded in
+  the review, ADR unedited.
+
+- **Plan done:** `plans/plan_adr_0013_runtime_contracts.md` (State:
+  **done**, tier high, executed 2026-09-06 on integration branch
+  `hex/adr-0013-integration` tip `16cb0ec`, merged `2b87734`,
+  **Approved 2026-09-06** at `7cdce1b`, `Reviewed: fbc89f0`) — implements
+  `adrs/adr_0013_runtime_contracts.md` (**Proposed**): worker liveness
+  (heartbeat delta + L0–L3 ladder, recursive), `resources.md` (limits
+  `heavy` flock semaphore, resource profile at `/hex-init`, preflight,
+  per-run scratch env, § 8 teardown by the top orchestrator only),
+  schedule-log telemetry grammar, coordinator gate; DESIGN round 18.
+  Review: 2 rounds + one self-verified pass (f5b2786, dee2c00), adversary
+  skipped for budget. Dogfood benchmark
+  `research/dogfood-benchmark-2026-09-06.md` (f142a3a): WP-1-class change
+  on an ocx-sion clone **3h06 → 30m01s (6.2x)**; its defects 1/2/3/5/7
+  fixed in fbc89f0; **defect 4 (`models.overrides` tier-blind — per-tier
+  override spelling) and defect 6 (stale global `grim install` shadows
+  the artifact under test) are Michael's.**
+- **Plan done:** `plans/plan_adr_0012_per_wp_effective_tier.md` (State:
+  **done**, tier high, executed 2026-09-06, all 7 WPs merged by `8b9d749`,
+  **Approved 2026-09-06** at `b576d8b` after 2 review rounds) — implements
+  `adrs/adr_0012_per_wp_effective_tier.md` (**Proposed**): plan tier is a
+  ceiling, every WP derives its effective tier from `Size` / `Expected
+  Files` / `Verify` + one `hex.md › Pointers` row, `Review` flipped to
+  raise-only, `- Effective-tier: derived` marker, collapsed builder at
+  effective `low`; DESIGN round 17. ADR erratum candidates in the plan's
+  review record; ADR unedited.
+- **Plan done:** `plans/plan_wave0_quick_wins.md` (State: **done**, tier
+  high, executed 2026-09-05/06, **Approved round 5** at `bdf32a3`,
+  `Reviewed: 78f32d3`) — the RCA quick wins
+  (`research/rca-review-fix-loop-wall-clock.md`,
+  `research/parallel-resource-pitfalls.md`): adversary deadline → **stall
+  bound** with observation modes (`limits.adversary-timeout` = stall
+  window per class), scoped Implement/exit gates under `Verify: scoped`,
+  downward budget guard + histogram, no phases beyond the tier file,
+  excerpt briefs, schedule-log lines; DESIGN rounds 14–16. Four High
+  residue deferred (C-920 Degraded-render clause, mode (a) silence-only
+  start, leaf-under-coordinator carve-out, round-14 ceiling wording).
+  Michael runs `/hex-init` to pick up `limits.adversary-timeout`.
 - **Plan done (no active plan):** `plans/plan_adr_0010_execution_performance.md`
   (State: **done**, tier high, executed 2026-08-30, **Approved round 3
   2026-08-31**, archived in place; fold target: none — no `## Spec

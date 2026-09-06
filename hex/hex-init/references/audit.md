@@ -41,7 +41,7 @@ vague impression that "it's probably in there somewhere."
   found command is proposed for **adoption via pointer**, never invented;
   only what the user consents to record in project context is what hex
   runs — see
-  [`protocol.md` § Verification › Scoped check](../../hex-core/references/protocol.md#scoped-check).
+  [`verify.md` § Verification › Scoped check](../../hex-core/references/verify.md#scoped-check).
 
 ### Commit and landing requirements documented?
 
@@ -222,6 +222,80 @@ anything is asked nothing, and hex never raises the question on its own.
   log a skip forever and no one sees why.
 - **Optional** — no marker found, no pin proposed, and the item stays
   silent.
+
+### Resource profile measured?
+
+- **Look for:** whether `hex.md › Pointers` carries a `Resource profile:`
+  entry — the peak RSS, wall time, and `light`/`heavy` class this
+  project's own documented verification gate measured, plus the
+  heavy-command ceiling derived from them.
+- **Where:** `.agents/memory/hex.md › Pointers`.
+- **Documented looks like:** the four values
+  [`resources.md` § 2](../../hex-core/references/resources.md#2-the-measured-resource-profile)
+  defines, recorded from an actual run on **this host** — never a number
+  picked because it looks right for the ecosystem or the project's size.
+  A project classed `light` (parse-only verification) is no exception;
+  what its ceiling is for is that section's, not restated here.
+- **De facto discovery:** where no `Resource profile:` entry exists,
+  measure it — run the project's own documented verification gate once
+  under the portable peak-RSS ladder and derive the ceiling from what
+  this host measured; see
+  [`resources.md` § The measured resource profile](../../hex-core/references/resources.md#2-the-measured-resource-profile).
+  Where no rung on this host can measure it, record the profile
+  **absent** and announce the degrade — never fabricate a number for a
+  host that could not be measured; the heavy-command ceiling then falls
+  back to its documented floor rather than a guess.
+
+### Agent worktrees excluded from watchers and indexers?
+
+- **Look for:** whether the path `/hex-execute` uses for parallel work
+  packages (`.agents/worktrees/` by default, or a project-declared
+  alternative) is excluded from IDE file watchers, project-wide search
+  indexes, and other background indexing tools — a concern distinct
+  from version control: an untracked worktree can still be watched,
+  indexed, and churned on by an editor or a search tool.
+- **Where:** editor/IDE workspace settings (e.g. `.vscode/settings.json`'s
+  `files.watcherExclude` and `search.exclude`, a JetBrains excluded-folder
+  mark), and any project-wide file-watch or search-index config the
+  project already carries.
+- **Documented looks like:** the worktree path named in at least one
+  such exclusion list, or an explicit note in project context that no
+  watcher or indexer runs against this repo. Silence, with an editor
+  known to index the repo, does not count as documented.
+- **De facto discovery:** a run creates and destroys several worktrees
+  in quick succession; an unexcluded watcher or indexer churns on that
+  traffic, burning cycles re-scanning generated build artifacts and, on
+  a platform with a low file-watch limit, exhausting it outright. Scan
+  the exclusion configs above for what the project already carries and
+  propose adding the resolved worktree path to it — **adoption via
+  pointer**, never inventing a new watcher or indexer config for a
+  project that runs none.
+
+### Scratch / temp convention documented?
+
+- **Look for:** the project's own scratch/temp convention — where
+  build tools, test runners, and the project's own scripts are expected
+  to write transient files — and whether the project has opted `HOME`
+  into the per-run scratch redirect.
+- **Where:** project context, and `hex.md › Pointers`'s `Scratch:`
+  entry — the disk-backed per-run root (`TMPDIR`, `XDG_CACHE_HOME`,
+  `XDG_STATE_HOME`) a run redirects its scratch environment to by
+  default.
+- **Documented looks like:** a named scratch/temp location, or an
+  explicit "no convention, tools use their own defaults" — not silence.
+  Where the project takes the `HOME` opt-in below, one line recording
+  that consent in project context.
+- **De facto discovery:** `HOME` is deliberately **not** among the
+  three variables redirected by default, because redirecting it breaks
+  every tool that reads real credentials from it — git identity, `gh`
+  auth, registry tokens, ssh. Offer the `HOME`-redirect **opt-in**,
+  recorded as project-context prose only with consent, and name **two**
+  reasons a project might take it: a test suite **known to write to
+  `$HOME`**, and **credential exposure to a verification command the
+  project does not fully trust** — hex runs that command unattended and
+  N-way concurrent, with read access to `~/.ssh`, `~/.config/gh`, and
+  `~/.aws`. Never redirect `HOME` without that consent, and never
+  propose it as the default.
 
 ### Existing `hex.md › Pointers` and index lines still resolve?
 

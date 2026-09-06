@@ -56,7 +56,7 @@ behaviour. They are worth having and they are not a guarantee.
    ([§ Pre-flight halts](#pre-flight-halts)).
 2. **Resolve conventions** — the two resolvers ([§ Trust classes](#trust-classes)).
 3. **Local verification** — the project's own documented level
-   ([`protocol.md` § Verification](protocol.md#verification)).
+   ([`verify.md` § Verification](verify.md#verification)).
 4. **Recompose** — rebase, `reset --soft`, re-commit, arm the backup ref
    ([§ Backup-ref lifecycle](#backup-ref-lifecycle)).
 5. **Gate** — the single approval ([§ Consent model](#consent-model)).

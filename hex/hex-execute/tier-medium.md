@@ -3,7 +3,12 @@
 The **default** execution tier — one-way-door-medium plans: a new command, a
 new index or storage layout, work spanning 1–2 areas. Preserves the
 contract-first TDD skeleton (Stub → Specify → Implement → Review-Fix) with
-the full 3-round Review-Fix Loop and `full` review breadth.
+the full 3-round Review-Fix Loop and `full` review breadth. That skeleton is
+the shape at effective tier `medium`: in a plan carrying the generation marker
+a WP whose [effective
+tier](../hex-core/references/decompose.md#the-effective-tier)
+resolves `low` runs the collapsed builder and skips Verify-Architecture
+instead ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -43,7 +48,18 @@ every touched area are read.
 For each work package (or the single implicit one), launch **1** `builder`
 (focus `stub`) — in a single concurrent batch across the ready work
 packages, each scoped to its own declared file set — to create the public
-surface with not-implemented bodies. No business logic.
+surface with not-implemented bodies. No business logic. Each brief carries
+the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
+
+**A WP whose [effective
+tier](../hex-core/references/decompose.md#the-effective-tier)
+resolves `low` runs the collapsed builder instead — Stub, Specify and Implement
+in one spawn**
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+Every other WP, and every WP in a plan without the generation marker, runs
+this phase unchanged.
 
 **Gate** — the project's compile/type check passes for every work package.
 
@@ -52,8 +68,14 @@ surface with not-implemented bodies. No business logic.
 Launch **1** `reviewer` (focus `spec`, phase `post-stub`) per work package to
 validate stubs against the plan's component contracts: signatures match,
 module boundaries align, error variants cover the documented failure modes.
-*Optional when the whole plan touches ≤3 files. Budget-gated: a `self`
-WP skips this phase; `light` keeps it optional.*
+*Optional when the whole plan touches ≤3 files. Budget-gated in a plan without
+the generation marker: a `self` WP skips this phase, `light` keeps it optional.
+Under the marker the `Review` cell skips nothing — it is raise-only — and a WP
+skips this phase only by deriving `low` ([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier)).*
+Each brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 
 **Gate** — every reviewer reports pass.
 
@@ -63,8 +85,14 @@ For each work package, launch **1** `tester` (focus `specification`) to
 write unit and acceptance tests from the plan's component-contracts and
 user-experience sections — NOT from the stubs. Tests cite the `C-`/`S-`
 IDs they cover
-([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)).
+([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)). Each
+brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 Tests MUST fail against the stubs.
+
+**Skipped for a WP that ran the collapsed builder** — its tests were written
+there ([Phase 2](#phase-2-stub)).
 
 **Gate** — tests compile/parse and fail with not-implemented against the
 stubs, for every work package; every plan ID has at least one failing
@@ -73,20 +101,31 @@ test.
 ## Phase 5: Implement
 
 For each work package, launch **1** `builder` (focus `implement`) to fill
-stub bodies until its specification tests pass.
+stub bodies until its specification tests pass. Each brief carries the
+excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 
-**Gate** — the project's documented verification succeeds for each work
-package's changed files.
+**Skipped for a WP that ran the collapsed builder** — its implementation was
+written there ([Phase 2](#phase-2-stub)), which paid this gate.
+
+**Gate** — the [scoped check](../hex-core/references/verify.md#scoped-check)
+passes, per work package.
 
 ## Phase 6: Review-Fix Loop (up to 3 rounds, full breadth)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 — scoped to the branch diff (or, for parallel work packages, each WP's diff
-before merge) — capped at **3 rounds**, `review=full` breadth. Each WP runs
+before merge) — capped at **3 rounds** (**in a plan carrying the generation
+marker** the cap is the WP's own effective-tier default instead — a WP that
+resolves `low` caps at **1**), `review=full` breadth. Each WP runs
 at its declared Review budget: `self` = no reviewer spawns (builder
 self-check + verification only), `light` = one spec reviewer × 1 round,
 `panel` = the full set below; the budget lowers the tier baseline, never
-raises it.
+raises it. **In a plan carrying the generation marker that direction is
+flipped**: the baseline is the WP's derived breadth and the cell is raise-only
+against it, `panel` raising the WP to the plan's ceiling ([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier)).
 
 **Round 1** — launch concurrently: `reviewer` (focus `quality`), `reviewer`
 (focus `spec`, phase `post-implementation`), `reviewer` (focus `security`)
@@ -94,16 +133,21 @@ when the diff touches security-sensitive paths (auth/crypto/signing, a new
 dependency manifest, a CI workflow file), `reviewer` (focus `performance`)
 when the diff touches a hot path or async code, `doc-reviewer` when
 doc-drift triggers match, or when a `perspectives.always` rule matches.
+Each brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 
 **Cross-model code-diff review** (when `adversary=on` — auto-on for
 one-way-door signals, or explicit `--adversary`): after the loop converges,
 run the configured adversary skill once in `code-diff` scope against the
 branch diff. One-shot, 4-way triage, actionable fixes get one `builder`
 (focus `implement`) fix pass, re-verified; graceful skip when unavailable
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
-**Gate** — the project's documented verification passes on the final state;
-deferred findings (native-panel and cross-model) are documented.
+**Gate** — the loop's
+[exit gate](../hex-core/references/loop.md#the-review-fix-loop), at this
+phase's 3-round cap; deferred findings (native-panel and cross-model) are
+documented.
 
 ## Phase 7: Merge and commit
 
@@ -112,11 +156,11 @@ feature branch, serialized in a valid topological order per
 [`SKILL.md`](SKILL.md#work-packages) — one WP at a time. Before each merge,
 run the merge-time file-set re-validation;
 a **scoped check** runs after every merge — the project's full documented
-verification only on the triggers
-[`protocol.md` § Worktree work-package mechanics](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+verification only on the merge-triggered ones
+[`worktree.md` § Worktree work-package mechanics](../hex-core/references/worktree.md#worktree-work-package-mechanics)
 names — and a merge conflict or a failed post-merge verification follows
 the merge-conflict / post-merge-failure playbook
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Set the table's `Status` column to `merged` on a successful merge, `failed`
 on a playbook halt; ephemeral branch deleted and worktree removed once its
 WP merges. Commit per completed work package (or once, for a
@@ -130,8 +174,12 @@ carries the `Hex-Plan:` trailer, and the post-merge verification is the **owning
 repo's**, read by an explicit `Read` of that repo's project context — never
 ambient ([`SKILL.md` § Work packages](SKILL.md#work-packages)). Merge order is
 one global topological sequence across all repos, one at a time
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Absent a `Repo` column this is inert.
+
+**Gate** — trigger (iii), the final gate, fires once at the end of the run,
+however many work packages merged — a single-package plan included
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 
 ## Upkeep and handoff
 
@@ -155,6 +203,9 @@ When the target is a plan artifact, mutate its Status block:
 - Tier: medium
 - Overlays: review=full, loop-rounds=3, adversary=<on|off>
 ```
+
+The handoff block also prints the **six-figure rollup** of the run's timings,
+per [`protocol.md` § Handoff contract](../hex-core/references/protocol.md#handoff-contract).
 
 Required artifacts: the plan (Status block advanced to `review`), the
 commit(s) on the feature branch, and any research artifact Implement

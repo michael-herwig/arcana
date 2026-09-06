@@ -36,7 +36,7 @@ across two reviewers:
   patterns and conventions;
 - quality — naming, style, tests present, duplication;
 - convergence + ID-coverage — when the target traces to a plan, the
-  [convergence check](../hex-core/references/protocol.md#convergence-contract)
+  [convergence check](../hex-core/references/loop.md#convergence-contract)
   against its C-/S- IDs.
 
 `post-implementation` phase because this reviews **Implement**-phase
@@ -68,8 +68,9 @@ with a reason — a human can escalate to `/hex-review medium` for Five Whys.
 
 `adversary: off` by default. If the user explicitly passes `--adversary`,
 run the pass anyway (user override) in the scope the target implies
-(`code-diff` for a diff, `plan-artifact` for a markdown target). Otherwise
-log `Cross-model review skipped: tier=low default` and continue.
+(`code-diff` for a diff, `plan-artifact` for a markdown target) —
+[adversary contract](../hex-core/references/adversary.md#adversary-contract).
+Otherwise log `Cross-model review skipped: tier=low default` and continue.
 
 ## Phase 6: Verdict & Output
 

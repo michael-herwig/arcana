@@ -19,7 +19,7 @@ before implementation) and validation (after, to cover existing code).
 ```
 Role: tester — focus: <specification | validation>.
 
-Design record / plan: <artifact + sections: behaviors, contracts, UX>.
+Design record / plan: <the brief excerpt — [workers.md](../workers.md#universal-worker-protocol) universal rule 8>.
 Component under test: <what to cover>.
 
 Read the project's testing conventions first. Tests describe WHAT

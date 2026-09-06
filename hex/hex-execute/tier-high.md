@@ -4,7 +4,12 @@ The full treatment for **one-way-door-high** plans — a new module or
 package, a breaking API, a cross-area refactor, a protocol or
 storage-layout change. Preserves contract-first TDD, and adds mandatory
 `adversarial` review breadth (architect + researcher perspectives) and a
-mandatory cross-model code-diff gate before commit.
+mandatory cross-model code-diff gate before commit. That skeleton is the shape
+at effective tier `high`: in a plan carrying the generation marker a WP whose
+[effective
+tier](../hex-core/references/decompose.md#the-effective-tier) resolves `low`
+runs the collapsed builder and skips Verify-Architecture instead
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -48,7 +53,18 @@ rules are read.
 For each work package, launch **1** `builder` (focus `stub`); model class
 resolves through [`models.md`](../hex-core/references/models.md)
 (`builder:stub` — the fast-balanced baseline, escalated on judgment for
-cross-area or new-module scaffolding, announced with its reason).
+cross-area or new-module scaffolding, announced with its reason). Each brief
+carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
+
+**A WP whose [effective
+tier](../hex-core/references/decompose.md#the-effective-tier)
+resolves `low` runs the collapsed builder instead — Stub, Specify and Implement
+in one spawn**
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+Every other WP, and every WP in a plan without the generation marker, runs
+this phase unchanged.
 
 **Gate** — the project's compile/type check passes **across the whole
 workspace**, not just the touched work packages — cross-area implications
@@ -58,7 +74,15 @@ workspace of the repo the gate runs in, never a cross-repo aggregate (C-321).
 ## Phase 3: Verify-Architecture (reviewer + architect)
 
 Launch **in a single concurrent batch**, per work package (a `self`-budget
-WP — rare at this tier — skips this phase per the budget rule):
+WP — rare at this tier — skips this phase per the budget rule, in a plan
+without the generation marker; under the marker the cell skips nothing and a WP
+skips this phase only by deriving `low` ([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier))). Each brief
+carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8) — except the `architect`, which reads in full the ADR or design
+document its brief names as its compliance target, per that rule's
+architect carve-out:
 
 - **1** `reviewer` (focus `spec`, phase `post-stub`).
 - **1** `architect` — validates stubs against the plan's ADR: are the
@@ -78,7 +102,13 @@ class resolves through
 at this tier). Cover edge cases exhaustively: boundary conditions,
 concurrent access, failure modes, cross-area interactions. Unit and
 acceptance tests both required, each citing the `C-`/`S-` IDs it covers
-([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)).
+([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)). Each
+brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
+
+**Skipped for a WP that ran the collapsed builder** — its tests were written
+there ([Phase 2](#phase-2-stub)).
 
 **Gate** — tests compile/parse, fail with not-implemented against the
 stubs; coverage matches the plan's documented edge-case list; every plan
@@ -88,21 +118,32 @@ ID has at least one failing test.
 
 For each work package, launch **1** `builder` (focus `implement`); model
 class deep-reasoning at this tier
-([`models.md`](../hex-core/references/models.md)).
+([`models.md`](../hex-core/references/models.md)). Each brief carries the
+excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 
-**Gate** — the project's documented verification succeeds across the whole
-workspace, not just the touched work packages. In a federated run "the whole
-workspace" is the workspace of the repo the gate runs in, never a cross-repo
-aggregate (C-321).
+**Skipped for a WP that ran the collapsed builder** — its implementation was
+written there ([Phase 2](#phase-2-stub)), which paid this gate.
+
+**Gate** — the [scoped check](../hex-core/references/verify.md#scoped-check)
+passes.
 
 ## Phase 6: Review-Fix Loop (up to 3 rounds, adversarial breadth)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
-— capped at **3 rounds**, `review=adversarial` breadth (mandatory). Each WP
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
+— capped at **3 rounds** (**in a plan carrying the generation marker** the
+cap is the WP's own effective-tier default instead — a WP that resolves `low`
+caps at **1**), `review=adversarial` breadth (mandatory). Each WP
 runs at its declared Review budget (`self`/`light` lower the set below per
-WP; `panel` = this tier's full set) — rare at this tier, and never on
-security- or hot-path work
-([`protocol.md`](../hex-core/references/protocol.md#the-review-fix-loop)).
+WP; `panel` = this tier's full set) — rare at this tier, and bounded by the
+[budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition).
+**In a plan carrying the generation marker** the derived breadth is the
+baseline instead, the cell is raise-only against it, `panel` raises the WP to
+the ceiling, and the budget guard's downward half is suppressed ([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier); the guard itself
+is owned by [parallel-by-default
+decomposition](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 
 **Round 1** — launch concurrently: `reviewer` (focus `quality`), `reviewer`
 (focus `spec`, phase `post-implementation`), `reviewer` (focus `security`)
@@ -113,6 +154,11 @@ triggers match, `architect` (ADR-compliance / boundary check), `researcher`
 matches. A `perspectives.always` addition on top of this round is what
 merge rule 6's phase ceiling displaces first
 ([`config.md` § Merge rules](../hex-core/references/config.md#merge-rules)).
+Each brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8) — except the `architect`, which reads in full the ADR or design
+document its brief names as its compliance target, per that rule's
+architect carve-out.
 
 A finding that oscillates between `architect` and `reviewer` two rounds
 running auto-defers, per the canonical loop's oscillation rule.
@@ -124,14 +170,16 @@ the loop converges, invoke the configured adversary skill once in
 get one `builder` (focus `implement`) fix pass, re-verified. If that one-shot
 fix pass fails verification, **revert it** and promote all cross-model
 findings to deferred rather than looping
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 If the adversary produces no review — the skill is unavailable, or it ran and
 did not complete one — log
 `Cross-model review skipped: <reason>` and continue — but **surface the skip
 prominently in the handoff**, since one review layer was missed.
 
-**Gate** — the project's documented verification passes on the final state;
-both panel and cross-model deferred findings are documented.
+**Gate** — the loop's
+[exit gate](../hex-core/references/loop.md#the-review-fix-loop), at this
+phase's 3-round cap; both panel and cross-model deferred findings are
+documented.
 
 ## Phase 7: Merge and commit
 
@@ -139,11 +187,11 @@ Merge work packages onto the plan's feature branch, serialized in a valid
 topological order per [`SKILL.md`](SKILL.md#work-packages) — one WP at a
 time. Before each merge, run the merge-time file-set re-validation;
 a **scoped check** runs after every merge — the project's full documented
-verification only on the triggers
-[`protocol.md` § Worktree work-package mechanics](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+verification only on the merge-triggered ones
+[`worktree.md` § Worktree work-package mechanics](../hex-core/references/worktree.md#worktree-work-package-mechanics)
 names — and a merge conflict or a failed post-merge verification follows
 the merge-conflict / post-merge-failure playbook
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Set the table's `Status` column to `merged` on a successful merge, `failed`
 on a playbook halt; ephemeral branch deleted and worktree removed once its
 WP merges. Commit per completed work package with conventional-commit
@@ -156,8 +204,12 @@ carries the `Hex-Plan:` trailer, and the post-merge verification is the **owning
 repo's**, read by an explicit `Read` of that repo's project context — never
 ambient ([`SKILL.md` § Work packages](SKILL.md#work-packages)). Merge order is
 one global topological sequence across all repos, one at a time
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Absent a `Repo` column this is inert.
+
+**Gate** — trigger (iii), the final gate, fires once at the end of the run,
+however many work packages merged — a single-package plan included
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 
 Surface prominently in the handoff:
 
@@ -185,6 +237,9 @@ Mutate the plan's Status block: `State: review`, `Updated` refreshed,
 - Tier: high
 - Overlays: review=adversarial, loop-rounds=3, adversary=on
 ```
+
+The handoff block also prints the **six-figure rollup** of the run's timings,
+per [`protocol.md` § Handoff contract](../hex-core/references/protocol.md#handoff-contract).
 
 Required artifacts: the plan (Status block advanced to `review`), the
 commit(s) on the feature branch, and — if implementation revealed a decision

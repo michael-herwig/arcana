@@ -79,7 +79,7 @@ resolved in step 2 carries a `Repo` column, run this in the pre-gate window —
 after memory and target are resolved, **before the gate (step 5) and before any
 branch, worktree, commit or back-pointer**. It *realizes* the pre-flight access
 invariant defined once in
-[`protocol.md` § Worktree work-package mechanics](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+[`worktree.md` § Worktree work-package mechanics](../hex-core/references/worktree.md#worktree-work-package-mechanics)
 (the barrier, and what each clause rules out); protocol.md owns that invariant —
 the steps below are its executable realization, restating only the operational
 minimum the procedure needs.
@@ -172,7 +172,9 @@ re-established on resume — the branch-level Review-Fix panel is its backstop
 — announce that. When a plan lacks the column, fall back to re-deriving
 progress from existing `hex/<plan-slug>--<wp-slug>` branches. The
 Implementation Steps checkboxes (`- [ ]` / `- [x]`) stay the finer
-within-WP progress, no separate state file to consult. `landing` — a
+within-WP progress, no separate state file to consult. **A resuming run
+re-reads the plan and never reads the per-run scratch root** — that root is
+ephemeral and never authoritative. `landing` — a
 federated plan (carrying a `Repo` column) that `/hex-review` advanced past
 execution and that awaits its satellite feature branches being landed into
 their trunks — is a **finalize-only re-entry**: skip every execution phase
@@ -252,10 +254,30 @@ hex-execute
   Work packages: 3 WPs, DAG launch — ready now: WP1, WP2
              review budgets: WP1 light, WP2 self, WP3 panel
              critical path WP1 → WP3          (plan Parallelization table)
-  Recursion:  WP3 → coordinator (4 sub-tasks, decomposable)   (granularity gate)
-              others → single builder                          (below gate)
+  Budget:    S:light 1 · M:self 1 · L:panel 1  (histogram grammar:
+             decompose.md#parallel-by-default-decomposition)
+  Recursion:  every ready WP → coordinator              (Q1: ready set ≥2)
+              of those, WP3 decomposes (4 sub-WPs)      (Q2: granularity gate)
   Branches:  feature hex/plan-cache; ephemeral hex/plan-cache--<wp> per WP
-  Degraded:  no — nested spawn + programmatic orchestration available
+  Degraded:  no — subagent spawning available
+```
+
+**A plan carrying the generation marker** ([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier)): `Tier:` announces
+the **ceiling**, `derived` joins the source tokens, and the block gains a per-WP
+line plus the effective-tier histogram, which **replaces** the `Budget:`
+size:review line. A run in which any risk flag degraded prints one line naming
+the flag, the unreadable convention, the consequence and the remedy:
+
+```
+  Tier:      high  (ceiling — from plan Status block)
+  Per-WP:    WP1 low (derived: S, no flags) · WP4 high (derived: sec) · …
+             (snapshot — recomputed at each WP's own spawn time)
+  Budget:    effective tier: low 6 · medium 2 · high 1 (ceiling high;
+             histogram grammar: decompose.md#parallel-by-default-decomposition)
+  Overlays:  review=minimal                  (derived — WP1 effective low)
+  Degraded:  hot-path convention unreadable (hex.md › Pointers) — every WP
+             resolves at the ceiling; add the row to restore reduction
 ```
 
 The announce block prints one config-disclosure line per change a
@@ -306,12 +328,12 @@ Review-Fix perspectives fire.
 
 | Phase | Role | Count | Purpose |
 |---|---|---|---|
-| Stub | `builder` (focus `stub`) | 1 per work package | Public API surface only, not-implemented bodies |
+| Stub | `builder` (focus `stub`) | 1 per work package † | Public API surface only, not-implemented bodies |
 | Verify-Architecture | `reviewer` (focus `spec`, phase `post-stub`) | 0–1 per WP | Stubs match the plan's component contracts |
 | Verify-Architecture | `architect` | 0–1 | ADR / boundary compliance (high tier) |
-| Specify | `tester` (focus `specification`) | 1 per work package | Tests from the plan's design record, must fail against stubs |
-| Implement | `builder` (focus `implement`) | 1 per work package | Fill bodies until the specification tests pass |
-| Implement | `coordinator` | 0–1 per qualifying WP | Fans out parallel leaves within a WP that meets the granularity gate ([`coordinator`](../hex-core/references/workers/coordinator.md)) |
+| Specify | `tester` (focus `specification`) | 1 per work package † | Tests from the plan's design record, must fail against stubs |
+| Implement | `builder` (focus `implement`) | 1 per work package † | Fill bodies until the specification tests pass |
+| Implement | `coordinator` | 0–1 per ready WP | Owns the WP and runs its phase pipeline; the decomposing kind additionally fans it out into sub-WPs ([`coordinator`](../hex-core/references/workers/coordinator.md)) |
 | Review-Fix | `reviewer` (focus `spec`, phase `post-implementation`) | 1 | Full traceability, every tier |
 | Review-Fix | `reviewer` (focus `quality`) | 1 | Every tier |
 | Review-Fix | `reviewer` (focus `security`) | 0–1 | Security-sensitive paths touched |
@@ -321,6 +343,11 @@ Review-Fix perspectives fire.
 | Review-Fix | `researcher` | 0–1 | SOTA-gap / known-pitfall check (adversarial breadth) |
 | Adversary | configured adversary skill (`code-diff`) | 0–1 | Cross-model review of the branch diff |
 
+† **Effective tier `low`** — in a plan carrying the generation marker a WP that
+resolves `low` runs these three phases as **one** `builder` spawn, so its
+`tester` count is 0 and its `Verify-Architecture` rows are 0
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+
 A project's `tiers.hex-execute.<tier>.counts` can override any Count cell
 above against the baseline this table sets
 ([`config.md` § Merge rules](../hex-core/references/config.md#merge-rules)).
@@ -328,7 +355,7 @@ above against the baseline this table sets
 Concurrency cap and degraded mode:
 [`protocol.md`](../hex-core/references/protocol.md#worker-coordination). The
 adversary skill name comes from `hex.md › Preferences`
-([adversary contract](../hex-core/references/protocol.md#adversary-contract));
+([adversary contract](../hex-core/references/adversary.md#adversary-contract));
 `codex-adversary` is only an example value.
 
 ## Project rules and conventions
@@ -340,7 +367,7 @@ project rules) and the pointers in the Pointers section of
 `.agents/memory/hex.md`
 ([`memory.md`](../hex-core/references/memory.md#the-three-sections)). "Verify"
 anywhere below means **run the project's documented verification**
-([`protocol.md`](../hex-core/references/protocol.md#verification)); if none
+([`verify.md`](../hex-core/references/verify.md#verification)); if none
 is documented, detect a reasonable command once for this run and suggest
 `/hex-init` to persist it.
 
@@ -397,7 +424,7 @@ and a `landed:` flag.
 
 The field layout is the plan template's
 ([`plan.md`](../hex-init/assets/templates/plan.md)) and the persistence
-invariant is protocol.md's (§ Worktree work-package mechanics, C-317); this
+invariant is worktree.md's (§ Worktree work-package mechanics, C-317); this
 section owns only the write moment and the read-never-re-resolve rule.
 
 **Living design record.** When execution reveals a behavior or edge case the
@@ -422,13 +449,18 @@ entry. The full grammar, `Base:` mechanics, guards and halts live in
 ## Work packages
 
 Read the plan's Parallelization table (WP id, scope, expected files, size,
-wave, depends-on, review, status) before Stub begins. A missing `Review`
-column or cell defaults to **`panel`** at table-parse time — pre-budget
-plans execute unchanged
-([`protocol.md`](../hex-core/references/protocol.md#the-review-fix-loop)).
+wave, depends-on, review, verify, status) before Stub begins. A missing
+`Review` column or cell defaults to **`panel`** at table-parse time — pre-budget
+plans execute unchanged; **in a plan carrying the generation marker it means the
+derived breadth instead**, and the cell is raise-only against that baseline
+([the effective tier](../hex-core/references/decompose.md#the-effective-tier),
+[`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)); a
+missing `Verify` column or cell — a literal `—` included — resolves at the
+same point to the plan's `- Verify-default:` line, else **`scoped`**
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 Then **resolve the feature branch** — the plan's single integration target: the non-trunk branch
 already checked out, else create `hex/<plan-slug>` from the trunk
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Two shapes:
 
 - **Single work package** — normal at tier `low`; above it, only when the
@@ -437,16 +469,16 @@ Two shapes:
 - **2+ work packages** — each WP launches the instant every WP in its
   `Depends-on` has merged (dependency-ready launch, per the [Schedule
   step](#schedule) and
-  [`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)),
+  [`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)),
   each in its own ephemeral branch + worktree, each running its own Stub →
   Specify → Implement → Review-Fix cycle scoped to its declared file set;
   merge back onto the feature branch serialized in a valid topological
   order, verification after every merge — a **scoped check** except on the
-  triggers
-  [`protocol.md` § Worktree work-package mechanics](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+  merge-triggered ones
+  [`worktree.md` § Worktree work-package mechanics](../hex-core/references/worktree.md#worktree-work-package-mechanics)
   names. Mechanics — branch naming, frozen base, worktree location and
   cleanup — live in
-  [`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics),
+  [`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics),
   never restated here.
 
 **Status-column mutations.** The table's `Status` column
@@ -458,7 +490,7 @@ playbook. This is a finer grain than the plan-level Status block: `State`
 `Status` column is per-WP.
 
 **Federation — a WP whose `Repo` is a satellite key.** The mechanics are
-protocol.md's (§ Worktree work-package mechanics — satellite worktrees, merge
+worktree.md's (§ Worktree work-package mechanics — satellite worktrees, merge
 serialization, the `Hex-Plan:` trailer); this section owns only what hex-execute
 *does*. Absent a `Repo` column none of it fires.
 
@@ -487,7 +519,7 @@ serialization, the `Hex-Plan:` trailer); this section owns only what hex-execute
 
 Merge-time file-set re-validation and the merge-conflict /
 post-merge-failure playbook are defined in
-[`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)
+[`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)
 — never restated here.
 
 A plan whose Parallelization section under-uses its own file-disjointness
@@ -506,13 +538,13 @@ resolves) to feed the step-6 announce block; its worktree preparation is
 the post-gate realization, in the tier file's Discover phase:
 
 1. **Read the table.** Take the resolved plan's Parallelization table (WP
-   id, scope, expected files, size, wave, depends-on, review, status) as the
-   state of record. For a **free-text target** with no plan artifact, build
-   an inline mini-table with the same nine columns
+   id, scope, expected files, size, wave, depends-on, review, verify,
+   status) as the state of record. For a **free-text target** with no plan
+   artifact, build an inline mini-table with the same nine columns
    (`WP | Scope | Expected Files | Size | Wave | Depends on | Review | Verify | Status`)
    so the free-text path drives the same launch machinery — Review assigned per
    the protocol heuristic
-   ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)) — **a single WP by
+   ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)) — **a single WP by
    default**, decomposed into several only when the task plainly names ≥3
    disjoint areas. `Verify` defaults to `scoped` here: a free-text target has
    no Status block, so there is no `Verify-default:` line to inherit (C-905). (A free-text `high` target still routes through
@@ -522,33 +554,61 @@ the post-gate realization, in the tier file's Discover phase:
 2. **Compute the ready-set** — the WPs whose every `Depends-on` is already
    `merged`, ordered critical-path-first — per protocol.md's
    dependency-ready launch rule
-   ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
+   ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
    Recompute the ready-set after every merge; ready WPs' worktrees are
    prepared post-gate (Discover) as each becomes eligible. Each merge also
    appends its `## Schedule log` entry, whose grammar lives in
-   [`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition).
-3. **Select the fan-out mechanism.** Detect the harness's fan-out
+   [`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition).
+3. **Resolve the liveness evaluation mechanism.** Resolve the three-rung
+   capability resolution for the liveness ladder once for this run and
+   announce it, emitting one `Degraded:` line per degraded axis, per
+   protocol.md's evaluation-mechanism rule
+   ([`protocol.md`](../hex-core/references/protocol.md#worker-liveness)).
+   Capability classes only, never a client's name for a primitive. Not a new
+   question and not a second gate — its line rides the Dispatch step 6
+   announce block.
+4. **Preflight before every spawn wave.** Run protocol.md's three-check
+   preflight before **every** spawn wave
+   ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination));
+   on a trip **hold, never spawn**, per the bounded re-check-then-surface rule
+   defined there. Not a new question and not a second gate.
+5. **Select the fan-out mechanism.** Detect the harness's fan-out
    capabilities for this run — never stored — and pick each qualifying WP's
    mechanism per protocol.md's fan-out-mechanism rule
    ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)):
    programmatic orchestration preferred, nested subagent spawning the
    fallback, else degraded flattening — no coordinators, a single builder per
-   WP. Which WPs qualify is the granularity gate in
+   WP. Which WPs get a coordinator at all is Q1 in
    [Coordinator spawn](#coordinator-spawn) below.
-4. **Feed the announce block.** Emit the resolved schedule into the
-   **existing** Dispatch announce block (step 6) — the `Work packages:`,
-   `Recursion:`, and critical-path lines — never a new question.
+6. **Feed the announce block.** Emit the resolved schedule into the
+   **existing** announce block (Dispatch step 6) — the `Work packages:`,
+   `Budget:`, `Recursion:`, and critical-path lines — never a new question.
 
 ### Coordinator spawn
 
-A WP qualifies for a [`coordinator`](../hex-core/references/workers/coordinator.md) —
-a worker that fans out parallel implementation and review *within* the WP —
-only when it holds **≥3 independent, WP-grain sub-tasks** and the work is
-**decomposable**. The gate is orchestrator judgment, not a mechanical count;
-the conservative default is a **single builder**. The full preconditions and
-the coordinator's internals live in
+Two separate questions, not one. Both are orchestrator judgment, and neither
+is an approval point — the [meta-plan
+gate](#5-meta-plan-gate-the-single-approval-point) stays the only one.
+
+**Q1 — does this WP get a
+[`coordinator`](../hex-core/references/workers/coordinator.md)?** **Yes when
+the ready set holds ≥2 WPs and the harness can nest** — the coordinator owns
+the WP and runs its phase pipeline. Two cases answer no, and each degrades to
+today's behaviour exactly:
+
+- **A ready set of exactly one WP** — there is nothing to overlap it with, so
+  the parent runs that WP's pipeline **inline**.
+- **The fan-out ladder's degraded-flattening rung** (Schedule step 5) — no
+  nesting, so no coordinators and a single builder per WP, under the
+  **existing** `Degraded: flat execution` line
+  ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)).
+  No second degrade line is added for this.
+
+**Q2 — does that coordinator further decompose its WP into sub-WPs?** The
+existing judgment, unchanged, and answering no removes the fan-out rather than
+the coordinator. Its preconditions and the coordinator's internals live in
 [`workers/coordinator.md`](../hex-core/references/workers/coordinator.md) —
-never restated here.
+their sole definition site, **never restated here**.
 
 Review grows by **diversity across join levels**, never same-role count at
 one level. Three join scopes, by size:
@@ -557,18 +617,24 @@ one level. Three join scopes, by size:
   1-round spec+quality loop, defined in the coordinator role
   ([`workers/coordinator.md`](../hex-core/references/workers/coordinator.md)).
 - **WP merge** (a WP lands on the feature branch) — the WP's **budgeted**
-  Review breadth (`panel` = the tier baseline; a coordinator WP is by
-  definition `panel` — `self`/`light` WPs never qualify for a
-  coordinator), reviewing the **WP diff**, never the coordinator's
-  summary prose
-  ([`protocol.md`](../hex-core/references/protocol.md#the-review-fix-loop)).
+  Review breadth (`panel` = the tier baseline), reviewing the **WP diff**,
+  never the coordinator's summary prose
+  ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+  **In a plan carrying the generation marker** the breadth is the WP's derived
+  one and `panel` raises it to the plan's ceiling — a coordinator-split WP
+  included; that WP's effective tier
+  floors at `min(T, medium)`, so its breadth is that of the tier it resolves
+  to ([the
+  effective tier](../hex-core/references/decompose.md#the-effective-tier)).
 - **Swarm** (feature branch → trunk) — `/hex-review`'s staged panel,
   unchanged.
 
 ## Constraints
 
-- Every phase gates on the project's documented verification — never
-  complete a phase without it passing.
+- **No phase completes until its gate passes.** The gate conditions
+  themselves are defined per phase in the tier files, not restated here
+  ([`verify.md`](../hex-core/references/verify.md#verification),
+  [scoped check](../hex-core/references/verify.md#scoped-check)).
 - Never leave work uncommitted at the end of a completed phase or work
   package.
 - Never exceed the concurrency cap
@@ -614,6 +680,15 @@ proceed question may follow it.
 ### Next step
     /hex-review <plan path or branch>
 ```
+
+**One line per WP whose effective tier fell below the plan's ceiling** ([the
+effective tier](../hex-core/references/decompose.md#the-effective-tier)) joins
+`### Classification`, naming the WP, its effective tier, the ceiling and the
+inputs that produced the reduction — so the human deciding whether to run the
+mandatory branch-level `/hex-review` sees what that backstop is covering
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)):
+`- Reduced: WP1 low (ceiling high — derived: S, no flags)`. Absent any
+reduction the lines are absent and the block is unchanged.
 
 **Federation — a plan carrying a `Repo` column.** The handoff additionally
 enumerates the per-repo feature branches in required landing order and names the
