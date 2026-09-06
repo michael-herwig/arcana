@@ -386,7 +386,8 @@ def test_the_recorded_tool_visibility_table_still_says_deny_alone_does_not_remov
     is measured against.
     """
     del info
-    table = (FIXTURES / f"tool-visibility-{VERIFIED_AGAINST}.txt").read_text(encoding="utf-8")
+    # A paid capture kept at its recording (E30); the pin names the free `version-`/`help-` files only.
+    table = (FIXTURES / "tool-visibility-1.0.82.txt").read_text(encoding="utf-8")
     rows = [line.split("\t") for line in table.splitlines() if line and not line.startswith("#")]
     counts = {row[0]: row[1] for row in rows}
     assert counts["deny only"] == "17", "a release where deny alone removes tools is a re-probe, not a pass"
