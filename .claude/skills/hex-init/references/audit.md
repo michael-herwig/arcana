@@ -223,6 +223,26 @@ anything is asked nothing, and hex never raises the question on its own.
 - **Optional** — no marker found, no pin proposed, and the item stays
   silent.
 
+### Review settings tuned?
+
+- **Look for:** whether `hex.md › Preferences` carries a `review:` block
+  ([`config.md`](../../hex-core/references/config.md#key-vocabulary)
+  `review.<level>.*`), and whether `hex.md › Memory` records a review-config
+  or checklist candidate a prior run surfaced under the
+  [upkeep step](../../hex-core/references/protocol.md#upkeep-step).
+- **Where:** `.agents/memory/hex.md` only. No network read; executes
+  nothing.
+- **Documented looks like:** a `review:` block whose values differ from the
+  shipped defaults for a stated reason, or an explicit note that the
+  defaults are accepted.
+- **De facto discovery:** a Memory entry naming a budget expiry, a residue
+  line, a round count, or a finding class that recurred — each proposes the
+  matching `review.<level>.*` key, or a project-rule line the
+  [checklist](../../hex-core/references/checklist.md#composition) will pick
+  up, for adoption, folded into Step 4½'s single consent-gated diff.
+- **Optional** — no candidates and no block means the shipped defaults
+  apply and the item stays silent.
+
 ### Resource profile measured?
 
 - **Look for:** whether `hex.md › Pointers` carries a `Resource profile:`

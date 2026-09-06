@@ -50,8 +50,10 @@ mandatory. Stay within the **fan-out budget** the orchestrator passed (≤ the
 WP's share of the global concurrency cap), so concurrent leaves never push
 the recursive total over the cap.
 
-**Join** — a **decomposing** coordinator runs the tiny review loop (**1 round,
-spec + quality**) and funnels every sub-WP through **the same centralized
+**Join** — a **decomposing** coordinator runs `L1` at each sub-WP's join and
+`L2` once at the WP join **only when it joined two or more sub-WPs**
+([Review by join level](../loop.md#review-by-join-level) — the sole
+definition), and funnels every sub-WP through **the same centralized
 verify gate** the orchestrator uses (mandatory — it is what keeps error
 amplification bounded); a pipeline coordinator has no join to run it at.
 Either kind returns **one per-WP summary**, never a raw pile of sub-worker
@@ -99,9 +101,11 @@ Lock dir: $LOCKS=<absolute host-global lock dir, for heavy slots; never re-deriv
 
 Run the work package's phase pipeline, spawning leaves per phase, and return
 ONE summary. Decomposing only: split into dotted sub-WPs (disjoint file
-subsets), fan out leaf builders + testers in parallel, run a 1-round
-spec+quality review at the join, funnel every sub-WP through ONE run of the
-same centralized verify gate the orchestrator uses, at the WP join. Never
+subsets), fan out leaf builders + testers in parallel, run L1 (one
+delta-only reviewer, one round) at each sub-WP join and L2 (one
+deep-reasoning seat over the aggregate) once at the WP join only when N ≥ 2
+sub-WPs joined, funnel every sub-WP through ONE run of the same
+centralized verify gate the orchestrator uses, at the WP join. Never
 spawn another coordinator. Never leave a sub-WP unverified. Beat before you
 return, a failure return included.
 

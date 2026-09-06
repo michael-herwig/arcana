@@ -5,7 +5,7 @@ lock_version = 1
 declaration_hash_version = 1
 declaration_hash = "sha256:b4a1fc7c7a1dd14a8551e72091688858552b8ff2b181668a3b897aa90cc52a15"
 generated_by = "grim 0.14.0"
-generated_at = "2026-09-06T12:15:29Z"
+generated_at = "2026-09-06T14:39:56Z"
 
 [[skill]]
 name = "ai-config-authoring"
@@ -28,22 +28,22 @@ bundle_tag = "latest"
 [[skill]]
 name = "hex-architect"
 path = "./hex/hex-architect"
-hash = "sha256:9e5f50eadd2b18d428b56926fe2df244dcf8c4ae7bb6dd23fbc8abf0c2f6a633"
+hash = "sha256:d08f9de824269e340baaa9ad74713db4208cb951008c1cc26faeee3f8f581997"
 
 [[skill]]
 name = "hex-core"
 path = "./hex/hex-core"
-hash = "sha256:1e7d4c0117b855244bf9adc394244ecd4073616d3227ae6d0738b83e94cf483d"
+hash = "sha256:625b526dd065d8b02fe451996edf4ee50f3c54d29eaf450ae49d292ae37056f5"
 
 [[skill]]
 name = "hex-discuss"
 path = "./hex/hex-discuss"
-hash = "sha256:c2f8a4d948b7bd7037e125c0ea497587fe1edc2ace5df240f37e2dbfb195a041"
+hash = "sha256:49bd9a0233f1894662356ab5783dc22288f3c3eefa897d0a3ce491c3b686c173"
 
 [[skill]]
 name = "hex-execute"
 path = "./hex/hex-execute"
-hash = "sha256:20b1923cd67479ca73ce88c19137434414d3d91c70af4f962043fb50c746d094"
+hash = "sha256:e190ebc98dc023313455194a2044fa5a08b9732f6386eee2085dd6464a477b96"
 
 [[skill]]
 name = "hex-finalize"
@@ -53,17 +53,17 @@ hash = "sha256:1901d4fd992a661cf68a82eda712d2fa31cf2a5b32fbd5403a4c51de329cee5c"
 [[skill]]
 name = "hex-init"
 path = "./hex/hex-init"
-hash = "sha256:5b7a2ccfa7e42bd94dcf9b45f10d519539bceebe21b7be9b52217f57739fa1f3"
+hash = "sha256:6ed15352c71a2badf5c5ab170c05151d5b66fb8d103697b26310e19c8a788a89"
 
 [[skill]]
 name = "hex-plan"
 path = "./hex/hex-plan"
-hash = "sha256:93021f500a33d7528aa35a29d14bb245c52cbca16afaca7a3adaec04f14b8254"
+hash = "sha256:785913ca91394c21343d45cc9b387c6762862ea16a5d500d6ac42ceeab9a0b66"
 
 [[skill]]
 name = "hex-review"
 path = "./hex/hex-review"
-hash = "sha256:c821b1085810995835e066db9c16f03afd19f5e412380dde9a31f18a04c66f92"
+hash = "sha256:73babeaa728720c62bc9622b4983075dde0d25e0bef3488dad03e0ac2ccab144"
 
 [[rule]]
 name = "hex-state"

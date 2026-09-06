@@ -22,7 +22,8 @@ the project's plan location. Read and mutated by /hex-plan, /hex-execute,
 -->
 
 - State:   plan-approved      <!-- planning → plan-approved → executing → review → done; federated plans only (`Repo` column present): review → landing → done -->
-- Tier:    [low | medium | high]
+- Tier:    [low | medium | high | xhigh | max]
+- Tier-grammar: 5   <!-- written by /hex-plan; the grammar `Tier:` was written in. Absent ⇒ pre-`adr_0017` grammar: `Tier:` is read one step higher (low→medium, medium→high, high→xhigh) and announced, never rewritten — hex-core references/protocol.md § Tier grammar (C-997). -->
 - Effective-tier: derived   <!-- optional — the generation marker.
   Present ⇒ the `Tier:` line above is a ceiling and every WP derives its
   own effective tier from cells the table already carries, never above
@@ -148,22 +149,18 @@ Size is the plan-time estimate of the WP's diff: `S` — ~≤50 expected
 lines AND ≤3 expected files; `M` — ~≤500 expected lines AND ≤15
 expected files; `L` — anything else. Both halves of a class must hold,
 and an absent, empty, unrecognized or ambiguous cell reads `L` (C-954).
-It is reporting vocabulary — the downward budget guard reads it
-alongside `Expected Files`, which decides — and, in a plan carrying the
+It is reporting vocabulary and, in a plan carrying the
 `- Effective-tier: derived` marker, a derivation input. Substance:
 hex-core references/decompose.md § Parallel-by-default decomposition
 (C-928).
-Review is the per-WP review budget: self (docs-only/tiny low-risk —
-builder self-check only), light (single-area moderate — one spec
-reviewer), panel (large/security/hot-path — the tier's full set). In a
-marked plan the cell is raise-only against the derived breadth: `panel`
-raises the WP to the ceiling, while `self` and `light` are inert —
-honoured as a no-op, never a defect. All three values are
-unchanged in a plan without the marker. Substance: hex-core
-references/decompose.md § Parallel-by-default decomposition (C-954). A
-missing cell = panel, or the derived breadth in a marked plan (C-957); a
-sub-WP inherits its parent's budget unless the sub-WP's own `Review`
-cell raises it. Repo is the WP's repo: a Federation key from
+Review is an optional risk hint, not a budget: `risk` raises the WP's
+review one join level (L1 leaf → L2 aggregate), exactly as a
+security-sensitive, hot-path or `Verify: full` file set does; empty
+means no hint. Review depth is otherwise keyed on join level, never on
+this cell or the tier. Legacy values are read, never migrated: `panel`
+reads `risk`, `self` and `light` are inert. Substance: hex-core
+references/loop.md § Review by join level (adr_0015 C-983). A sub-WP
+inherits its parent's cell. Repo is the WP's repo: a Federation key from
 `hex.md › Pointers`, or `.` (also the
 empty-cell default) for the lead — absent the column, a plan is
 single-repo and every federation rule is inert (C-302); delete the `Repo`
@@ -195,9 +192,9 @@ renderers.
 
 | WP | Repo | Scope | Expected Files | Size | Wave | Depends on | Review | Verify | Status |
 |----|------|-------|----------------|------|------|------------|--------|--------|--------|
-| [WP 1] | `.` | [Covers C-001, S-001] | `path/to/file` | [S/M/L] | 1 | — | [self/light/panel] | [scoped/full] | pending |
-| [WP 2] | `.` | [Covers C-002] | `path/to/other` | [S/M/L] | 1 | — | [self/light/panel] | [scoped/full] | pending |
-| [WP 3] | `.` | [Covers S-002] | `path/to/third` | [S/M/L] | 2* | WP 1, WP 2 | panel | — | pending *(rollup — computed)* |
+| [WP 1] | `.` | [Covers C-001, S-001] | `path/to/file` | [S/M/L] | 1 | — | [risk or empty] | [scoped/full] | pending |
+| [WP 2] | `.` | [Covers C-002] | `path/to/other` | [S/M/L] | 1 | — | [risk or empty] | [scoped/full] | pending |
+| [WP 3] | `.` | [Covers S-002] | `path/to/third` | [S/M/L] | 2* | WP 1, WP 2 | risk | — | pending *(rollup — computed)* |
 | [WP 3.1] | *(inherits)* | [Covers S-002] | `path/to/third_a` | [S/M/L] | 2 | *(inherits WP 3's)* | *(inherits)* | — | pending |
 | [WP 3.2] | *(inherits)* | [Covers S-002] | `path/to/third_b` | [S/M/L] | 3 | WP 3.1 | *(inherits)* | — | pending |
 
@@ -246,7 +243,7 @@ graph TD
 **Critical path:** [WP 1 → WP 3] (bounds wall-clock time)
 
 **Shippable after wave:** [N — what already ships if work stops here.
-Delete at tier low (single WP).]
+Delete at tier medium or below (single WP).]
 
 **Merge order:** a valid topological order, serialized — [WP 1], [WP 2], [WP 3] — with
 the scoped check after each merge onto the feature branch, and full
@@ -345,7 +342,7 @@ Gate: the scoped check passes — hex-core references/verify.md
 
 ## Dependencies
 
-<!-- tier-scaled — delete when empty/N/A at tier low -->
+<!-- tier-scaled — delete when empty/N/A at tier medium or below -->
 
 ### Code Dependencies
 
@@ -361,7 +358,7 @@ Gate: the scoped check passes — hex-core references/verify.md
 
 ## Rollback Plan
 
-<!-- tier-scaled — delete when empty/N/A at tier low -->
+<!-- tier-scaled — delete when empty/N/A at tier medium or below -->
 
 1. [Step to revert if issues arise]
 2. [Step to restore previous state]
@@ -369,7 +366,7 @@ Gate: the scoped check passes — hex-core references/verify.md
 
 ## Risks
 
-<!-- tier-scaled — delete when empty/N/A at tier low -->
+<!-- tier-scaled — delete when empty/N/A at tier medium or below -->
 
 | Risk | Mitigation |
 |------|------------|

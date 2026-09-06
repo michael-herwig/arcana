@@ -230,9 +230,10 @@ preferences, not copies. Team-shared — commit it.
 ## Preferences
 
 - Models (instantiated for this harness): fast-balanced → Sonnet,
-  deep-reasoning → Opus. Override: reviewer:security → Opus at every tier.
+  deep-reasoning → Opus. Override: builder:implement → Opus at every tier.
+- Review by join level: L1 budget 5 min, L2 rounds 2.
 - Cross-model adversary: `codex-adversary` skill.
-- Limits: max-workers 6, loop-rounds 3, adversary-timeout 3 (below the
+- Limits: max-workers 6, loop-rounds 2, adversary-timeout 3 (below the
   default, so it lowers the stall window).
 - Always-on perspectives: security review mandatory under `src/auth/**`.
 - Research axes of interest: registry ecosystems, OCI spec evolution.

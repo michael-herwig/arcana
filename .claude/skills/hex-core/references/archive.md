@@ -512,11 +512,10 @@ locks are a separate mechanism that persists past `landing` to `done` and are
 stranded-WP set never reaches its terminal review state — `done`, or
 `landing` for a plan carrying a `Repo` column. The failure cascade
 ([`decompose.md`](decompose.md#parallel-by-default-decomposition)) owns that
-rule, and this phase stays its sole writer. A second, narrower precondition
-gates the same state: a plan that armed [the mandatory branch-level review
-precondition](loop.md#the-review-fix-loop) does not reach it until a
-branch-level `/hex-review` has run at no less than the plan's ceiling tier —
-`/hex-review` remains its sole writer regardless.
+rule, and this phase stays its sole writer. No other precondition gates
+the state: the trunk review is `L3` of [Review by join
+level](loop.md#review-by-join-level), run only when invoked, and this
+skill writes the state because it is that level's sole writer.
 
 Moving the plan to a dated archive directory was considered and rejected: it
 breaks every link that points at the plan for the sake of directory
