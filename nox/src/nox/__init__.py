@@ -68,7 +68,7 @@ from nox.workspace import IsolationError
 # A literal, not `importlib.metadata.version("nox")`: the zipapp stages `src/nox`
 # with no dist-info, and an unrelated PyPI `nox` on the host would answer instead.
 # `tests/test_version.py` asserts it equals `[project] version` in pyproject.toml.
-__version__ = "0.3.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "MIN_TIMEOUT_S",

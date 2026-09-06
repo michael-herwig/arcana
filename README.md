@@ -38,7 +38,7 @@ grim add ghcr.io/michael-herwig/arcana/hex
 | `/hex-architect` | ADRs and trade-off analysis for hard-to-reverse decisions |
 
 Every orchestrator scales worker count, model choice, and review breadth
-through one shared `low|medium|high` tier grammar (`auto` by default), and
+through one shared `low|medium|high|xhigh|max` tier grammar (`auto` by default), and
 asks for exactly **one approval** before any work starts — no mid-flow
 questions.
 
