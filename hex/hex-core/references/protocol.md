@@ -39,9 +39,11 @@ layer up.
 | `/hex-architect` | `loop.md` |
 | `/hex-finalize` | `verify.md` |
 | any of the above with `adversary=on` | `+ adversary.md` |
+| any of the above composing a review brief | `+ checklist.md` — read by the orchestrator, inlined into the brief; the seat never opens it |
 | `/hex-review` on a federated target | `+ worktree.md` |
 | `builder` worker | `verify.md` only |
 | `reviewer` worker | `severity.md` only |
+| `simulator` worker | `verify.md` only |
 | `coordinator` worker | `loop.md`, `decompose.md` — **and the spine**, which no worker persona loads by default |
 | every other worker persona | — |
 
@@ -54,30 +56,45 @@ Every orchestrator runs the same outer loop:
 > with per-axis source attribution → dispatch to the tier's phases.
 
 Each skill ships this as a `SKILL.md` dispatcher plus `classify.md`,
-`overlays.md`, and `tier-{low,medium,high}.md` files.
+`overlays.md`, and `tier-{low,medium,high,xhigh,max}.md` files.
 
 ## Tier grammar
 
-Three tiers plus `auto`:
+Five tiers plus `auto` (`adr_0017` C-991):
 
 | Tier | Intent | Typical spawns | Gate depth |
 |---|---|---|---|
-| `low` | Two-way door: flag/option change, doc edit, ≤3 files, one area | 1 explorer; inline design; 1 reviewer, single pass | 1 approval; 1 review round; no adversary |
-| `medium` | One-way-door medium: new command, new storage/index layout, 1–2 areas | architecture-explorer + 2–4 explorers; 1 researcher; architect; review panel | 1 approval; up to 3 review rounds; adversary on one-way-door signals |
-| `high` | One-way-door high: new module/package, breaking API, cross-area, protocol change | medium set + mandatory architect, mandatory multi-axis research | 1 approval; up to 3 rounds; adversary a default part of the flow |
-| `auto` (default) | Classifier picks low / medium / high from signals | — | — |
+| `low` | Trivial two-way door: one file, ≤30 lines, no structural marker, no security-sensitive or hot path | **none** — the orchestrator is the worker, inline | 1 approval; the orchestrator answers the `spec` + `quality` checklist itself; one optional `L1` backstop when a non-doc file changed; no adversary |
+| `medium` | Two-way door: flag/option change, doc edit, ≤3 files, one area | 1 explorer; inline design; 1 reviewer, single pass | 1 approval; join-level review; no adversary |
+| `high` | One-way-door, medium blast radius: new command, new storage/index layout, 1–2 areas | architecture-explorer + 2–4 explorers; 1 researcher; architect; review panel | 1 approval; join-level review, `full` `L2` checklist; adversary on one-way-door signals |
+| `xhigh` | One-way-door, high blast radius: new module/package, breaking API, cross-area, protocol change | `high` set + mandatory architect, mandatory multi-axis research | 1 approval; join-level review, `adversarial` `L2` checklist; adversary a default part of the flow |
+| `max` | Everything `xhigh` is, bought explicitly: **every** configured adversary, five research axes with `competitive-research` mandatory, and usage simulation by four user patterns | `xhigh` set + one `researcher` per extra axis + `simulator` ×4 | `xhigh`'s, plus the simulators' one merged fix pass; **never auto-selected** |
+| `auto` (default) | Classifier picks `low` … `xhigh` from signals; never `max` | — | — |
 
-`auto` is the default; the classifier resolves it to one of the three real
-tiers and shows its reasoning at the gate.
+`auto` is the default; the classifier resolves it to one of the four
+auto-selectable tiers and shows its reasoning at the gate. **`max` is
+explicit only** — `--tier=max`, or a plan whose Status block says
+`Tier: max` — because its cost is the point.
 
-Tier **vocabulary** is fixed to the row above: `low` / `medium` / `high`
-plus `auto`. Only tier **content** — a tier's phase counts and inherited
-baseline — is project-redefinable, via the `tiers` key
-([`config.md`](config.md#tiers)).
+Tier **vocabulary** is fixed to the rows above: `low` / `medium` / `high`
+/ `xhigh` / `max` plus `auto`. Only tier **content** — a tier's phase
+counts and inherited baseline — is project-redefinable, via the `tiers`
+key ([`config.md`](config.md#tiers)).
 
-**Reserved tiers.** `xhigh` and `max` are reserved for future overlay
-stacks. The classifier **never emits them.** If a user explicitly passes a
-reserved tier, announce "`<tier>` reserved, running high" and run `high`.
+**The grammar a plan was written in** (`adr_0017` C-997). `adr_0017`
+shifted every pre-existing tier one step up — old `low` → `medium`, old
+`medium` → `high`, old `high` → `xhigh` — and inserted the inline `low`
+below them. A plan's `Tier:` is read under the grammar it was written in:
+`/hex-plan` writes `- Tier-grammar: 5` into the Status block, and a plan
+**without** that line has its `Tier:` shifted one step up on read, disclosed
+on the `Tier:` line's own source — `Tier: medium (plan, pre-adr_0017) →
+high`. The same rule reads `hex.md › Preferences`: a block whose
+`# hex config, vocabulary vN` comment is `v3` or lower has every
+`tiers.<skill>.<tier>` and `workflows.<skill>.<tier>` segment shifted the
+same way on read, announced once at the gate
+([`config.md`](config.md#key-vocabulary)). Never a rewrite of the plan or
+the block, never a refusal.
+
 
 ## Overlay grammar
 
@@ -116,7 +133,7 @@ source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`
 / `derived`):
 
 ```
-Tier: medium            (auto — classifier: new subcommand, 2 areas)
+Tier: high            (auto — classifier: new subcommand, 2 areas)
 Overlays: research=3     (user flag)
           adversary=on   (hex.md preference: one-way-door signals)
 Spawn set:
@@ -128,8 +145,8 @@ Spawn set:
 Models: <fast-balanced model> default; architect + reviewer:security →
         <deep-reasoning model> (hex.md preference instantiated — see models.md)
 Adversary: codex-adversary, plan-artifact scope   (hex.md preference)
-Limits: workers 8 (clamped from 12 · hex.md preference) · loop rounds 3
-        (loop rounds · tier default — a stored limit or a batched phase
+Limits: workers 8 (clamped from 12 · hex.md preference) · loop rounds 1
+        (loop rounds · level default — a stored limit or a batched phase
         shows here with its source)
 Degraded: blocking adversary call — no pollable output; process_only backstop 15 min
 ```
@@ -146,9 +163,9 @@ contract](adversary.md#adversary-contract)).
 ([the effective tier](decompose.md#the-effective-tier)) `Tier:` announces the
 **ceiling** and the block gains two lines: one attributing each work
 package's own resolved tier to the inputs that produced it —
-`WP1 low (derived: S, no flags) · WP4 high (derived: sec)` — and the budget
+`WP1 medium (derived: S, no flags) · WP4 xhigh (derived: sec)` — and the budget
 histogram that run prints,
-`effective tier: low 6 · medium 2 · high 1 (ceiling high)`, whose grammar
+`effective tier: medium 6 · high 2 · xhigh 1 (ceiling xhigh)`, whose grammar
 lives at the histogram bullet in [Parallel-by-default
 decomposition](decompose.md#parallel-by-default-decomposition) and is not restated
 here. The value is recomputed at each WP's own spawn time, so gate-time
@@ -222,7 +239,7 @@ enumeration above.** A run in which any risk flag degraded ([the effective
 tier](decompose.md#the-effective-tier)) prints one line, once, naming which flag, which
 convention was unreadable, the consequence per flag — a degraded `sec` or
 `hot` resolves that WP at the ceiling, a degraded `hub` floors it at
-`min(T, medium)` — and the one-line remedy. It is filed here rather than
+`min(T, high)` — and the one-line remedy. It is filed here rather than
 in that list because an absent or malformed Pointers row is not a
 `Preferences` config block, and filing it there would widen a closed
 enumeration by analogy.
@@ -393,7 +410,7 @@ orchestrator picks the coordinator's fan-out mechanism:
    coordinators fan out via nested subagent spawns (watch session budget and
    ref collision; isolation only for true-isolation sub-WPs).
 3. else **degraded flattening**: no coordinators — every WP runs a single
-   builder plus the normal per-WP panel. Announce:
+   builder plus its `L1` leaf review. Announce:
 
 ```
 Degraded: flat execution — no nested spawn; coordinators inlined
@@ -821,9 +838,14 @@ defined in [`archive.md`](archive.md#plan-archive) (C-410).
 Verify-on-consumption already
 repaired whatever a phase acted on mid-run; upkeep sweeps the remainder.
 `hex.md › Preferences` is user-owned and is **never edited here**: a
-preference the run surfaced (a perspective that should become an always-on
-hint) is recorded in `hex.md › Memory` and proposed at the next `/hex-init`
-run. This is part of the flow (portable, no hooks needed); because the file
+preference the run surfaced is recorded in `hex.md › Memory` and proposed at
+the next `/hex-init` run. Three candidate classes, named so a run knows what
+to record (`adr_0016` C-990): a perspective that should become an always-on
+hint; a `review.<level>.*` value the run's budget residue, expiry or
+round count argued for (`budget-minutes`, `rounds`, `class`, `checklist`);
+and a finding class that recurred across seats or runs and belongs in the
+project's own rules as a checklist item
+([`checklist.md`](checklist.md#composition)). This is part of the flow (portable, no hooks needed); because the file
 holds pointers rather than copies, upkeep is cheap. The section specs and
 staleness rules are in [`memory.md`](memory.md).
 

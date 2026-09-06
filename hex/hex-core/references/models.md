@@ -23,34 +23,42 @@ portable. Two classes:
 Rows are worker purposes at focus-mode granularity; columns are the tiers
 from [`protocol.md`](protocol.md#tier-grammar).
 
-| Role / focus | low | medium | high |
-|---|---|---|---|
-| explorer | fast-balanced | fast-balanced | fast-balanced |
-| architecture-explorer | fast-balanced | fast-balanced | fast-balanced |
-| researcher | fast-balanced | fast-balanced | fast-balanced |
-| builder:stub | fast-balanced | fast-balanced | fast-balanced |
-| builder:implement | fast-balanced | fast-balanced | deep-reasoning |
-| tester | fast-balanced | fast-balanced | deep-reasoning |
-| reviewer:quality | fast-balanced | fast-balanced | deep-reasoning |
-| reviewer:security | fast-balanced | deep-reasoning | deep-reasoning |
-| reviewer:performance | fast-balanced | fast-balanced | deep-reasoning |
-| reviewer:spec | fast-balanced | fast-balanced | deep-reasoning |
-| reviewer:user-feedback | fast-balanced | fast-balanced | deep-reasoning |
-| doc-reviewer | fast-balanced | fast-balanced | fast-balanced |
-| architect | deep-reasoning | deep-reasoning | deep-reasoning |
-| coordinator | — | deep-reasoning | deep-reasoning |
-| coordinator:pipeline | fast-balanced | fast-balanced | deep-reasoning |
+| Role / focus | low | medium | high | xhigh | max |
+|---|---|---|---|---|---|
+| explorer | — | fast-balanced | fast-balanced | fast-balanced | fast-balanced |
+| architecture-explorer | — | fast-balanced | fast-balanced | fast-balanced | fast-balanced |
+| researcher | — | fast-balanced | fast-balanced | fast-balanced | fast-balanced |
+| builder:stub | — | fast-balanced | fast-balanced | fast-balanced | fast-balanced |
+| builder:implement | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| tester | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| reviewer:quality | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| reviewer:security | — | fast-balanced | deep-reasoning | deep-reasoning | deep-reasoning |
+| reviewer:performance | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| reviewer:spec | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| reviewer:user-feedback | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| doc-reviewer | — | fast-balanced | fast-balanced | fast-balanced | fast-balanced |
+| architect | — | deep-reasoning | deep-reasoning | deep-reasoning | deep-reasoning |
+| coordinator | — | — | deep-reasoning | deep-reasoning | deep-reasoning |
+| coordinator:pipeline | — | fast-balanced | fast-balanced | deep-reasoning | deep-reasoning |
+| simulator | — | — | — | — | fast-balanced (`adversarial` pattern: deep-reasoning) |
 
-`—` = never spawned at that tier. Column resolution is per spawn, not per
+`—` = never spawned at that tier. **`low` spawns nothing** — the
+orchestrator is the worker (`adr_0017` C-994); its one optional `L1`
+backstop reads `review.l1.class` like every `L1` seat. `max` is `xhigh`
+plus the `simulator` row (C-995). Column resolution is per spawn, not per
 plan: **a spawn made for a work package reads that WP's effective tier; a
 spawn made for the run reads the plan tier**
-([`decompose.md`](decompose.md#the-effective-tier)).
+([`decompose.md`](decompose.md#the-effective-tier)). **Review-Fix `L1`/`L2`
+seats do not read the `reviewer` rows** — their class is
+`review.<level>.class` ([`loop.md`](loop.md#review-by-join-level)); the
+rows govern Verify-Architecture, `/hex-review`'s `L3` panel and the artifact
+panels.
 
 ## Rules
 
 1. **Cells are recommendations, not floors or ceilings — but never
    silently.** The orchestrator escalates on judgment and announces the
-   reason at the meta-plan gate. Example: tier=low but the diff touches
+   reason at the meta-plan gate. Example: tier=medium but the diff touches
    security-critical auth code — run `reviewer:security` at
    `deep-reasoning`, announced as
    "reviewer:security → deep-reasoning (security-critical diff)".
@@ -106,8 +114,9 @@ spawn made for the run reads the plan tier**
    harness's choice, outside this matrix.
 
 5. **The tier gate belongs to the *decomposing* coordinator only.** The bare
-   `coordinator` row is that kind: it runs only at medium/high —
-   decomposition is a fan-out optimization, absent at low's single-WP shape
+   `coordinator` row is that kind: it runs only at `high` and above —
+   decomposition is a fan-out optimization, absent at the single-WP shapes
+   of `low` and `medium`
    — and resolves to the `deep-reasoning` **worker** class. The
    `coordinator:pipeline` row is the other kind and carries **no tier gate**:
    a pipeline coordinator owns one work package at any tier, so its column

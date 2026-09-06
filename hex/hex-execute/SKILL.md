@@ -1,6 +1,6 @@
 ---
 name: hex-execute
-description: Tiered multi-agent execution orchestrator — implements an approved hex-plan artifact (or a free-text task) through contract-first TDD (stub, specify, implement, bounded review-fix loop), then commits. Runs file-disjoint work packages in parallel git worktrees and merges onto a feature branch in serialized topological order. Use to execute, implement, build, or run an approved plan, resume an interrupted execution, or turn a design into tested, reviewed, committed code. Tier (low|medium|high, auto by default) scales review breadth, review-fix loop rounds, and the cross-model code-diff gate.
+description: Tiered multi-agent execution orchestrator — implements an approved hex-plan artifact (or a free-text task) through contract-first TDD (stub, specify, implement, bounded review-fix loop), then commits. Runs file-disjoint work packages in parallel git worktrees and merges onto a feature branch in serialized topological order. Use to execute, implement, build, or run an approved plan, resume an interrupted execution, or turn a design into tested, reviewed, committed code. Tier (low|medium|high|xhigh|max, auto by default) scales review breadth, review-fix loop rounds, and the cross-model code-diff gate.
 license: Apache-2.0
 metadata:
   summary: Tiered swarm execution — plan artifact to tested, reviewed commit
@@ -13,7 +13,7 @@ metadata:
 Thin dispatcher. It parses arguments, resolves the target plan, classifies
 its tier, resolves overlays, runs the single meta-plan approval gate,
 announces the resolved config, and hands off to the matching tier file. The
-phase plans live in `tier-low.md`, `tier-medium.md`, and `tier-high.md`; the
+phase plans live in the five `tier-<tier>.md` files; the
 shared vocabulary (tiers, the Review-Fix Loop, worker roles, model classes,
 the memory file) lives in the `hex-core` reference library and is **linked
 here, never copied**.
@@ -31,12 +31,12 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 /hex-execute [tier] [target] [flags]
 ```
 
-- **tier** (optional): `low | medium | high | auto`. Default `auto` — the
-  classifier picks one of the three from the plan's Status block or
-  free-text signals. `xhigh` and `max` are **reserved** (see
-  [`protocol.md`](../hex-core/references/protocol.md#tier-grammar)): the
-  classifier never emits them, and an explicit reserved tier is announced as
-  "`<tier>` reserved, running high" and run as `high`.
+- **tier** (optional): `low | medium | high | xhigh | max | auto`. Default
+  `auto` — the classifier picks `low` … `xhigh` from the plan's Status block or
+  free-text signals. **`max` is explicit
+  only** — `--tier=max`, or a plan whose Status block says `Tier: max`; the
+  classifier never emits it
+  ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **target** (optional; one of):
   - a plan artifact path — the product of `/hex-plan` or the project's own
     convention;
@@ -45,8 +45,10 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
   - omitted — resolve the active-plan pointer from `hex.md › Memory`
     ([`memory.md`](../hex-core/references/memory.md#the-three-sections)).
 - **flags** (before the target, by convention):
-  - `--review=minimal|full|adversarial` — override Review-Fix Loop breadth.
-  - `--loop-rounds=1|2|3` — override the loop's round cap.
+  - `--review=minimal|full|adversarial` — select the `L2` aggregate seat's
+    checklist breadth ([Review by join
+    level](../hex-core/references/loop.md#review-by-join-level)).
+  - `--loop-rounds=1|2|3` — cap every review level's rounds.
   - `--adversary` / `--no-adversary` — force the cross-model code-diff pass
     on or off.
   - `--dry-run` — make the meta-plan gate block for explicit approval and
@@ -167,9 +169,10 @@ packages below). A `coordinator` interrupted mid-fan-out is **not**
 rehydrated: its sub-WPs are ordinary table rows, so resume re-runs the WP's
 unfinished sub-WP rows directly — flat — resetting to the last committed
 sub-WP boundary (the [`coordinator`](../hex-core/references/workers/coordinator.md)
-commits per sub-WP join as reset points); the sub-WP tiny loop is not
-re-established on resume — the branch-level Review-Fix panel is its backstop
-— announce that. When a plan lacks the column, fall back to re-deriving
+commits per sub-WP join as reset points); each resumed sub-WP row runs its
+`L1` at its join like any leaf, and its diff joins the run's end-of-run `L2`
+aggregate ([Review by join
+level](../hex-core/references/loop.md#review-by-join-level)) — announce that. When a plan lacks the column, fall back to re-deriving
 progress from existing `hex/<plan-slug>--<wp-slug>` branches. The
 Implementation Steps checkboxes (`- [ ]` / `- [x]`) stay the finer
 within-WP progress, no separate state file to consult. **A resuming run
@@ -200,7 +203,7 @@ the same way.
 
 Read [`classify.md`](classify.md). Apply its plan Status-block signal
 (primary) and free-text fallback (secondary) to the resolved target. It
-emits a candidate tier (**only** `low`, `medium`, or `high`), a confidence
+emits a candidate tier (**only** `low`, `medium`, `high`, or `xhigh`), a confidence
 flag, and an overlay set. Low confidence forces the gate in step 5. Never ask
 a mid-flow question during classification — ambiguity is resolved at the
 single gate.
@@ -218,10 +221,10 @@ Exactly one gate, before any worker launches
 ([`protocol.md`](../hex-core/references/protocol.md#the-meta-plan-approval-gate)).
 Its weight scales:
 
-- **Confident `low` / `medium`** (an explicit user tier always counts as
+- **Confident `low` / `medium` / `high`** (an explicit user tier always counts as
   confident — the classifier never ran) — announce the resolved config (step 6) and
   proceed; the user can still abort.
-- **`high` tier, low-confidence classification, or `--dry-run`** — block for
+- **`xhigh` or `max` tier, low-confidence classification, or `--dry-run`** — block for
   explicit approval.
 
 On a client with a **native plan-approval mechanism**, use it. Otherwise
@@ -238,23 +241,23 @@ the tier file (format:
 
 ```
 hex-execute
-  Tier:      medium                          (from plan Status block)
+  Tier:      high                          (from plan Status block)
   Target:    .agents/plans/plan_cache.md
   Overlays:  review=full                     (tier baseline)
-             loop-rounds=3                    (tier baseline)
+             loop-rounds=1                    (level default)
              adversary=on                     (classifier: one-way-door signal)
   Spawn set:
     builder ×3 (stub, implement)              (tier baseline — 3 work packages)
     tester ×3                                 (tier baseline — 3 work packages)
-    reviewer: spec (post-stub, post-implementation)   (tier baseline)
-    reviewer: quality                         (tier baseline)
-    reviewer: security                        (hex.md preference: src/auth/**)
-  Models:    fast-balanced default; reviewer:security + coordinator → deep-reasoning  (models.md)
+    reviewer: spec (post-stub) ×3             (tier baseline — Verify-Architecture)
+    reviewer: L1 leaf ×3                      (one per WP join — loop.md)
+    reviewer: L2 aggregate ×1                 (N = 3; checklist full + security: hex.md preference src/auth/**)
+  Models:    fast-balanced default; L2 seat + coordinator → deep-reasoning  (review.l2.class, models.md)
   Adversary: codex-adversary, code-diff scope             (hex.md preference)
   Work packages: 3 WPs, DAG launch — ready now: WP1, WP2
-             review budgets: WP1 light, WP2 self, WP3 panel
+             review: L1 at each WP join · L2 once at the run's join (N = 3)
              critical path WP1 → WP3          (plan Parallelization table)
-  Budget:    S:light 1 · M:self 1 · L:panel 1  (histogram grammar:
+  Budget:    effective tier: high 3 (ceiling high)  (histogram grammar:
              decompose.md#parallel-by-default-decomposition)
   Recursion:  every ready WP → coordinator              (Q1: ready set ≥2)
               of those, WP3 decomposes (4 sub-WPs)      (Q2: granularity gate)
@@ -270,12 +273,12 @@ size:review line. A run in which any risk flag degraded prints one line naming
 the flag, the unreadable convention, the consequence and the remedy:
 
 ```
-  Tier:      high  (ceiling — from plan Status block)
-  Per-WP:    WP1 low (derived: S, no flags) · WP4 high (derived: sec) · …
+  Tier:      xhigh  (ceiling — from plan Status block)
+  Per-WP:    WP1 medium (derived: S, no flags) · WP4 xhigh (derived: sec) · …
              (snapshot — recomputed at each WP's own spawn time)
-  Budget:    effective tier: low 6 · medium 2 · high 1 (ceiling high;
+  Budget:    effective tier: medium 6 · high 2 · xhigh 1 (ceiling xhigh;
              histogram grammar: decompose.md#parallel-by-default-decomposition)
-  Overlays:  review=minimal                  (derived — WP1 effective low)
+  Overlays:  review=minimal                  (derived — WP1 effective medium)
   Degraded:  hot-path convention unreadable (hex.md › Pointers) — every WP
              resolves at the ceiling; add the row to restore reduction
 ```
@@ -286,7 +289,7 @@ The announce block prints one config-disclosure line per change a
 For this skill, for example:
 
 ```
-  [project-redefined: Review-Fix.reviewer:quality 1→2 (hex.md tiers)]
+  [project-redefined: Verify-Architecture.reviewer:spec 1→2 (hex.md tiers)]
   [reviewer:performance dropped — phase ceiling 8 reached]
   [Review-Fix batched 4+4 — concurrency cap 4 (hex.md)]
   Error: never [reviewer:security] refused (hex.md preference)
@@ -309,7 +312,7 @@ Read `workflows.hex-execute.<tier>` from the resolved config first. When set
 and the named file passes the seven validation checks
 ([`config.md` § Workflows](../hex-core/references/config.md#workflows)), `Read`
 that forked file in place of the shipped one; on validation failure or when
-unset, `Read` the matching `tier-{low,medium,high}.md` — config.md owns the
+unset, `Read` the matching `tier-{low,medium,high,xhigh,max}.md` — config.md owns the
 check list and the on-failure fallback. Announce which ran: `Workflow: shipped
 tier-<tier>.md`, or for a fork, `Workflow: <path> (forked from <shipped tier
 file> @ <stamped version>)`. Execute the loaded file's phase plan; no phase
@@ -330,21 +333,17 @@ Review-Fix perspectives fire.
 |---|---|---|---|
 | Stub | `builder` (focus `stub`) | 1 per work package † | Public API surface only, not-implemented bodies |
 | Verify-Architecture | `reviewer` (focus `spec`, phase `post-stub`) | 0–1 per WP | Stubs match the plan's component contracts |
-| Verify-Architecture | `architect` | 0–1 | ADR / boundary compliance (high tier) |
+| Verify-Architecture | `architect` | 0–1 | ADR / boundary compliance (`xhigh` and above) |
 | Specify | `tester` (focus `specification`) | 1 per work package † | Tests from the plan's design record, must fail against stubs |
 | Implement | `builder` (focus `implement`) | 1 per work package † | Fill bodies until the specification tests pass |
 | Implement | `coordinator` | 0–1 per ready WP | Owns the WP and runs its phase pipeline; the decomposing kind additionally fans it out into sub-WPs ([`coordinator`](../hex-core/references/workers/coordinator.md)) |
-| Review-Fix | `reviewer` (focus `spec`, phase `post-implementation`) | 1 | Full traceability, every tier |
-| Review-Fix | `reviewer` (focus `quality`) | 1 | Every tier |
-| Review-Fix | `reviewer` (focus `security`) | 0–1 | Security-sensitive paths touched |
-| Review-Fix | `reviewer` (focus `performance`) | 0–1 | Hot-path / async paths touched |
-| Review-Fix | `doc-reviewer` | 0–1 | Doc-drift triggers matched |
-| Review-Fix | `architect` | 0–1 | ADR-compliance / boundary check (adversarial breadth) |
-| Review-Fix | `researcher` | 0–1 | SOTA-gap / known-pitfall check (adversarial breadth) |
-| Adversary | configured adversary skill (`code-diff`) | 0–1 | Cross-model review of the branch diff |
+| Review-Fix `L1` | `reviewer` (focus `spec`, phase `post-implementation`; brief carries the `spec` + `quality` sections of [`checklist.md`](../hex-core/references/checklist.md#composition)) | 1 per leaf join | Delta-only leaf review, every tier ([Review by join level](../hex-core/references/loop.md#review-by-join-level)) |
+| Review-Fix `L2` | `reviewer` (deep-reasoning seat, checklist per `review` axis) | 1 per aggregate join, `N ≥ 2` only | Semantic conflicts and coverage across the joined leaves |
+| Adversary | configured adversary skill (`code-diff`) | 0–1 (every configured entry at `max`) | Cross-model review of the branch diff |
+| Usage simulation | `simulator` | 0 (4+ at `max` only) | One user pattern each against the merged branch; one merged fix pass ([`tier-max.md`](tier-max.md#phase-8-usage-simulation)) |
 
-† **Effective tier `low`** — in a plan carrying the generation marker a WP that
-resolves `low` runs these three phases as **one** `builder` spawn, so its
+† **Effective tier `medium`** — in a plan carrying the generation marker a WP that
+resolves `medium` runs these three phases as **one** `builder` spawn, so its
 `tester` count is 0 and its `Verify-Architecture` rows are 0
 ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
 
@@ -386,7 +385,7 @@ external state file:
 ```markdown
 ## Status
 - State:   executing      <!-- planning → plan-approved → executing → review → done -->
-- Tier:    medium
+- Tier:    high
 - Updated: 2026-07-19
 - Next:    /hex-execute <this plan path>
 ```
@@ -449,12 +448,11 @@ entry. The full grammar, `Base:` mechanics, guards and halts live in
 ## Work packages
 
 Read the plan's Parallelization table (WP id, scope, expected files, size,
-wave, depends-on, review, verify, status) before Stub begins. A missing
-`Review` column or cell defaults to **`panel`** at table-parse time — pre-budget
-plans execute unchanged; **in a plan carrying the generation marker it means the
-derived breadth instead**, and the cell is raise-only against that baseline
-([the effective tier](../hex-core/references/decompose.md#the-effective-tier),
-[`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)); a
+wave, depends-on, review, verify, status) before Stub begins. The `Review`
+cell is an optional risk hint — `risk`, or a legacy `panel`, raises the WP's
+review one join level; anything else is no hint
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition),
+[Review by join level](../hex-core/references/loop.md#review-by-join-level)); a
 missing `Verify` column or cell — a literal `—` included — resolves at the
 same point to the plan's `- Verify-default:` line, else **`scoped`**
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
@@ -463,7 +461,7 @@ already checked out, else create `hex/<plan-slug>` from the trunk
 ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Two shapes:
 
-- **Single work package** — normal at tier `low`; above it, only when the
+- **Single work package** — normal at tier `low` and `medium`; above it, only when the
   plan's justification line says why. Run Stub → Specify → Implement →
   Review-Fix directly on the feature branch; no worktree needed.
 - **2+ work packages** — each WP launches the instant every WP in its
@@ -547,10 +545,10 @@ the post-gate realization, in the tier file's Discover phase:
    ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)) — **a single WP by
    default**, decomposed into several only when the task plainly names ≥3
    disjoint areas. `Verify` defaults to `scoped` here: a free-text target has
-   no Status block, so there is no `Verify-default:` line to inherit (C-905). (A free-text `high` target still routes through
+   no Status block, so there is no `Verify-default:` line to inherit (C-905). (A free-text `xhigh` or `max` target still routes through
    `/hex-plan` — see
    [`classify.md`](classify.md#fallback-free-text-targets) — so a
-   mini-table here is a `low`/`medium` shape.)
+   mini-table here is a `low`–`high` shape.)
 2. **Compute the ready-set** — the WPs whose every `Depends-on` is already
    `merged`, ordered critical-path-first — per protocol.md's
    dependency-ready launch rule
@@ -610,24 +608,17 @@ the coordinator. Its preconditions and the coordinator's internals live in
 [`workers/coordinator.md`](../hex-core/references/workers/coordinator.md) —
 their sole definition site, **never restated here**.
 
-Review grows by **diversity across join levels**, never same-role count at
-one level. Three join scopes, by size:
-
-- **Sub-WP join** (sub-WPs → WP result, inside a coordinator) — the tiny
-  1-round spec+quality loop, defined in the coordinator role
-  ([`workers/coordinator.md`](../hex-core/references/workers/coordinator.md)).
-- **WP merge** (a WP lands on the feature branch) — the WP's **budgeted**
-  Review breadth (`panel` = the tier baseline), reviewing the **WP diff**,
-  never the coordinator's summary prose
-  ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
-  **In a plan carrying the generation marker** the breadth is the WP's derived
-  one and `panel` raises it to the plan's ceiling — a coordinator-split WP
-  included; that WP's effective tier
-  floors at `min(T, medium)`, so its breadth is that of the tier it resolves
-  to ([the
-  effective tier](../hex-core/references/decompose.md#the-effective-tier)).
-- **Swarm** (feature branch → trunk) — `/hex-review`'s staged panel,
-  unchanged.
+Review depth is keyed on **join level**, defined once in
+[`loop.md` § Review by join
+level](../hex-core/references/loop.md#review-by-join-level) and never
+restated here: `L0` on every builder return, `L1` at every leaf join — a
+sub-WP joining its coordinator, or a WP landing on the feature branch —
+`L2` once at any node that joins **two or more** leaves (a decomposing
+coordinator's WP join; this orchestrator's end-of-run join over the feature
+branch), skipped at `N = 1`, and `L3` only when the user runs `/hex-review`.
+A coordinator-split WP arrives at the feature branch already reviewed at
+`L1` per sub-WP and `L2` at its join, so this orchestrator does not re-run
+`L1` over it — its diff and verdict join the end-of-run `L2`.
 
 ## Constraints
 
@@ -666,7 +657,7 @@ proceed question may follow it.
 ## Execution Complete: <feature | plan name>
 
 ### Classification
-- Tier: low | medium | high
+- Tier: low | medium | high | xhigh | max
 - Overlays: review=<minimal|full|adversarial>, loop-rounds=<1|2|3>, adversary=<on|off>
 
 ### Artifacts
@@ -675,19 +666,20 @@ proceed question may follow it.
 
 ### Deferred findings (need human judgment)
 - Review-Fix Loop: …
+- Review budget residue: … (`review budget expired: …` lines, or none)
 - Cross-model review: …
 
 ### Next step
-    /hex-review <plan path or branch>
+    /hex-review <plan path or branch>    (optional — the L3 trunk pass)
 ```
 
 **One line per WP whose effective tier fell below the plan's ceiling** ([the
 effective tier](../hex-core/references/decompose.md#the-effective-tier)) joins
 `### Classification`, naming the WP, its effective tier, the ceiling and the
 inputs that produced the reduction — so the human deciding whether to run the
-mandatory branch-level `/hex-review` sees what that backstop is covering
-([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)):
-`- Reduced: WP1 low (ceiling high — derived: S, no flags)`. Absent any
+optional `L3` trunk pass sees what the reduction left to it ([Review by join
+level](../hex-core/references/loop.md#review-by-join-level)):
+`- Reduced: WP1 medium (ceiling xhigh — derived: S, no flags)`. Absent any
 reduction the lines are absent and the block is unchanged.
 
 **Federation — a plan carrying a `Repo` column.** The handoff additionally

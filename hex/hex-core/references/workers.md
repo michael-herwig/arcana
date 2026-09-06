@@ -111,6 +111,7 @@ own what they are for; neither is restated here).
 | `doc-reviewer` | Documentation-drift detection | [`workers/doc-reviewer.md`](workers/doc-reviewer.md) | [`models.md`](models.md) |
 | `architect` | Design decisions, trade-off analysis, ADRs | [`workers/architect.md`](workers/architect.md) | [`models.md`](models.md) |
 | `coordinator` | Owns one WP and runs its phase pipeline; the `decomposing` kind also fans it out into one level of leaves | [`workers/coordinator.md`](workers/coordinator.md) | [`models.md`](models.md) |
+| `simulator` | Usage simulation as one user pattern (`first-time`, `power-user`, `adversarial`, `automation`); tier `max` only | [`workers/simulator.md`](workers/simulator.md) | [`models.md`](models.md) |
 
 **Heavy roles** — `builder:implement` and `tester` among them; what takes a heavy slot is one list, [`resources.md` § 3](resources.md#3-the-heavy-semaphore)'s, gates included, and this index never restates it.
 
