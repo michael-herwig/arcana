@@ -94,17 +94,24 @@ def _tagged_versions(repo: Path = REPO) -> list[tuple[int, ...]]:
     not a release this repository has cut. When `origin/main` is absent — a
     tag-ref checkout, a clone with no remote — `git` fails and prints nothing,
     which lands back on the vacuous reading the paragraph above accepts.
+
+    **A tag pointing at HEAD is the release being cut, not one already cut.**
+    `publish.yml` runs `task nox:verify` ON the tag push, after `--atomic` has
+    landed `main` and the tag together — so there, the version under test is
+    tagged by construction, and v0.4.1's first run failed this module on its
+    own tag. The gate's local step [4/9] runs before any tag exists and is
+    unchanged by the exemption.
     """
-    listed = subprocess.run(
-        ["git", "tag", "--list", "--merged", "origin/main", "v*"],
-        cwd=str(repo),
-        capture_output=True,
-        text=True,
-        check=False,
-    ).stdout
+
+    def tags(*args: str) -> set[str]:
+        listed = subprocess.run(
+            ["git", "tag", "--list", *args, "v*"], cwd=str(repo), capture_output=True, text=True, check=False
+        ).stdout
+        return {line.strip() for line in listed.split("\n") if line.strip()}
+
     found = []
-    for line in listed.split("\n"):
-        match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", line.strip())
+    for name in sorted(tags("--merged", "origin/main") - tags("--points-at", "HEAD")):
+        match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", name)
         if match:
             found.append(tuple(int(part) for part in match.groups()))
     return found
@@ -313,6 +320,27 @@ def test_the_tag_scan_ignores_a_local_tag_the_release_train_never_carried(tmp_pa
     (repo / "scratch.txt").write_text("work that was never released\n", encoding="utf-8")
     _commit_all(repo, env)
     assert git("tag", "v0.9.9").returncode == 0
+
+    assert _tagged_versions(repo) == [(0, 1, 0)]
+
+
+def test_the_tag_scan_exempts_the_release_being_cut(tmp_path):
+    """`publish.yml`'s Verify runs on the tag push: the version under test is tagged, at HEAD, by construction.
+
+    Modelled as CI sees it — `origin/main` and the tag both at HEAD — and the
+    earlier release is asserted present in the same call, so a scan that
+    exempted everything could not pass this.
+    """
+    repo, env = _gate_repo(tmp_path)
+
+    def git(*args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(["git", *args], cwd=str(repo), env=env, capture_output=True, text=True, check=False)
+
+    assert git("tag", "v0.1.0").returncode == 0
+    (repo / "release.txt").write_text("the release being cut\n", encoding="utf-8")
+    _commit_all(repo, env)
+    assert git("tag", "v0.2.0").returncode == 0
+    assert git("update-ref", "refs/remotes/origin/main", "HEAD").returncode == 0
 
     assert _tagged_versions(repo) == [(0, 1, 0)]
 
