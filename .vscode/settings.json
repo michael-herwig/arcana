@@ -1,0 +1,5 @@
+{
+  "files.watcherExclude": { "**/.agents/worktrees/**": true },
+  "search.exclude": { "**/.agents/worktrees/**": true },
+  "files.exclude": { "**/.agents/worktrees/**": true }
+}
