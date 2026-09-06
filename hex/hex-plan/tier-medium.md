@@ -1,9 +1,9 @@
-# Tier: medium
+# Tier: low
 
-The **default** planning tier — medium-scope, one-way-door-medium work: a new
-command, a new index or storage layout, a change spanning 1–2 areas. This is
-the baseline any caller gets without an explicit tier. Preserve the
-contract-first TDD skeleton (Stub → Specify → Implement → Review).
+Minimal plan for **two-way-door** changes — a flag or option, a doc edit, a
+fixture, a single-area tweak of ≤3 files. Keep the contract-first TDD skeleton
+(Stub → Specify → Implement → Review) so `/hex-execute` runs the plan
+unchanged; only scale the worker count and research depth down.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -11,173 +11,108 @@ Shared vocabulary is linked, not restated: roles in
 [`models.md`](../hex-core/references/models.md), and the outer contracts in
 [`protocol.md`](../hex-core/references/protocol.md).
 
-## Phase 1: Discover (parallel)
+## Phase 1: Discover (single worker)
 
-Launch in a **single batch** so they run concurrently
-([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)):
+Launch **1** `explorer` scoped to the single area the target touches — no
+`architecture-explorer`, the scope is too small to earn one. In parallel,
+read directly the project rules for the area (from project context, cached
+in `hex.md › Pointers`,
+[`memory.md`](../hex-core/references/memory.md#the-three-sections)) and the
+specific code region the prompt names. This read also picks up any
+`Federation:` bullets under `hex.md › Pointers`, alongside every other
+pointer (C-314) — absent them, nothing changes.
 
-- **1** `architecture-explorer` — map the current architecture, trace
-  dependencies, find reusable code and active patterns.
-- **2–4** `explorer` workers — one per involved area. Identify the areas from
-  the project's own rules and structure (project context, cached in
-  `hex.md › Pointers`), not a hardcoded table.
+GitHub: if the target resolved to a PR, its file list is the explicit scope —
+skip any broad issue scan.
 
-In parallel, read directly: the project rules for the areas touched, and any
-prior plans/ADRs/research in the convention-resolved artifact home (project
-conventions, else `.agents/`,
-[`memory.md`](../hex-core/references/memory.md#location-and-resolution)) for
-overlap.
+**Gate** — the code region is mapped and reusable utilities are identified.
 
-This step also reads any `Federation:` bullets under `hex.md › Pointers`,
-alongside every other pointer (C-314). When they are present, an `explorer`
-scoped to a satellite's area reads **that repo's** rules by explicit
-`Read` — ambient context covers the lead only, and `--add-dir` does not
-load a satellite's `CLAUDE.md` (C-306, C-318). Absent `Federation:`
-bullets, this step is unchanged.
+## Phase 2: Research (skip)
 
-GitHub: when the target resolved to a PR/issue, use its fetched context in
-place of a broad scan; a PR's file list is the explicit scope for the
-`architecture-explorer`. Fall back to the client's GitHub MCP list tools or
-`gh` only when the target is free text.
+No `researcher`. The orchestrator may make a brief inline check against
+project context if the change touches positioning-sensitive behavior.
 
-**Gate** — worker reports are in; the architecture is mapped, reusable
-components are identified, prior artifacts are checked for overlap.
+**Gate** — the skip is logged in the plan header
+(`Research: skipped — two-way door`). If the inline check surfaces a surprise
+that makes this not a two-way door, **stop and re-run** at a higher tier
+rather than silently upgrading mid-flow.
 
-## Phase 2: Research (parallel, 1 axis)
+## Phase 3: Classify (inline)
 
-Launch **1** `researcher` on the single most relevant axis (technology *or*
-patterns *or* domain), paired with at least one explorer's output so
-external findings stay grounded in local code. The project's product
-knowledge (research keywords, comparable tools — located via
-`hex.md › Pointers`) seeds the axis choice and search terms when present.
-Findings longer than a paragraph **must** persist as a research artifact in
-the convention-resolved location for reuse.
+Confirm the two-way-door scope inline in the plan header. If Discover revealed
+the change is *not* two-way (it touches a public surface, a stored format, a
+protocol), **stop and re-run** as `/hex-plan medium "…"` — never silently
+upgrade mid-pipeline.
 
-Override: `--research=3` launches all three axes in a single concurrent batch.
-The researcher's model class is `fast-balanced`
-([`models.md`](../hex-core/references/models.md)).
+## Phase 4: Design (inline)
 
-**Gate** — research findings persisted (or an explicit "no new signals"
-note); adoption trends and recent work checked.
+Draft the design inline in the plan artifact; no `architect` worker. It must
+still carry:
 
-## Phase 3: Classify (sequential)
+- **Component contracts** — the public function/type signature(s) touched,
+  with expected behavior.
+- **User experience** — at least one action → expected outcome scenario.
+- **Error taxonomy** — the failure modes this change adds or alters.
+- **Edge cases** — the boundary conditions for the new behavior.
 
-Determine reversibility and scope; record it in the plan header:
+Trade-off analysis is optional here — a single sentence naming the chosen
+approach is enough when the change is genuinely small.
 
-| Scope | Reversibility | Artifacts |
-|---|---|---|
-| Small (1–3 days) | Two-way door | plan |
-| Medium (1–2 weeks) | One-way door (medium) | plan + ADR (when a boundary decision is made) |
-| Large (2+ weeks) | One-way door (high) | plan + ADR + persisted research |
+## Phase 5: Decompose (inline)
 
-Artifact formats follow the project's documented conventions; the templates
-shipped with `/hex-init` are the fallback. If this resolves to Large, **stop
-and re-run** as `/hex-plan high "…"` — no silent upgrade mid-pipeline.
+Produce a single Stub → Specify → Implement → Review cycle in the plan. For
+≤3 files this may collapse into one task. A Parallelization section is still
+required, even if it is one work package with no dependencies
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics))
+— the tier's ≤3-file scope is itself the justification, no extra line
+needed. Single WP: the "Shippable after wave" line is exempt — delete it,
+since the sole WP is the shippable unit. The WP still carries a `Verify` cell
+and a `Review` cell — the latter empty, or `risk` when the author knows
+more than the file set shows
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition));
+a plan carrying the generation marker needs the `Verify` column present.
 
-**Gate** — scope and reversibility documented in the plan header.
+**Federation.** When `hex.md › Pointers` carries `Federation:` bullets and
+the target's scope lies in a satellite, Decompose offers that satellite's
+key in the WP's `Repo` column and adds the mandatory integration WP row it
+depends on (C-311) — the plan then carries more than the single WP this
+tier otherwise collapses to. Wave-cutting, once more than one WP exists,
+applies the `(Repo, path)` disjointness key, not bare paths (C-316).
+`/hex-plan` never runs the C-303 pre-flight and never writes into a
+satellite (C-314). Absent `Federation:` bullets, unchanged.
 
-## Phase 4: Design (delegated for one-way-door, inline otherwise)
-
-For **one-way-door medium** or cross-area work, launch an `architect`
-(`--architect=on`) to produce an ADR or system design; its model class is
-`deep-reasoning` ([`models.md`](../hex-core/references/models.md)). For two-way-door
-scope, design inline in the plan.
-
-Design must include:
-
-- **Component contracts** — public API (types, signatures) with expected
-  behavior per component.
-- **User-experience scenarios** — action → expected outcome → error cases for
-  each user-facing behavior.
-- **Error taxonomy** — documented failure modes with remediation guidance.
-- **Edge cases** — boundary and corner cases enumerated.
-- **Trade-off analysis** — at least 2 options, weighted criteria, risks,
-  reversibility, and a recommendation with rationale.
-
-When project context names a constitution (cached in `hex.md › Pointers`),
-check the design against it and record every deviation in the plan's
-Constitution Deviations table
-([constitution gate](../hex-core/references/protocol.md#constitution-gate)).
-
-Write design artifacts to the convention-resolved location. **Gate** — the
-contracts are testable: a tester could write failing tests from them without
-reading any code.
-
-## Phase 5: Decompose (sequential)
-
-Break the design into right-sized tasks for contract-first TDD execution,
-**decomposed to maximize parallelism**
-([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
-
-- Each task maps to a Stub → Specify → Implement → Review cycle.
-- Cut along structural boundaries, never feature slices; every WP declares
-  its expected file set, and two tasks needing the same file become
-  sequential steps of one WP.
-- Waves are computed from the dependency graph (topological levels); the
-  critical path is identified and marked.
-- A WP the author knows is riskier than its file set shows gets a `risk`
-  hint in its `Review` cell (otherwise empty), and a WP below the overhead
-  floor **folds into its nearest sibling** as sequential steps
-  ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
-- The plan's Parallelization section carries the WP table (id, scope,
-  expected files, size, wave, depends-on, review, verify, status — status
-  initialized `pending`), the wave-grouped mermaid `graph TD`, a
-  "Shippable after wave: N — <what ships>" line, and the serialized
-  topological-order merge plan (waves derived)
-  ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
-  Fewer parallel WPs than file-disjointness allows → one-line
-  justification; an isolated sub-overhead WP carries one too.
-- **Federation:** when `hex.md › Pointers` carries `Federation:` bullets,
-  offer **per-repo WP decomposition** — a WP whose scope lies in a
-  satellite gets that satellite's key in the plan's `Repo` column — and add
-  the mandatory integration WP that depends on every satellite WP it joins
-  (C-311). Wave-cutting compares `(Repo, path)` pairs, not bare paths, when
-  applying the file-disjointness key (C-316). `/hex-plan` never runs the
-  C-303 pre-flight and never writes into a satellite — it only proposes the
-  column (C-314). Absent `Federation:` bullets, no offer, no column, plan
-  unchanged.
-
-Print the **effective-tier histogram** at this gate, linking rather than restating
-its grammar
+Print the **effective-tier histogram** at this point, linking rather than
+restating its grammar
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 
-**Gate** — the plan holds executable phases `/hex-execute` can run without
-further decomposition, and the Parallelization section shows the widest
-wave structure the file sets permit.
+## Phase 6: Review (single reviewer, single pass)
 
-## Phase 6: Review (parallel panel, bounded loop)
+Launch **1** `reviewer` (focus `spec`, phase `post-stub`) on the draft plan —
+no adversarial panel, no adversary pass (`adversary: off` at this tier). Run
+the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
+capped at **one round**: the orchestrator edits the plan directly on
+actionable findings; only a Block-tier finding earns one reviewer re-run
+(2 passes total max, then stop).
+When project context names a constitution (cached in `hex.md › Pointers`),
+this same reviewer also applies the
+[constitution gate](../hex-core/references/protocol.md#constitution-gate).
 
-Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
-on the draft plan — **plan-artifact scope: one panel round**; fix
-application, conditional re-validation, and escalation follow the
-canonical loop's artifact-scope rule, never restated here.
+**Gate** — the plan is ready for `/hex-execute`.
 
-**Round 1** — launch concurrently:
+## Upkeep and handoff
 
-- `reviewer` (focus `spec`, phase `post-stub`) — are the contracts testable?
-  Do they match the user-experience section? Mechanically verifies every
-  C-/S- ID maps to at least one WP Scope cell and at least one test step; an
-  uncovered ID is an actionable finding
-  ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
-  Also checks the Parallelization table for an unjustified sub-overhead WP.
-- `architect` — are the trade-offs honest, the alternatives considered, any
-  boundary violations introduced? *(required for one-way-door decisions)*
-- `researcher` — does the plan miss a trending pattern, a known pitfall, or a
-  state-of-the-art approach?
+Run the [upkeep step](../hex-core/references/protocol.md#upkeep-step):
+re-point any `hex.md › Pointers` entry this run revealed as drifted and
+update `hex.md › Memory`. Then emit the handoff from [`SKILL.md`](SKILL.md)
+with:
 
-The panel flags an unjustified constitution violation as an actionable
-finding
-([constitution gate](../hex-core/references/protocol.md#constitution-gate)).
+```
+- Scope: small (two-way door)
+- Tier: low
+- Overlays: (none)
+```
 
-**Cross-model plan review** (when `adversary=on` — auto-on for one-way-door
-signals, or explicit `--adversary`): launched **in the Round 1 panel batch,
-last** — never after the panel — and run once in `plan-artifact` scope
-(`adr_0016` C-987). One-shot, 4-way triage; its actionable findings join
-the same fix application as the panel's and are re-validated by the same
-single `reviewer` (focus `spec`) pass; graceful skip when unavailable
-([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
-
-**Gate** — the plan is ready for `/hex-execute`; deferred findings are
-documented. Then run the
-[upkeep step](../hex-core/references/protocol.md#upkeep-step) and emit the
-handoff from [`SKILL.md`](SKILL.md).
+Its only required artifact is the plan itself (Status block initialized,
+active-plan pointer recorded in `hex.md › Memory`). No ADR or research
+artifact at this tier — if the classifier called for one, it should have
+picked a higher tier; re-run if so.
