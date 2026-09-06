@@ -7,7 +7,7 @@ metadata:
   keywords: finalize,commit series,recompose,rebase,force-push,pull request,sign-off,land
   repository: https://github.com/michael-herwig/arcana
   claude.user-invocable: "true"
-  claude.disable-model-invocation: "true"
+  claude.disable-model-invocation: "false"
 ---
 
 # hex-finalize — The Finalize Phase
