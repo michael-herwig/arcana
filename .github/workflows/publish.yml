@@ -109,22 +109,13 @@ jobs:
           grim publish --manifest hex/publish.toml --version canary --dry-run
           grim publish --manifest nox/publish.toml --version canary --dry-run
 
-      # nox is not announced to the public index in v1 (C-1037(5)), so it goes
-      # first: one tag ships hex and nox together (D-aa) and neither push is
-      # transactional, so the ordering is chosen to keep the one *irreversible*
-      # act — the announce — last. A failure here publishes nothing and
-      # announces nothing; a failure in the step below leaves nox's bytes on
-      # ghcr.io with no announce claiming a release, and re-running the workflow
-      # is safe because a publish skips-existing by default.
-      - name: Publish nox
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        run: |
-          set -euo pipefail
-          grim publish --manifest nox/publish.toml --version "$GITHUB_REF_NAME"
-
-      # Tag push = real release: bytes to ghcr.io, then announce (fork → PR to public index).
-      # --version <tag> overrides the static placeholder `version` in publish.toml
-      # and cascades X.Y / X / latest for all 7 entries.
+      # Tag push = real release: one tag ships hex and nox together (D-aa). Per
+      # manifest: bytes to ghcr.io, then announce (fork → PR to public index).
+      # --version <tag> overrides the static placeholder `version` in each
+      # publish.toml and cascades X.Y / X / latest for every entry. Neither push
+      # is transactional; a hard failure stops before the next manifest, and
+      # re-running the workflow is safe because a publish skips-existing by
+      # default.
       - name: Publish + announce
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         env:
@@ -138,20 +129,22 @@ jobs:
           # The env var, never the expression form: an Actions expression is spliced
           # into the script text before bash sees it, and a git ref name may legally
           # carry shell metacharacters — in a job holding packages: write.
-          grim publish --manifest hex/publish.toml \
-            --version "$GITHUB_REF_NAME" --announce --format json \
-            2> "$RUNNER_TEMP/publish.err" | tee "$RUNNER_TEMP/publish.json"
-          rc=${PIPESTATUS[0]}
+          for manifest in nox/publish.toml hex/publish.toml; do
+            grim publish --manifest "$manifest" \
+              --version "$GITHUB_REF_NAME" --announce --format json \
+              2> "$RUNNER_TEMP/publish.err" | tee "$RUNNER_TEMP/publish.json"
+            rc=${PIPESTATUS[0]}
+            cat "$RUNNER_TEMP/publish.err" >&2 || true
+            jq -r --arg m "$manifest" '.announce // empty | "\($m) announce: \(.outcome) \(.branch // "") \(.url // "") fork=\(.fork.repo // "none")"' \
+              "$RUNNER_TEMP/publish.json" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+            # Bytes-published is the hard gate; an announce-only failure (exit 69) soft-warns.
+            if [ "$rc" -eq 69 ]; then
+              echo "::warning::$manifest published to ghcr.io, but the index announce did not complete (exit 69): $(tail -n1 "$RUNNER_TEMP/publish.err")"
+            elif [ "$rc" -ne 0 ]; then
+              exit "$rc"
+            fi
+          done
           set -e
-          cat "$RUNNER_TEMP/publish.err" >&2 || true
-          jq -r '.announce // empty | "announce: \(.outcome) \(.branch // "") \(.url // "") fork=\(.fork.repo // "none")"' \
-            "$RUNNER_TEMP/publish.json" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
-          # Bytes-published is the hard gate; an announce-only failure (exit 69) soft-warns.
-          if [ "$rc" -eq 69 ]; then
-            echo "::warning::Bundle published to ghcr.io, but the index announce did not complete (exit 69): $(tail -n1 "$RUNNER_TEMP/publish.err")"
-          elif [ "$rc" -ne 0 ]; then
-            exit "$rc"
-          fi
 
       - name: Log out of GHCR
         if: always()

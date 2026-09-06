@@ -8,7 +8,12 @@ repository_prefix = "michael-herwig/arcana"
 # manifest. `publish.yml` passes `--version <tag>`, which overrides it.
 version = "0.4.1"
 
-# No `[announce]`: nox is not announced to the public index in v1 (C-1037(5)).
+# Announced to the public index like hex (owner decision 2026-09-06, supersedes
+# C-1037(5)'s "not in v1"): fork grimoire-rs/index → michael-herwig/index-1 and
+# open a cross-repo PR, even though the token has upstream push.
+[announce]
+namespace = "michael-herwig"
+fork = "always"
 
 [description]
 readme = "README.md"
