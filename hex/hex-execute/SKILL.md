@@ -339,7 +339,8 @@ Review-Fix perspectives fire.
 | Implement | `coordinator` | 0–1 per ready WP | Owns the WP and runs its phase pipeline; the decomposing kind additionally fans it out into sub-WPs ([`coordinator`](../hex-core/references/workers/coordinator.md)) |
 | Review-Fix `L1` | `reviewer` (focus `spec`, phase `post-implementation`; brief carries the `spec` + `quality` sections of [`checklist.md`](../hex-core/references/checklist.md#composition)) | 1 per leaf join | Delta-only leaf review, every tier ([Review by join level](../hex-core/references/loop.md#review-by-join-level)) |
 | Review-Fix `L2` | `reviewer` (deep-reasoning seat, checklist per `review` axis) | 1 per aggregate join, `N ≥ 2` only | Semantic conflicts and coverage across the joined leaves |
-| Adversary | configured adversary skill (`code-diff`) | 0–1 | Cross-model review of the branch diff |
+| Adversary | configured adversary skill (`code-diff`) | 0–1 (every configured entry at `max`) | Cross-model review of the branch diff |
+| Usage simulation | `simulator` | 0 (4+ at `max` only) | One user pattern each against the merged branch; one merged fix pass ([`tier-max.md`](tier-max.md#phase-8-usage-simulation)) |
 
 † **Effective tier `medium`** — in a plan carrying the generation marker a WP that
 resolves `medium` runs these three phases as **one** `builder` spawn, so its

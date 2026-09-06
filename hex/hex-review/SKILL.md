@@ -249,7 +249,8 @@ review stages; the tier files set the actual counts and firing conditions.
 | Stage 2 — Panel | `doc-reviewer` | 0–1 | fires on a doc-trigger match |
 | Stage 2 — Panel (`high` and above) | `architect` | 0–1 | boundary / dependency-direction review |
 | Stage 2 — Panel (`high` and above) | `researcher` | 0–1 | SOTA / known-pitfall gap check |
-| Adversary | configured adversary skill (`code-diff` or `plan-artifact`) | 0–1 | cross-model review |
+| Adversary | configured adversary skill (`code-diff` or `plan-artifact`) | 0–1 (every configured entry at `max`) | cross-model review |
+| Stage 2 — Panel (`max`) | `simulator` | 0 (4+ at `max` only) | one user pattern each against the target; reported, never fixed |
 
 A project's `tiers.hex-review.<tier>.counts` can override any Count cell
 above against the baseline this table sets
