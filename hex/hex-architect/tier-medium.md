@@ -199,7 +199,7 @@ code.
 
 ## Phase 5: Review (adversarial design panel, bounded loop)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 on the ADR — **plan-artifact scope: one panel round**; fix application,
 conditional re-validation, and escalation follow the canonical loop's
 artifact-scope rule, never restated here.
@@ -227,7 +227,7 @@ signals or dossier fast-path input, or explicit `--adversary`;
 configured adversary skill once in `plan-artifact` scope on the ADR. One-shot,
 4-way triage, actionable fixes re-validated by a single `reviewer` (focus
 `spec`) pass; graceful skip when unavailable
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the ADR is ready for handoff; deferred findings are documented.
 Then run the [upkeep step](../hex-core/references/protocol.md#upkeep-step)

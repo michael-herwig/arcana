@@ -1,9 +1,14 @@
 # Tier: low
 
 Minimal execution for **two-way-door** plans — a flag or option, a doc edit
-plus code, a single-area tweak of ≤3 files. Keep the contract-first TDD
-skeleton (Stub → Specify → Implement → Review-Fix) unchanged; only scale the
-worker count, review breadth, and loop rounds down.
+plus code, a single-area tweak of ≤3 files. A WP whose [effective
+tier](../hex-core/references/decompose.md#the-effective-tier)
+resolves `low` runs the **collapsed** pipeline — Stub, Specify and Implement
+in one builder spawn, under the conditions
+[`loop.md`](../hex-core/references/loop.md#the-review-fix-loop) states.
+In a plan without the generation marker the four-phase skeleton below runs
+unchanged; either way only the worker count, review breadth and loop rounds
+scale down.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -34,6 +39,17 @@ defines one) is confirmed single.
 
 Launch **1** `builder` (focus `stub`) to create the public surface — types,
 signatures, error variants — with not-implemented bodies. No business logic.
+Its brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
+
+**A WP whose [effective
+tier](../hex-core/references/decompose.md#the-effective-tier)
+resolves `low` runs the collapsed builder instead — Stub, Specify and Implement
+in one spawn**
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+Every other WP, and every WP in a plan without the generation marker, runs
+this phase unchanged.
 
 **Gate** — the project's compile/type check passes.
 
@@ -50,9 +66,15 @@ rather than silently upgrading mid-flow.
 Launch **1** `tester` (focus `specification`) to write unit tests from the
 plan's component contracts (or, free-text, from the stated behavior),
 citing the `C-`/`S-` IDs each test covers
-([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)).
+([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)). Its
+brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 Acceptance tests are optional at this tier — add one only when the change is
 user-visible. Tests MUST fail against the stubs.
+
+**Skipped for a WP that ran the collapsed builder** — its tests were written
+there ([Phase 2](#phase-2-stub)).
 
 **Gate** — tests compile/parse and fail with not-implemented against the
 stubs; every plan ID is covered by at least one failing test.
@@ -60,30 +82,44 @@ stubs; every plan ID is covered by at least one failing test.
 ## Phase 5: Implement
 
 Launch **1** `builder` (focus `implement`) to fill stub bodies until the
-specification tests pass.
+specification tests pass. Its brief carries the excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8).
 
-**Gate** — the project's documented verification succeeds for the changed
-files.
+**Skipped for a WP that ran the collapsed builder** — its implementation was
+written there ([Phase 2](#phase-2-stub)), which paid this gate.
+
+**Gate** — the [scoped check](../hex-core/references/verify.md#scoped-check)
+passes.
 
 ## Phase 6: Review-Fix Loop (1 round, minimal breadth)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 — capped at **1 round** (`loop-rounds=1` baseline), `review=minimal` breadth:
 **1** `reviewer` (focus `quality`) + **1** `reviewer` (focus `spec`, phase
-`post-implementation`), launched concurrently. The 1-round cap means at most
+`post-implementation`), launched concurrently. Each brief carries the
+excerpt, not the plan body
+([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+rule 8). The 1-round cap means at most
 one `builder` fix pass and a re-verification — never a second review round.
 The WP's Review budget lowers this further: `self` drops both reviewers
 (builder self-check + verification only), `light` runs the spec reviewer
-alone ([`protocol.md`](../hex-core/references/protocol.md#the-review-fix-loop)).
+alone ([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)).
+**In a plan carrying the generation marker that direction is flipped**: the
+baseline is the WP's derived breadth and the cell is raise-only against it,
+`panel` raising the WP to the plan's ceiling ([the effective
+tier](../hex-core/references/decompose.md#the-effective-tier)).
 
-**Gate** — no actionable findings remain, or the single fix pass is done;
-the project's documented verification passes on the final state.
+**Gate** — the loop's
+[exit gate](../hex-core/references/loop.md#the-review-fix-loop), bounded
+by this phase's 1-round cap.
 
 ## Phase 7: Cross-model review — skipped
 
 Two-way door: skip (`adversary: off` at this tier). If the user passes
-`--adversary` explicitly, run it anyway (user override); otherwise log
-`Cross-model review skipped: tier=low default` and continue.
+`--adversary` explicitly, run it anyway (user override) under the
+[adversary contract](../hex-core/references/adversary.md#adversary-contract);
+otherwise log `Cross-model review skipped: tier=low default` and continue.
 
 ## Phase 8: Merge and commit
 
@@ -93,9 +129,13 @@ feature branch
 Never push. The merge-time file-set re-validation and merge-conflict /
 post-merge-failure playbook apply only when a worktree merge happens — n/a
 on this tier's single-WP direct path
-([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Print the Deferred Findings summary even when empty — it confirms the
 pipeline ran to completion.
+
+**Gate** — trigger (iii), the final gate, still fires on this single-WP
+direct path
+([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 
 **Federation — a WP whose `Repo` is a satellite key (C-306/C-307).** Commit and
 merge run in the owning repo via `git -C <repo>`, onto that repo's
@@ -103,7 +143,7 @@ merge run in the owning repo via `git -C <repo>`, onto that repo's
 post-merge verification is the **owning repo's**, read by an explicit `Read` of
 that repo's project context — never ambient
 ([`SKILL.md` § Work packages](SKILL.md#work-packages);
-[`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+[`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
 Absent a `Repo` column this is inert.
 
 ## Upkeep and handoff
@@ -127,6 +167,9 @@ block to mutate — note that instead. Then emit the handoff from
 - Tier: low
 - Overlays: (none)
 ```
+
+The handoff block also prints the **six-figure rollup** of the run's timings,
+per [`protocol.md` § Handoff contract](../hex-core/references/protocol.md#handoff-contract).
 
 Its only required artifacts are the commit itself and, when a plan exists,
 its advanced Status block. No ADR or research artifact at this tier — if the

@@ -107,7 +107,7 @@ reading any code.
 
 Break the design into right-sized tasks for contract-first TDD execution,
 **decomposed to maximize parallelism**
-([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)):
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
 
 - Each task maps to a Stub → Specify → Implement → Review cycle.
 - Cut along structural boundaries, never feature slices; every WP declares
@@ -118,13 +118,13 @@ Break the design into right-sized tasks for contract-first TDD execution,
 - Every WP gets a **Review budget** (`self | light | panel`) per the
   protocol heuristic, and a WP below the overhead floor **folds into its
   nearest sibling** as sequential steps
-  ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
+  ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 - The plan's Parallelization section carries the WP table (id, scope,
-  expected files, size, wave, depends-on, review, status — status
+  expected files, size, wave, depends-on, review, verify, status — status
   initialized `pending`), the wave-grouped mermaid `graph TD`, a
   "Shippable after wave: N — <what ships>" line, and the serialized
   topological-order merge plan (waves derived)
-  ([`protocol.md`](../hex-core/references/protocol.md#worktree-work-package-mechanics)).
+  ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
   Fewer parallel WPs than file-disjointness allows → one-line
   justification; an isolated sub-overhead WP carries one too.
 - **Federation:** when `hex.md › Pointers` carries `Federation:` bullets,
@@ -137,13 +137,17 @@ Break the design into right-sized tasks for contract-first TDD execution,
   column (C-314). Absent `Federation:` bullets, no offer, no column, plan
   unchanged.
 
+Print the **budget histogram** at this gate, linking rather than restating
+its grammar
+([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
+
 **Gate** — the plan holds executable phases `/hex-execute` can run without
 further decomposition, and the Parallelization section shows the widest
 wave structure the file sets permit.
 
 ## Phase 6: Review (parallel panel, bounded loop)
 
-Run the [Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 on the draft plan — **plan-artifact scope: one panel round**; fix
 application, conditional re-validation, and escalation follow the
 canonical loop's artifact-scope rule, never restated here.
@@ -155,10 +159,10 @@ canonical loop's artifact-scope rule, never restated here.
   C-/S- ID maps to at least one WP Scope cell and at least one test step; an
   uncovered ID is an actionable finding
   ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
-  Also checks the Parallelization table: an unjustified sub-overhead WP, or
-  a `self`/`light` Review budget on a security-, hot-path-, or large WP, is
-  an actionable finding
-  ([`protocol.md`](../hex-core/references/protocol.md#parallel-by-default-decomposition)).
+  Also checks the Parallelization table for an unjustified sub-overhead WP,
+  and applies the
+  [budget guard](../hex-core/references/decompose.md#parallel-by-default-decomposition)
+  to every WP's Review column.
 - `architect` — are the trade-offs honest, the alternatives considered, any
   boundary violations introduced? *(required for one-way-door decisions)*
 - `researcher` — does the plan miss a trending pattern, a known pitfall, or a
@@ -173,7 +177,7 @@ signals, or explicit `--adversary`): after the panel converges, run the
 configured adversary skill once in `plan-artifact` scope. One-shot, 4-way
 triage, actionable fixes re-validated by a single `reviewer` (focus `spec`)
 pass; graceful skip when unavailable
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the plan is ready for `/hex-execute`; deferred findings are
 documented. Then run the

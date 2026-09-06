@@ -39,8 +39,12 @@ from [`protocol.md`](protocol.md#tier-grammar).
 | doc-reviewer | fast-balanced | fast-balanced | fast-balanced |
 | architect | deep-reasoning | deep-reasoning | deep-reasoning |
 | coordinator | — | deep-reasoning | deep-reasoning |
+| coordinator:pipeline | fast-balanced | fast-balanced | deep-reasoning |
 
-`—` = never spawned at that tier.
+`—` = never spawned at that tier. Column resolution is per spawn, not per
+plan: **a spawn made for a work package reads that WP's effective tier; a
+spawn made for the run reads the plan tier**
+([`decompose.md`](decompose.md#the-effective-tier)).
 
 ## Rules
 
@@ -80,6 +84,10 @@ from [`protocol.md`](protocol.md#tier-grammar).
    → capability class merged into the instantiated matrix, not a separate
    resolution path.
 
+   Which tier column step 2 reads is fixed by [the split above](#the-matrix);
+   that resolution is disclosed at the announce block like any other axis
+   (Rule 1).
+
 3. **Instantiation.** `/hex-init` maps each class to the harness's literal
    models and stores the instantiated table in the Preferences section of
    `.agents/memory/hex.md` (see [`memory.md`](memory.md)). On a
@@ -97,9 +105,13 @@ from [`protocol.md`](protocol.md#tier-grammar).
    orchestrator tier. The session/orchestrator model is the user's or
    harness's choice, outside this matrix.
 
-5. **`coordinator` is tier-gated.** It runs only at medium/high — recursion
-   is a fan-out optimization, absent at low's single-WP shape — and
-   resolves to the `deep-reasoning` **worker** class, never an
-   orchestrator-class model (the exclusion rule, Rule 4 above). See the
-   [`coordinator`](workers/coordinator.md) persona for the full role
-   contract.
+5. **The tier gate belongs to the *decomposing* coordinator only.** The bare
+   `coordinator` row is that kind: it runs only at medium/high —
+   decomposition is a fan-out optimization, absent at low's single-WP shape
+   — and resolves to the `deep-reasoning` **worker** class. The
+   `coordinator:pipeline` row is the other kind and carries **no tier gate**:
+   a pipeline coordinator owns one work package at any tier, so its column
+   is read from that work package's own effective tier. Neither row ever
+   resolves an orchestrator-class model (the exclusion rule, Rule 4 above).
+   See the [`coordinator`](workers/coordinator.md) persona — the sole
+   definition site for the two kinds — for the full role contract.

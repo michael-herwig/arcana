@@ -40,6 +40,8 @@ check** — that package's own contract tests plus your build gate — with your
 full verification as a periodic backstop and at the final gate, so a long
 suite is paid a few times per run instead of once per merge.
 
+Two runtime contracts back a long run: [worker liveness](hex-core/references/protocol.md#worker-liveness) finds and re-spawns a hung agent, and the [resource contract](hex-core/references/resources.md) meters heavy commands against your host's measured profile.
+
 ## Members
 
 | Skill | What it does |
@@ -79,6 +81,12 @@ no tiers.
 
 `xhigh` and `max` are reserved for future overlay stacks — the classifier
 never emits them; an explicit request for either runs `high` instead.
+
+In `/hex-execute`, a plan's tier is a **ceiling**: each work package derives
+its own effective tier from cells the plan already carries — never authored,
+never above the ceiling — and that is what scales its phases, model class,
+review breadth and loop rounds ([`decompose.md` § The effective
+tier](hex-core/references/decompose.md#the-effective-tier)).
 
 Per-tier **content** — phase spawn counts (via `tiers`), and later the phase
 plan itself (via `workflows`, reserved for a future release) in

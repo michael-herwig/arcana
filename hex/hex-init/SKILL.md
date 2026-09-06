@@ -121,7 +121,11 @@ propose adopting what exists via pointer before proposing anything new:
   context, cached in `hex.md › Pointers`) — or none used? Optional;
   absent is fine.
 - Is the worktree path (default `.agents/worktrees/`) gitignored — and
-  does this project use a different one?
+  does this project use a different one? **And the converse: is that rule
+  narrow enough to leave `hex.md` committable?** A bare `.agents/` line
+  drops the team-shared memory file from version control and is a defect,
+  not a safer-because-broader choice. See
+  [`references/audit.md`](references/audit.md#worktree-path-gitignored).
 - Is a cross-model adversary skill installed but not pinned — a skill
   carrying the `hex-adversary-scopes` marker with no matching `adversary:`
   line in `hex.md › Preferences`? And the reverse: does an existing
@@ -129,6 +133,19 @@ propose adopting what exists via pointer before proposing anything new:
   a user-typed pin is never overwritten)? Reads installed frontmatter only;
   executes nothing. See
   [`references/audit.md`](references/audit.md#cross-model-adversary-skill-installed).
+- Has the resource profile been measured on this host — peak RSS, wall
+  time, `light`/`heavy` class, and the derived heavy-command ceiling,
+  cached in `hex.md › Pointers`? See
+  [`references/audit.md`](references/audit.md#resource-profile-measured).
+- Are agent worktrees (`.agents/worktrees/` by default) excluded from
+  IDE file watchers and search indexers, not just from version control?
+  See
+  [`references/audit.md`](references/audit.md#agent-worktrees-excluded-from-watchers-and-indexers).
+- Is the project's scratch/temp convention documented, and has it
+  opted `HOME` into the per-run scratch redirect — for a suite known to
+  write to `$HOME`, or to keep credentials from a verification command
+  it does not fully trust? See
+  [`references/audit.md`](references/audit.md#scratch--temp-convention-documented).
 - If `.agents/memory/hex.md` already exists: does every pointer in
   its Pointers section, and every index line it seeded in the context
   file, still resolve? (a re-audit item, not first-run-only)

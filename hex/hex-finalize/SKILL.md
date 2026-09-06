@@ -151,7 +151,7 @@ analyse rather than an instruction. Every echo of it follows
 
 Verification is **inherited, never invented**: the project's own documented
 level
-([`protocol.md` § Verification](../hex-core/references/protocol.md#verification)),
+([`verify.md` § Verification](../hex-core/references/verify.md#verification)),
 at whatever that documentation names as release-grade. hex neither defines test
 tiers nor decides which suite is expensive.
 

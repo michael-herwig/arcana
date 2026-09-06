@@ -57,7 +57,7 @@ Controls the depth of root-cause (Five Whys) analysis applied to findings.
 | Value | Effect |
 |---|---|
 | `off` | No Five Whys chains. A finding is reported with proximate cause and remediation only. A systemic-smelling finding is still flagged deferred with a reason. |
-| `on` | Findings above a tier-scoped [severity](../hex-core/references/protocol.md#finding-severity) get a Five Whys chain and a systemic-fix recommendation. Scope: `medium` applies it to Block/High findings; `high` applies it to everything above Suggest. |
+| `on` | Findings above a tier-scoped [severity](../hex-core/references/severity.md#finding-severity) get a Five Whys chain and a systemic-fix recommendation. Scope: `medium` applies it to Block/High findings; `high` applies it to everything above Suggest. |
 
 Per-tier defaults: low → `off`, medium → `on` (Block/High), high → `on`
 (above Suggest).
@@ -68,9 +68,9 @@ Controls whether the configured cross-model adversary skill runs against
 the diff (or the artifact, when the target is a markdown file) as a final
 gate after the panel converges. The skill name is read from the
 Preferences section of `.agents/memory/hex.md` (`codex-adversary`
-is only an example value); the full contract — scopes, one-shot rule,
-4-way triage, graceful skip — is in
-[`protocol.md`](../hex-core/references/protocol.md#adversary-contract).
+is only an example value); the full contract — scopes, one-shot rule, 4-way
+triage, graceful skip, stall bound and backstop — is in
+[`adversary.md`](../hex-core/references/adversary.md#adversary-contract).
 This is `code-diff` scope for a branch/PR/working-tree target,
 `plan-artifact` scope for a markdown-artifact target
 ([`classify.md`](classify.md#plan-and-artifact-targets)).
@@ -91,7 +91,7 @@ Per-tier defaults:
 When the adversary produces no review — the named skill is unavailable, or it
 ran and did not complete one — log
 `Cross-model review skipped: <reason>` and continue — a gate, not a
-blocker ([`protocol.md`](../hex-core/references/protocol.md#adversary-contract)).
+blocker ([`adversary.md`](../hex-core/references/adversary.md#adversary-contract)).
 
 ## Precedence
 
@@ -105,6 +105,15 @@ cross-area diff but the user passes `--breadth=full`, the user wins.
 overlay axis — it rewrites this axis's tier baseline (a layer-1 rewrite, not a project hint — see [`config.md` § tiers](../hex-core/references/config.md#tiers)), below any user flag.
 [`SKILL.md`](SKILL.md) step 6 prints the final resolved config with each
 axis's source.
+
+**Exception: the resolved tier itself.** "Later wins" above governs the
+overlay axes, not a plan's ceiling. An explicit `--tier` flag is honoured
+for the run but does not lower the ceiling backstop
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)):
+**a lower `--tier` flag is honoured for the run and does not discharge
+this precondition** — the pass announces
+`ceiling high (plan) floors --tier low — this pass does not satisfy the
+adr_0012 backstop` and the precondition stays armed.
 
 ## Per-tier defaults (cheat-sheet)
 

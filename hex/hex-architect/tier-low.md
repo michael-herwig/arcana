@@ -67,7 +67,7 @@ Launch **1** `reviewer` (focus `quality`) for a single pass challenging the
 recommendation — is the rejected option dismissed fairly, or just less
 familiar? No adversarial design panel, no cross-model adversary at this
 tier (`adversary: off`). Run the
-[Review-Fix Loop](../hex-core/references/protocol.md#the-review-fix-loop)
+[Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 capped at **one round**: the orchestrator edits the record directly on
 actionable findings; only a Block-tier finding earns one reviewer re-run
 (2 passes total max, then stop).

@@ -53,10 +53,12 @@ version the **reader** implements.
 | `models.fast-balanced` | ✅ | string (literal model name) | unset → shipped class prose | Instantiates the class for this harness. |
 | `models.deep-reasoning` | ✅ | string | unset | As above. Never an orchestrator-class model (`adr_0001` C-002). |
 | `models.overrides` | ✅ | map `role[:focus]` → capability class | `{}` | Per-role class override at every tier. Escalation above the shipped cell still requires the announced reason ([`models.md`](models.md)). |
-| `adversary` | ✅ | string skill name, or `none` | unset → adversary contract's per-tier default | Names the cross-model adversary skill ([`protocol.md`](protocol.md#adversary-contract)). |
-| `limits.max-workers` | ✅ | int ≥ 1 | 8 | **A concurrency ceiling, never a floor and never a panel size.** Its enforcement (effective cap `min(8, max-workers)`, recursive count, clamp above 8, batch-never-drop-baseline) is C-201, defined in [`protocol.md` § Worker coordination](protocol.md#worker-coordination); this file adds only the phase ceiling that bounds preference-added spawns ([merge rule 6](#merge-rules)). |
-| `limits.loop-rounds` | ✅ | int 1–3 | tier default (low 1, medium/high 3) | Ceiling on the code-diff Review-Fix cap **and** on `--loop-rounds`. Never raises above the tier default. |
-| `limits.artifact-loop-rounds` | ✅ | int ≥ 1 | 1 | Plan/ADR-scope loop rounds. Opt-in only; `1` is shipped behaviour. |
+| `adversary` | ✅ | string skill name, or `none` | unset → adversary contract's per-tier default | Names the cross-model adversary skill ([`adversary.md`](adversary.md#adversary-contract)). |
+| `limits.max-workers` | ✅ | int ≥ 1 | 8 | **A concurrency ceiling, never a floor and never a panel size.** Its enforcement (effective cap `min(8, max-workers)`, recursive count, batch-never-drop-baseline) is C-201, defined in [`protocol.md` § Worker coordination](protocol.md#worker-coordination); its ceiling is that section's 8 ([merge rule 9](#merge-rules)). This file adds only the phase ceiling that bounds preference-added spawns ([merge rule 6](#merge-rules)). |
+| `limits.loop-rounds` | ✅ | int ≥ 1 | tier default (low 1, medium/high 3) | Ceiling on the code-diff Review-Fix cap **and** on `--loop-rounds`. Never raises above the tier default — its ceiling is that default ([merge rule 9](#merge-rules)). |
+| `limits.artifact-loop-rounds` | ✅ | int ≥ 1 | 1 | Plan/ADR-scope loop rounds. Opt-in only; `1` is shipped behaviour. **No ceiling** — the one limit a value raises, honoured as written ([`loop.md`](loop.md#the-review-fix-loop)'s explicit re-enable). |
+| `limits.adversary-timeout` | ✅ | int minutes ≥ 1 | 5 — the mode-(b) stall window | **The stall window for a pollable background adversary call, and only that.** The key name is frozen; [`adversary.md` § Adversary contract](adversary.md#adversary-contract) owns the observation modes, which call this key governs and which it does not, how a mode resolves and the enforcement — beyond the default this table's `Default` column carries, this row restates none of it. Its ceiling is that default ([merge rule 9](#merge-rules)). |
+| `limits.heavy` | ✅ | int ≥ 1 | the value derived in [`resources.md` § 2](resources.md#2-the-measured-resource-profile) from this host's measured profile; `1` where nothing could be measured | **A ceiling on concurrent *heavy commands*, not on agents** — an additive leaf under the frozen `limits` key, and the one value in this vocabulary that is a property of the **host** rather than of the work, which is why a plan cell cannot carry it. What takes a slot, the host-global semaphore, and the derivation are [`resources.md`](resources.md)'s; this row restates none of it. Unset means the derived value, so an unconfigured project gets a measured number rather than a guess. A reader predating this key meets an unknown key under `limits` and degrades by [merge rule 8](#merge-rules) — warn once, ignore, continue — to unbounded heavy commands. Its ceiling is the derived value ([merge rule 9](#merge-rules)). |
 | `perspectives.always` | ✅ | list of rule objects | `[]` | Adds a perspective to the resolved panel. See [Perspectives](#perspectives). |
 | `perspectives.never` | ✅ | list of `role[:focus]` | `[]` | Removes a perspective from the resolved panel. Applied last. `reviewer:security` additionally requires the attestation below (merge rule 5). |
 | `perspectives.security-sensitive-paths` | ✅ | the literal `none`, or unset | unset | **Attestation, required to suppress the security reviewer.** `none` asserts this project has no security-sensitive path. Any other value, or absence, makes `never: [reviewer:security]` fail closed (merge rule 5). |
@@ -287,11 +289,22 @@ before layers 2 and 3 apply. (C-204)
    limits, perspectives, research-axes, tiers.` The enumeration lists the
    vocabulary version the **reader** implements — a v1 reader omits
    `workflows` and treats it as unknown; a v2 reader appends it.
-9. **Malformed value** (wrong type, unparseable glob, unknown role, unknown
-   skill/tier/phase segment, or a `workflows` path naming no readable file) —
-   ignore that key only, keep the shipped default for it, warn with the same
-   `Error:`/`Fix:` shape. A bad field never blocks a run and never
-   invalidates its siblings.
+9. **Malformed value** (wrong type, a value outside a non-numeric key's
+   stated vocabulary, a value below the floor the key's `Type` column
+   states, unparseable glob, unknown role, unknown skill/tier/phase segment,
+   or a `workflows` path naming no readable file) — ignore that key only,
+   keep the shipped default for it, warn with the same `Error:`/`Fix:`
+   shape. A bad field never blocks a run and never invalidates its siblings.
+
+   **A well-formed value above a limit's ceiling is not malformed.** Where a
+   `limits.*` row names a ceiling, this rule owns the outcome and the row
+   restates none of it: the value **clamps to that ceiling**, announced
+   under the [clamp grammar](protocol.md#the-meta-plan-approval-gate). A row
+   naming no ceiling — `limits.artifact-loop-rounds` — has none, and a
+   well-formed value stands as written. So `limits.adversary-timeout: 0` is
+   malformed (below the `≥ 1` floor: ignored, warned, default 5 stands),
+   while `limits.adversary-timeout: 45` clamps to 5 and `loop-rounds: 5`
+   clamps to the tier default.
 10. **Unparseable YAML block** — the whole block is skipped, announced once,
     prose bullets in the section still apply, run continues on shipped
     defaults.
@@ -470,6 +483,8 @@ limits:
   max-workers: 6            # effective cap = min(8, 6) = 6
   loop-rounds: 3            # ceiling on --loop-rounds, code-diff scope
   artifact-loop-rounds: 1   # 1 = shipped behaviour
+  adversary-timeout: 3      # below the default, so it lowers the stall
+                            # window. See Key vocabulary
 
 perspectives:
   always:

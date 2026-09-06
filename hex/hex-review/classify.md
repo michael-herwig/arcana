@@ -46,6 +46,13 @@ A diff may match multiple rows — pick the **highest** tier with at least
 one clear signal firing. A small file count does not demote a diff that
 introduces a new package.
 
+**Divergence from `decompose.md`'s `S` class.** This `low` row's ≤3 files,
+≤100 lines is a different, less conservative threshold than
+[`decompose.md`](../hex-core/references/decompose.md#the-effective-tier)'s `S`
+size class (~≤50 expected lines and ≤3 expected files) — the two have
+different jobs, an actual diff for a review versus an estimate for a
+reduction, and `max(classified, ceiling)` is what keeps the divergence safe.
+
 ## Structural marker signals
 
 Language-agnostic globs — never a hardcoded per-project path table. Project
@@ -61,6 +68,12 @@ mandatory under `src/auth/**`") fold in on top of these before the gate.
 | Generated-file churn (matches the project's documented generated-file markers) | Adds `breadth=full`; note in output as low review value — don't nitpick generated content |
 | Public API surface files (exported/public entry points added, changed, or removed — from the project's own module boundaries) | → **high**, adds `adversary=on` |
 | `hex.md › Preferences` `perspectives.always` / `never` rule | `always`: adds the named perspective when its `when:` glob matches; `never`: removes the named perspective (a role-name list, no glob — `reviewer:security` additionally fail-closed, merge rule 5) ([`config.md` § Perspectives](../hex-core/references/config.md#perspectives)) |
+
+The effective tier's `sec` flag
+([`decompose.md`](../hex-core/references/decompose.md#the-effective-tier))
+reads this table as hex's own shipped, project-independent triggers:
+**the project may widen hex's sensitivity and may never subtract from
+it**.
 
 ## PR label signals
 
@@ -125,7 +138,7 @@ diff-metric classification entirely — there is no `<base>...<target>` to
 measure. Default to tier `medium` unless the user passes an explicit tier
 or flag; the tier's breadth and RCA defaults still apply. The adversary
 axis, when it fires, runs in `plan-artifact` scope instead of `code-diff`
-([adversary contract](../hex-core/references/protocol.md#adversary-contract)).
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 Confidence is always **confident** for an explicit artifact path — there is
 no metric ambiguity to flag.
 
