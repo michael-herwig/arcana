@@ -5,7 +5,7 @@ lock_version = 1
 declaration_hash_version = 1
 declaration_hash = "sha256:b4a1fc7c7a1dd14a8551e72091688858552b8ff2b181668a3b897aa90cc52a15"
 generated_by = "grim 0.14.0"
-generated_at = "2026-09-06T14:39:56Z"
+generated_at = "2026-09-06T17:41:46Z"
 
 [[skill]]
 name = "ai-config-authoring"
@@ -63,7 +63,7 @@ hash = "sha256:785913ca91394c21343d45cc9b387c6762862ea16a5d500d6ac42ceeab9a0b66"
 [[skill]]
 name = "hex-review"
 path = "./hex/hex-review"
-hash = "sha256:73babeaa728720c62bc9622b4983075dde0d25e0bef3488dad03e0ac2ccab144"
+hash = "sha256:07fa7b48db0712034ac521c8b3c665186ec9f410c79c011299de357d26e0355e"
 
 [[rule]]
 name = "hex-state"
