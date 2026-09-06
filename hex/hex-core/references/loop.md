@@ -118,9 +118,13 @@ byte.
 - **Seats, class, input scope and budget** are set per join level, once,
   in [Review by join level](#review-by-join-level) below — there is no
   per-WP review budget and no tier-scaled perspective panel in this loop.
-- **Adversary gate** (optional, tier-scaled) — after the loop converges,
-  one cross-model pass on the diff; see [Adversary contract](adversary.md#adversary-contract).
-  One-shot, never loops.
+- **Adversary seat** (optional, tier-scaled) — when `adversary=on`, the
+  cross-model adversary **launches in the same batch as the native seat of
+  the join it gates**, never after it (`adr_0016` C-987), and its actionable
+  findings join that join's single builder fix pass (C-988); one-shot, never
+  loops. Batch order, clocks, triage and the failure path are the
+  [Adversary contract](adversary.md#adversary-contract)'s, restated nowhere
+  else.
 - **Exit gate** — no actionable findings remain, the **WP's resolved
   verification** passes on the final state, and deferred findings are
   documented for handoff. The resolved verification is what that WP's
@@ -149,7 +153,8 @@ C-980):
 | `L2` aggregate | a node joins **N ≥ 2** leaves | 1 `reviewer` | deep-reasoning | 1 | 20 min | the aggregate diff + the leaf verdicts |
 | `L3` trunk | `/hex-review`, on explicit invocation only | that skill's staged panel | that skill's | that skill's | — | the feature branch |
 
-Shipped defaults; the `L1` and `L2` cells are the `review.<level>.*` keys
+Shipped defaults; the `L1` and `L2` cells, and the checklist sections each
+brief carries (`review.<level>.checklist`), are the `review.<level>.*` keys
 in `hex.md › Preferences` ([`config.md`](config.md#key-vocabulary)), and a
 project overrides them **per level, never per role**. **Every diff passes
 `L1` once, at the join nearest the builder that wrote it; every aggregate
@@ -170,13 +175,15 @@ already ran its own `L2` takes that verdict as input and does not re-run
   Pointers`), a mechanical read of the file list re-validation already
   produces. **A doc WP is checked by grep against the implementation it
   documents, never by a prose panel.** Every other WP runs `L0` and then
-  `L1` at its join.
+  `L1` at its join. `L0` carries no checklist — a mechanical grep takes no
+  judgement list ([`checklist.md`](checklist.md#composition)).
   Universal rule 7 is unchanged — the self-check still carries no weight;
   the evidence table is verified by a party that did not write it, which
   is what gives it weight.
 - **`L1`** — fires once per leaf join for every WP that is not `L0`-only,
-  at every tier and in every plan shape. One `reviewer` (focus `spec`, phase `post-implementation`, the
-  `quality` checklist folded into the same brief) reads the leaf's diff
+  at every tier and in every plan shape. One `reviewer` (focus `spec`, phase
+  `post-implementation`), its brief carrying the composed `spec` + `quality`
+  sections of [`checklist.md`](checklist.md#composition), reads the leaf's diff
   against its recorded base and the contract excerpt — never the plan
   body, never a summary, never the tree. **A finding must sit on a diff
   line or name a contradiction the diff introduced**; anything else is
@@ -194,8 +201,9 @@ already ran its own `L2` takes that verdict as input and does not re-run
   aggregate, and the `L1` verdict stands (C-981). The orchestrator's own
   `L2` fires **once, at the end of the run**, over `<base>..HEAD` of the
   feature branch with `N` = the WPs merged — never once per merge. The
-  run's `review` overlay axis selects this seat's checklist breadth
-  ([`hex-execute/overlays.md`](../../hex-execute/overlays.md#review-axis)):
+  run's `review` overlay axis selects which
+  [`checklist.md`](checklist.md#composition) sections this seat's brief
+  carries ([`hex-execute/overlays.md`](../../hex-execute/overlays.md#review-axis)):
   the checklist grows, the seat count does not.
 - **`L3`** — the feature branch to the trunk. **Only `/hex-review`, only
   when invoked.** Nothing in `/hex-execute` arms it, requires it, or

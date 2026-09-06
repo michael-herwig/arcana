@@ -73,8 +73,14 @@ perspectives fire, or when a `perspectives.always` rule matches):
   matches changed files (CLI/flags, config/env, schema, install docs,
   changelog — from project context per
   [`doc-reviewer`](../hex-core/references/workers/doc-reviewer.md)).
+- the configured **cross-model adversary**, last in the batch, **when
+  `adversary=on`** — it occupies no worker slot and is triaged in Phase 5
+  ([adversary contract](../hex-core/references/adversary.md#adversary-contract),
+  `adr_0016` C-987).
 
-Each reviewer classifies findings actionable or deferred and tags each with a
+Each `reviewer` seat's brief carries the
+[`checklist.md`](../hex-core/references/checklist.md#composition) section of
+its own focus. Each reviewer classifies findings actionable or deferred and tags each with a
 [severity](../hex-core/references/severity.md#finding-severity); a
 Suggest-severity finding is reported but never gates the verdict. Model class
 per
@@ -110,10 +116,11 @@ those too).
 ## Phase 5: Cross-model pass (`adversary`, when it fires)
 
 When `adversary=on` (user flag, or classifier-inferred from a one-way-door
-or security signal), invoke the configured adversary skill once — `code-diff`
-scope for a diff target, `plan-artifact` scope for a markdown target
-([`overlays.md`](overlays.md), [adversary contract](../hex-core/references/adversary.md#adversary-contract)).
-One-shot, no looping.
+or security signal), the configured adversary skill was **launched last in
+Phase 3's batch** — `code-diff` scope for a diff target, `plan-artifact`
+scope for a markdown target
+([`overlays.md`](overlays.md), [adversary contract](../hex-core/references/adversary.md#adversary-contract));
+**this phase triages its return.** One-shot, no looping.
 
 Triage 4-way:
 

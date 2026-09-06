@@ -337,7 +337,7 @@ Review-Fix perspectives fire.
 | Specify | `tester` (focus `specification`) | 1 per work package † | Tests from the plan's design record, must fail against stubs |
 | Implement | `builder` (focus `implement`) | 1 per work package † | Fill bodies until the specification tests pass |
 | Implement | `coordinator` | 0–1 per ready WP | Owns the WP and runs its phase pipeline; the decomposing kind additionally fans it out into sub-WPs ([`coordinator`](../hex-core/references/workers/coordinator.md)) |
-| Review-Fix `L1` | `reviewer` (focus `spec`, phase `post-implementation`, `quality` folded in) | 1 per leaf join | Delta-only leaf review, every tier ([Review by join level](../hex-core/references/loop.md#review-by-join-level)) |
+| Review-Fix `L1` | `reviewer` (focus `spec`, phase `post-implementation`; brief carries the `spec` + `quality` sections of [`checklist.md`](../hex-core/references/checklist.md#composition)) | 1 per leaf join | Delta-only leaf review, every tier ([Review by join level](../hex-core/references/loop.md#review-by-join-level)) |
 | Review-Fix `L2` | `reviewer` (deep-reasoning seat, checklist per `review` axis) | 1 per aggregate join, `N ≥ 2` only | Semantic conflicts and coverage across the joined leaves |
 | Adversary | configured adversary skill (`code-diff`) | 0–1 | Cross-model review of the branch diff |
 

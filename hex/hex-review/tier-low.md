@@ -29,8 +29,11 @@ worker is needed for this.
 
 Launch **1** `reviewer` (focus `spec`, phase `post-implementation`) on the
 diff. Model class per [`models.md`](../hex-core/references/models.md) row
-`reviewer:spec`, tier `low`. It applies both jobs a larger tier splits
-across two reviewers:
+`reviewer:spec`, tier `low`. Its brief carries the composed `spec` +
+`quality` sections of
+[`checklist.md`](../hex-core/references/checklist.md#composition) — the
+single-reviewer case the checklist exists for. It applies both jobs a
+larger tier splits across two reviewers:
 
 - design/contract compliance — does the change match the project's stated
   patterns and conventions;
@@ -68,8 +71,9 @@ with a reason — a human can escalate to `/hex-review medium` for Five Whys.
 
 `adversary: off` by default. If the user explicitly passes `--adversary`,
 run the pass anyway (user override) in the scope the target implies
-(`code-diff` for a diff, `plan-artifact` for a markdown target) —
-[adversary contract](../hex-core/references/adversary.md#adversary-contract).
+(`code-diff` for a diff, `plan-artifact` for a markdown target) — launched
+in the same batch as the Phase 2 reviewer, last, and triaged here
+([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 Otherwise log `Cross-model review skipped: tier=low default` and continue.
 
 ## Phase 6: Verdict & Output

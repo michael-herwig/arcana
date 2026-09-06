@@ -44,8 +44,10 @@ live in `hex.md › Preferences`, never in a flag.
 ## adversary axis (plan-artifact scope)
 
 Controls whether the configured cross-model adversary skill runs against the
-**design artifact** (the ADR, or the ADR + system-design doc) as a final gate
-after the native design panel converges. Distinct from the *adversarial
+**design artifact** (the ADR, or the ADR + system-design doc), launched
+**inside the Round 1 design-panel batch, last** — never after the panel
+([`adversary.md`](../hex-core/references/adversary.md#adversary-contract),
+`adr_0016` C-987). Distinct from the *adversarial
 design panel* itself (in-harness `reviewer` perspectives, a tier-baseline
 behavior described in each tier file's Review phase) — this axis is only the
 cross-model pass. The skill name is read from the Preferences section of
@@ -59,7 +61,7 @@ is the `plan-artifact` scope; `/hex-execute` runs the same skill in
 | Value | Effect |
 |---|---|
 | `off` | No cross-model design review. |
-| `on` | After the design panel converges, invoke the adversary skill once in `plan-artifact` scope on the ADR (and system-design doc, if produced). One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia); re-run a single `reviewer` (focus `spec`) pass to validate any actionable fix. |
+| `on` | Invoke the adversary skill once in `plan-artifact` scope on the ADR (and system-design doc, if produced), launched last in the Round 1 panel batch. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia); actionable fixes are applied with the panel's and validated by the same single `reviewer` (focus `spec`) pass. |
 
 Per-tier defaults:
 

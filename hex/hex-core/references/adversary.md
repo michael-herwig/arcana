@@ -13,6 +13,25 @@ points at an adversary skill from another.
   `plan-artifact` (a markdown plan or ADR file).
 - **One-shot — never loops.** Two-family stylistic thrash is the failure
   mode it exists to avoid.
+- **Concurrent launch — a member of the join's batch, never a serial tail**
+  (`adr_0016` C-987). When the axis is on, the adversary is launched **in
+  the same batch as the native seat of the join it gates**: the `L2`
+  aggregate seat, or the sole leaf's `L1` at `N = 1`, in `/hex-execute`
+  ([`loop.md`](loop.md#review-by-join-level)); the Stage 2 batch in
+  `/hex-review`; the Round 1 panel batch in `/hex-plan` and
+  `/hex-architect`. **Batch order is native seats first, adversary last**,
+  so a mode-(c) blocking call blocks the orchestrator only after every
+  native seat is already running. Where the harness cannot issue the call
+  inside the batch at all, the launch degrades to sequential and the
+  existing `Degraded: blocking adversary call …` line takes the suffix
+  `; launched sequentially` — no new degrade axis. **The adversary occupies
+  no `max-workers` slot**: it is not a hex worker (the heartbeat bullet
+  below). **The two clocks are orthogonal**: `review.<level>.budget-minutes`
+  bounds the native seat and nothing else; the bound this contract resolves
+  bounds the adversary and nothing else — neither truncates the other,
+  because hex can stop its own worker and cannot terminate an external
+  skill. The join waits for both; wall clock is `max(native, adversary)`,
+  which is the whole gain.
 - **The bound comes from the adversary's own published contract where it
   states one, and otherwise from how hex invoked the call.** Neither is a
   claim about the skill in the abstract: one is what the skill publishes,
@@ -117,8 +136,15 @@ points at an adversary skill from another.
   cost is stated: an adversary that hangs under such a call blocks the run
   until it returns.
 - **4-way triage** of its findings:
-  - **actionable** — the orchestrator fixes it, then re-runs one affected
-    perspective;
+  - **actionable** — folded into the join's **single builder fix pass**
+    together with the native seat's actionable findings, one pass, one
+    re-verify by the join's own resolved verification (`adr_0016` C-988).
+    A finding naming the same defect as a native finding merges into it,
+    attribution noted, never counted twice. If that merged pass fails
+    verification: **revert it, re-run it native-only, and promote every
+    adversary finding to deferred** — the adversary is never re-invoked.
+    In a read-only mode (`/hex-review`) the finding is reported, never
+    fixed;
   - **deferred** — handed off with context;
   - **stated-convention** — dropped, counted;
   - **trivia** — dropped, counted.

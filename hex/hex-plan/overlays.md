@@ -54,8 +54,9 @@ per-role overrides live in `hex.md › Preferences`, never in a flag.
 ## adversary axis (plan-artifact scope)
 
 Controls whether the configured cross-model adversary skill runs against the
-plan artifact as a final gate after the native review panel converges. The
-skill name is read from the Preferences section of `.agents/memory/hex.md`
+plan artifact, launched **inside the Round 1 panel batch, last** — never
+after the panel ([`adversary.md`](../hex-core/references/adversary.md#adversary-contract),
+`adr_0016` C-987). The skill name is read from the Preferences section of `.agents/memory/hex.md`
 (`codex-adversary` is only an example value); the full contract — scopes,
 one-shot rule, 4-way triage, graceful skip, stall bound and backstop — is
 in [`adversary.md`](../hex-core/references/adversary.md#adversary-contract).
@@ -65,7 +66,7 @@ This is the `plan-artifact` scope; `/hex-execute` runs the same skill in
 | Value | Effect |
 |---|---|
 | `off` | No cross-model plan review. |
-| `on` | After the review panel converges, invoke the adversary skill once in `plan-artifact` scope on the plan file. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia); re-run a single `reviewer` (focus `spec`) pass to validate any actionable fix. |
+| `on` | Invoke the adversary skill once in `plan-artifact` scope on the plan file, launched last in the Round 1 panel batch. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia); actionable fixes are applied with the panel's and validated by the same single `reviewer` (focus `spec`) pass. |
 
 Per-tier defaults:
 

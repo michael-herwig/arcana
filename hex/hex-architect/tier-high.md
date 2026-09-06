@@ -138,12 +138,13 @@ canonical loop's artifact-scope rule, never restated here.
   [`classify.md`](classify.md) fired the compliance/security-touch signal or
   `hex.md › Preferences` names the touched area as always-security-sensitive.
 
-**Cross-model design review — a default part of this tier's flow.** After
-the panel converges, run the configured adversary skill once in
-`plan-artifact` scope on the ADR (and system-design doc, if produced).
-One-shot, no loop; 4-way triage (actionable / deferred / stated-convention /
-trivia); actionable fixes re-validated by a single `reviewer` (focus `spec`)
-pass
+**Cross-model design review — a default part of this tier's flow.**
+Launched **in the Round 1 panel batch, last** — never after the panel — and
+run once in `plan-artifact` scope on the ADR (and system-design doc, if
+produced) (`adr_0016` C-987). One-shot, no loop; 4-way triage (actionable /
+deferred / stated-convention / trivia); its actionable findings join the
+same fix application as the panel's and are re-validated by the same single
+`reviewer` (focus `spec`) pass
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 If the adversary produces no review — the skill is unavailable, or it ran and
 did not complete one — log

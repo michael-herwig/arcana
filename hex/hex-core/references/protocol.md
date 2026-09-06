@@ -39,6 +39,7 @@ layer up.
 | `/hex-architect` | `loop.md` |
 | `/hex-finalize` | `verify.md` |
 | any of the above with `adversary=on` | `+ adversary.md` |
+| any of the above composing a review brief | `+ checklist.md` — read by the orchestrator, inlined into the brief; the seat never opens it |
 | `/hex-review` on a federated target | `+ worktree.md` |
 | `builder` worker | `verify.md` only |
 | `reviewer` worker | `severity.md` only |
@@ -821,9 +822,14 @@ defined in [`archive.md`](archive.md#plan-archive) (C-410).
 Verify-on-consumption already
 repaired whatever a phase acted on mid-run; upkeep sweeps the remainder.
 `hex.md › Preferences` is user-owned and is **never edited here**: a
-preference the run surfaced (a perspective that should become an always-on
-hint) is recorded in `hex.md › Memory` and proposed at the next `/hex-init`
-run. This is part of the flow (portable, no hooks needed); because the file
+preference the run surfaced is recorded in `hex.md › Memory` and proposed at
+the next `/hex-init` run. Three candidate classes, named so a run knows what
+to record (`adr_0016` C-990): a perspective that should become an always-on
+hint; a `review.<level>.*` value the run's budget residue, expiry or
+round count argued for (`budget-minutes`, `rounds`, `class`, `checklist`);
+and a finding class that recurred across seats or runs and belongs in the
+project's own rules as a checklist item
+([`checklist.md`](checklist.md#composition)). This is part of the flow (portable, no hooks needed); because the file
 holds pointers rather than copies, upkeep is cheap. The section specs and
 staleness rules are in [`memory.md`](memory.md).
 

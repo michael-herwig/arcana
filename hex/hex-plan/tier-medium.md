@@ -170,10 +170,11 @@ finding
 ([constitution gate](../hex-core/references/protocol.md#constitution-gate)).
 
 **Cross-model plan review** (when `adversary=on` — auto-on for one-way-door
-signals, or explicit `--adversary`): after the panel converges, run the
-configured adversary skill once in `plan-artifact` scope. One-shot, 4-way
-triage, actionable fixes re-validated by a single `reviewer` (focus `spec`)
-pass; graceful skip when unavailable
+signals, or explicit `--adversary`): launched **in the Round 1 panel batch,
+last** — never after the panel — and run once in `plan-artifact` scope
+(`adr_0016` C-987). One-shot, 4-way triage; its actionable findings join
+the same fix application as the panel's and are re-validated by the same
+single `reviewer` (focus `spec`) pass; graceful skip when unavailable
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the plan is ready for `/hex-execute`; deferred findings are

@@ -120,17 +120,20 @@ sole definition, never restated here:
 - **`L0`** on every builder return — the evidence table, grep-verified by
   this orchestrator; an unverifiable row goes back to the builder once.
 - **`L1`** at every leaf join, per WP in its own worktree before merge —
-  **1** `reviewer` (focus `spec`, phase `post-implementation`, `quality`
-  folded in), reading `git diff <base>..<head>` and the excerpt only
+  **1** `reviewer` (focus `spec`, phase `post-implementation`), its brief
+  carrying the `spec` + `quality` sections of
+  [`checklist.md`](../hex-core/references/checklist.md#composition), reading
+  `git diff <base>..<head>` and the excerpt only
   ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
   rule 8), **1 round**, inside its budget.
 - **`L2`** once, at this run's end-of-run join over the feature branch,
   only when **two or more** WPs landed — **1** deep-reasoning `reviewer`
-  carrying the `review=full` checklist
-  ([`overlays.md`](overlays.md#review-axis)): spec and quality, plus
-  security when the diff touches security-sensitive paths, performance
-  when it touches a hot path or async code, doc-drift when triggers match,
-  and any `perspectives.always` rule that matches. Leaf verdicts are
+  carrying the `review=full` sections of
+  [`checklist.md`](../hex-core/references/checklist.md#composition)
+  ([`overlays.md`](overlays.md#review-axis)): `spec` and `quality`, plus
+  `security` when the diff touches security-sensitive paths, `performance`
+  when it touches a hot path or async code, `docs` when doc-drift triggers
+  match, and any `perspectives.always` rule that matches. Leaf verdicts are
   inputs. Skipped at `N = 1`.
 
 A `sec`, `hot` or `door` flag, or a `risk` cell, raises the WP one level,
@@ -139,11 +142,11 @@ reviewed at `L1` per sub-WP and `L2` at its join; it is not re-reviewed
 at `L1` here.
 
 **Cross-model code-diff review** (when `adversary=on` — auto-on for
-one-way-door signals, or explicit `--adversary`): after the `L2` seat
-returns, run the configured adversary skill once in `code-diff` scope
-against the branch diff. One-shot, 4-way triage, actionable fixes get one
-`builder` (focus `implement`) fix pass, re-verified; graceful skip when
-unavailable
+one-way-door signals, or explicit `--adversary`): launched **in the same
+batch as the terminal join's native seat** — the `L2` seat, or the sole
+leaf's `L1` at `N = 1` — last in that batch, never after it. One-shot,
+4-way triage; its actionable findings join that join's single `builder`
+(focus `implement`) fix pass, one re-verify; graceful skip when unavailable
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the loop's

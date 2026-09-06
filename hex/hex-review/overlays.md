@@ -65,8 +65,10 @@ Per-tier defaults: low → `off`, medium → `on` (Block/High), high → `on`
 ## adversary axis
 
 Controls whether the configured cross-model adversary skill runs against
-the diff (or the artifact, when the target is a markdown file) as a final
-gate after the panel converges. The skill name is read from the
+the diff (or the artifact, when the target is a markdown file), launched
+**inside the Stage 2 batch, last** — never after the panel
+([`adversary.md`](../hex-core/references/adversary.md#adversary-contract),
+`adr_0016` C-987) — and triaged in the Cross-model phase. The skill name is read from the
 Preferences section of `.agents/memory/hex.md` (`codex-adversary`
 is only an example value); the full contract — scopes, one-shot rule, 4-way
 triage, graceful skip, stall bound and backstop — is in
@@ -78,7 +80,7 @@ This is `code-diff` scope for a branch/PR/working-tree target,
 | Value | Effect |
 |---|---|
 | `off` | No cross-model pass. |
-| `on` | After the panel converges, invoke the adversary skill once against the diff or artifact. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia). Review is read-only: an actionable finding is reported, never auto-fixed — hand off to `/hex-execute` if the caller wants it applied. |
+| `on` | Invoke the adversary skill once against the diff or artifact, launched last in the Stage 2 batch. One-shot, no loop. Triage its findings 4-way (actionable / deferred / stated-convention / trivia). Review is read-only: an actionable finding is reported, never auto-fixed — hand off to `/hex-execute` if the caller wants it applied. |
 
 Per-tier defaults:
 

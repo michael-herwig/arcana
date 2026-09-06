@@ -99,10 +99,11 @@ at the join levels [`loop.md` § Review by join
 level](../hex-core/references/loop.md#review-by-join-level) defines — the
 sole definition, never restated here. At this tier that is `L0` on the
 builder's return (evidence table, grep-verified, no spawn) and `L1` at the
-WP's join: **1** `reviewer` (focus `spec`, phase `post-implementation`,
-`quality` folded into the brief), delta-only, **1 round**, inside its
-budget. Each brief carries the excerpt, not the plan body
-([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
+WP's join: **1** `reviewer` (focus `spec`, phase `post-implementation`),
+its brief carrying the `spec` + `quality` sections of
+[`checklist.md`](../hex-core/references/checklist.md#composition),
+delta-only, **1 round**, inside its budget. Each brief carries the excerpt,
+not the plan body ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
 rule 8). `L2` fires only when this run joins **two or more** WPs — the
 usual single-WP `low` plan skips it. A `sec`, `hot` or `door` flag, or a
 `risk` cell, raises the WP one level, never a round.
@@ -115,8 +116,10 @@ by the level's `rounds`; budget residue goes to the handoff.
 
 Two-way door: skip (`adversary: off` at this tier). If the user passes
 `--adversary` explicitly, run it anyway (user override) under the
-[adversary contract](../hex-core/references/adversary.md#adversary-contract);
-otherwise log `Cross-model review skipped: tier=low default` and continue.
+[adversary contract](../hex-core/references/adversary.md#adversary-contract)
+— launched in the same batch as the `L1` seat, last, its actionable findings
+joining that seat's single fix pass; otherwise log
+`Cross-model review skipped: tier=low default` and continue.
 
 ## Phase 8: Merge and commit
 

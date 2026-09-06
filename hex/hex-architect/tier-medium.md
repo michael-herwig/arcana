@@ -223,10 +223,12 @@ the loop above governs re-runs, the cap, and escalation.
 
 **Cross-model design review** (when `adversary=on` — auto-on for one-way-door
 signals or dossier fast-path input, or explicit `--adversary`;
-[`overlays.md`](overlays.md) owns the trigger set): after the panel converges, run the
-configured adversary skill once in `plan-artifact` scope on the ADR. One-shot,
-4-way triage, actionable fixes re-validated by a single `reviewer` (focus
-`spec`) pass; graceful skip when unavailable
+[`overlays.md`](overlays.md) owns the trigger set): launched **in the Round 1
+panel batch, last** — never after the panel — and run once in
+`plan-artifact` scope on the ADR (`adr_0016` C-987). One-shot, 4-way
+triage; its actionable findings join the same fix application as the
+panel's and are re-validated by the same single `reviewer` (focus `spec`)
+pass; graceful skip when unavailable
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the ADR is ready for handoff; deferred findings are documented.

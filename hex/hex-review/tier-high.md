@@ -80,8 +80,15 @@ matching `perspectives.always` rule adds):
   `hex.md › Pointers`) — SOTA gap check: how do the field's leading
   tools solve the same problem? Is the algorithm choice current? Any
   known pitfall unaddressed?
+- the configured **cross-model adversary**, last in the batch — mandatory
+  at this tier; it occupies no worker slot and is triaged in Phase 5
+  ([adversary contract](../hex-core/references/adversary.md#adversary-contract),
+  `adr_0016` C-987).
 
-Stage 1 (2, sequential) then Stage 2 (up to 6 concurrent) — peak
+Each `reviewer` seat's brief carries the
+[`checklist.md`](../hex-core/references/checklist.md#composition) section of
+its own focus; the `architect` carries `architecture`, the `researcher`
+`pitfalls`. Stage 1 (2, sequential) then Stage 2 (up to 6 concurrent) — peak
 concurrency 6, within the shipped 8-worker cap. Under a lower effective cap
 (`min(8, max-workers)`) Stage 2 batches per
 [`protocol.md`](../hex-core/references/protocol.md#worker-coordination); it
@@ -121,10 +128,11 @@ noted.
 
 ## Phase 5: Cross-model pass (mandatory)
 
-Invoke the configured adversary skill once against the diff (`code-diff`
-scope) or the artifact (`plan-artifact` scope for a markdown target) —
-[adversary contract](../hex-core/references/adversary.md#adversary-contract).
-One-shot, no looping.
+The configured adversary skill was **launched last in Phase 3's batch**
+against the diff (`code-diff` scope) or the artifact (`plan-artifact` scope
+for a markdown target) —
+[adversary contract](../hex-core/references/adversary.md#adversary-contract);
+**this phase triages its return.** One-shot, no looping.
 
 Triage 4-way — actionable (reported in the Cross-Model section, review
 stays read-only), deferred (added to Deferred Findings with a reason),

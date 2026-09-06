@@ -137,32 +137,35 @@ sole definition, never restated here:
 - **`L0`** on every builder return — the evidence table, grep-verified by
   this orchestrator; an unverifiable row goes back to the builder once.
 - **`L1`** at every leaf join, per WP in its own worktree before merge —
-  **1** `reviewer` (focus `spec`, phase `post-implementation`, `quality`
-  folded in), reading `git diff <base>..<head>` and the excerpt only
+  **1** `reviewer` (focus `spec`, phase `post-implementation`), its brief
+  carrying the `spec` + `quality` sections of
+  [`checklist.md`](../hex-core/references/checklist.md#composition), reading
+  `git diff <base>..<head>` and the excerpt only
   ([`workers.md`](../hex-core/references/workers.md#universal-worker-protocol)
   rule 8), **1 round**, inside its budget.
 - **`L2`** once, at this run's end-of-run join over the feature branch,
   only when **two or more** WPs landed — **1** deep-reasoning `reviewer`
-  carrying the `review=adversarial` checklist
-  ([`overlays.md`](overlays.md#review-axis)): the `full` set, plus the
-  ADR-compliance / boundary check and the SOTA-gap / known-pitfall check,
-  and any `perspectives.always` rule that matches. For the compliance
-  check this seat reads in full the ADR or design document its brief
-  names, per rule 8's architect carve-out. Leaf verdicts are inputs.
-  Skipped at `N = 1`.
+  carrying the `review=adversarial` sections of
+  [`checklist.md`](../hex-core/references/checklist.md#composition)
+  ([`overlays.md`](overlays.md#review-axis)): the `full` set, plus
+  `architecture` and `pitfalls`, and any `perspectives.always` rule that
+  matches. For the `architecture` section this seat reads in full the ADR
+  or design document its brief names, per rule 8's architect carve-out.
+  Leaf verdicts are inputs. Skipped at `N = 1`.
 
 A `sec`, `hot` or `door` flag, or a `risk` cell, raises the WP one level,
 never a round; at `L2` it forces the security and performance checklists
 on. A WP arriving under a decomposing coordinator is already reviewed at
 `L1` per sub-WP and `L2` at its join; it is not re-reviewed at `L1` here.
 
-**Cross-model code-diff review — a default part of this tier's flow.** After
-the `L2` seat returns, invoke the configured adversary skill once in
-`code-diff` scope against the branch diff. One-shot, no loop; 4-way triage
-(actionable / deferred / stated-convention / trivia); actionable findings
-get one `builder` (focus `implement`) fix pass, re-verified. If that one-shot
-fix pass fails verification, **revert it** and promote all cross-model
-findings to deferred rather than looping
+**Cross-model code-diff review — a default part of this tier's flow.**
+Launched **in the same batch as the terminal join's native seat** — the
+`L2` seat, or the sole leaf's `L1` at `N = 1` — last in that batch, never
+after it. One-shot, no loop; 4-way triage (actionable / deferred /
+stated-convention / trivia); its actionable findings join that join's
+single `builder` (focus `implement`) fix pass, one re-verify. If that
+merged pass fails verification, **revert it, re-run it native-only, and
+promote every cross-model finding to deferred** rather than looping
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 If the adversary produces no review — the skill is unavailable, or it ran and
 did not complete one — log

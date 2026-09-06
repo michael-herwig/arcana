@@ -42,6 +42,10 @@ Contract / spec: <the brief excerpt — [workers.md](../workers.md#universal-wor
 universal rule 8. Carve-out: in `plan-artifact` scope the target plan or ADR
 is the diff under review, so it is handed over in full, never as an excerpt>.
 
+Checklist: <the composed sections, inlined by the orchestrator —
+[checklist.md](../checklist.md#composition). Answer every item: verified
+with the evidence, or not applicable with the reason>.
+
 Anchor in the project's rules and context — grep project context for the
 stated invariants of the areas the diff touches and review against those,
 not from memory. Verify claims by reading the code. No hedging verdicts
@@ -63,5 +67,7 @@ Self-check before return (one fix pass, universal rule 7):
 - every finding's file:line resolves against the diff; any cited rule or
   weakness ID actually applies;
 - every finding is classified, with a remediation or a specific question, and
-  carries a severity tag at medium/high.
+  carries a severity tag at medium/high;
+- every checklist item is answered — verified, or marked not applicable
+  with the reason.
 ```
