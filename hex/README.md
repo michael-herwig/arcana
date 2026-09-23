@@ -15,11 +15,12 @@ Then, in a project:
 
 ```
 /hex-init
-/hex-discuss <problem>   # optional — talk it through first
+/hex-discuss <problem>        # optional — talk it through first
+/hex-loop <source> [extras…]  # optional — paste-ready autonomous run prompt
 /hex-plan <task>
 /hex-execute
 /hex-review
-/hex-finalize            # optional — recompose and publish the branch
+/hex-finalize                 # optional — recompose and publish the branch
 ```
 
 `/hex-init` audits your project's context (CLAUDE.md/AGENTS.md-equivalent)
@@ -27,8 +28,10 @@ for what the swarm needs — how to verify, where specs/plans live — and
 bootstraps its own memory file. `/hex-discuss` is the optional front of
 the funnel, for when the problem isn't sharp enough to plan yet: it
 elaborates, pushes back, researches in the background, and drains into a
-plan, an ADR, or a decision not to build. `/hex-plan` decomposes a task
-into a reviewed, contract-first plan; `/hex-execute` implements it;
+plan, an ADR, a goal loop, or a decision not to build. `/hex-loop` turns a
+settled goal into a goal file and one paste-ready prompt for an unattended
+run. `/hex-plan` decomposes a task into a reviewed, contract-first plan;
+`/hex-execute` implements it;
 `/hex-review` runs an adversarial pass before it lands; `/hex-architect`
 handles decisions that are hard to reverse. `/hex-finalize` is the optional
 last step, taking a review-approved branch from *the work is right* to *this
@@ -48,7 +51,8 @@ Two runtime contracts back a long run: [worker liveness](hex-core/references/pro
 |---|---|
 | [`hex-core`](hex-core/) | Shared reference library — worker roles, model matrix, swarm protocol, memory spec. Never invoked directly. |
 | [`hex-init`](hex-init/) | Audits and bootstraps a project for the swarm: verification, conventions, `.agents/memory/hex.md`. |
-| [`hex-discuss`](hex-discuss/) | Pre-plan discussion mode: talks a problem through — elaborate, grill, research, capture — and drains to a plan, an ADR, or a decision not to build. |
+| [`hex-discuss`](hex-discuss/) | Pre-plan discussion mode: talks a problem through — elaborate, grill, research, capture — and drains to a plan, an ADR, a goal loop, or a decision not to build. |
+| [`hex-loop`](hex-loop/) | Turns a settled goal into one paste-ready autonomous-run prompt for an unattended multi-round session. |
 | [`hex-plan`](hex-plan/) | Decomposes a feature/issue/PR into a contract-first TDD plan through discover, research, design, decompose, and review. |
 | [`hex-execute`](hex-execute/) | Implements a plan or free-text task: stub, specify, implement, review-fix loop, commit. |
 | [`hex-review`](hex-review/) | Adversarial pre-merge review of a branch, PR, or diff — reports findings and a verdict, never auto-fixes. |
@@ -61,15 +65,17 @@ discussion is `State: active` (released by parking it).
 
 **Remote writes:** `/hex-finalize` is the one hex command that writes to a
 remote — it force-pushes the single feature branch it was invoked on, after
-one approval gate, and never merges; with no forge CLI it
+one approval gate — except a C-805a human-pasted grant, which answers it
+([`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model))
+— and never merges; with no forge CLI it
 [degrades to a local-only run](hex-core/references/finalize.md#degrade-ladder).
 
 ## Tier grammar
 
 The four orchestrators — `hex-plan`, `hex-execute`, `hex-review`,
 `hex-architect` — scale their work through one shared tier **vocabulary**.
-`hex-init`, `hex-discuss` and `hex-finalize` are not orchestrators and have
-no tiers.
+`hex-init`, `hex-discuss`, `hex-loop` and `hex-finalize` are not orchestrators
+and have no tiers.
 `low|medium|high|xhigh|max`+`auto` mean the same thing in every project:
 
 | Tier | Intent |

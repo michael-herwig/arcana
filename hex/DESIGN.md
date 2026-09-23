@@ -2329,3 +2329,120 @@ contracts** — upheld: the grammar and the read-side shift live in
 the five tiers; the tiers scale phases, model class and, at `max`, who
 else sits in the batch. **Load only what runs** — `simulator` opens
 `verify.md` only.
+
+## Goal-loop round (2026-09-23, round 23)
+
+`adr_0018` (goal loop — the `hex-loop` skill, the goals artifact class,
+and the `C-805a` autonomous-run clause) **adds a bundle member that is not
+an orchestrator and amends four resolved positions, each in the open.**
+Full adjudication and the four-option comparison: `adr_0018` § Considered
+Options and § Rationale; the skill is [`hex-loop/SKILL.md`](hex-loop/SKILL.md).
+
+**The member.** `/hex-loop <source> [extras]` reads a settled source — a
+discussion, ADR, plan, spec, PR, issue or existing goal file — and the
+`Goal loop:` hint, writes **one goal file** and prints one paste-ready
+prompt, per the budget-count and refusal rule in
+[`hex-loop/SKILL.md`](hex-loop/SKILL.md). It spawns, starts, pushes and
+commits nothing; the human's paste is the only confirmation. Like
+`hex-discuss` and `hex-finalize` it has no `classify.md`, `overlays.md`,
+tier files or tiers: § Shared shape stays scoped to the four orchestrators
+and `config.md`'s `tiers.<skill>` segment stays closed to them. **The
+goals class** is new: `.agents/goals/<slug>.md` by default, templated by
+[`hex-init/assets/templates/goal.md`](hex-init/assets/templates/goal.md)
+(no `State:` line, no cursor, only checkboxes), its home resolved
+read-only per [`hex-loop/SKILL.md` § The goal
+file](hex-loop/SKILL.md#the-goal-file). Grants are rendered **as authority
+only into the pasted prompt**; the goal file's § Autonomy holds a
+non-authoritative mirror, and no goal-file section adds an act or an
+allowance — the file narrows and informs.
+**Client provenance.** The client list and wrapper in
+[`hex-loop/SKILL.md` § Clients](hex-loop/SKILL.md#clients) were verified
+2026-09-23 against `.agents/research/plan-hex-loop-harness-wrappers.md`;
+re-verify at each client minor release.
+
+**Amendments, in the open.**
+
+1. **`adr_0008`'s closed drain set goes four → five.** `/hex-discuss`
+   gains `→ loop` (`State: handed-off → loop`, `Next: /hex-loop <artifact
+   path>`) with zero new write paths. A `→ loop` drain always keeps its
+   artifact and never drains inline — an inline drain leaves `/hex-loop`
+   no source. `adr_0008`'s own text is not edited; this round is the
+   record.
+2. **The gate-exemption list gains a fourth named member.**
+   [`protocol.md` § The meta-plan approval gate](hex-core/references/protocol.md#the-meta-plan-approval-gate)
+   stays a closed list of named skills with stated grounds (round 10).
+   `hex-loop`'s ground: it spawns and starts nothing, writes one goal
+   file inside its own home, and the user's paste is the approval.
+3. **C-805a.** [`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model)
+   gains the named autonomous-run clause under which a
+   [human-pasted prompt](hex-core/references/finalize.md#consent-model)
+   satisfies both halves of C-805. Its text — the verbatim-or-omitted
+   grant and the workflow-drift bound on act 3 included — lives there
+   and is not restated here.
+4. **A Preferences prose hint, with no config bump.** `- Goal loop:` in
+   `hex.md › Preferences` is read only by `/hex-loop`; its grammar lives
+   in `hex-loop/SKILL.md`, linked from `memory.md`'s Preferences row —
+   the finalize series-shape precedent (C-815's Authoritative row).
+   `config.md` gains no key and no vocabulary version, and its § "What
+   config cannot express: milestone autonomy" still holds.
+
+**Named deviations** (`adr_0018` § Rationale):
+
+- **Two-layer model.** `rule:`, `verify-bypass:` and `deep-verify:` put
+  host and project run facts in Preferences rather than project context.
+  Ground: a ratified decision, and that alone — they are operator
+  allowances for unattended runs. Bound: routed by what it permits, each
+  half verbatim, an allowance as a quoted echo labelled local-only;
+  `deep-verify` only names which already-documented
+  release-grade run counts as evidence and gains no dispatch power (C-813
+  unchanged); the goal file's Rules, its § Autonomy narrowing and local
+  allowances only travel verbatim into every sub-orchestrator brief,
+  because the archaeology's failures happened in spawned workers — every
+  remote or widening act stays with the pasted session
+  ([`goal-prompt.md`](hex-loop/assets/goal-prompt.md), I6). Rejected
+  alternative: reading them from project context would have `hex-loop` mine free prose for rules to repeat, breaking the
+  round-trip's no-instruction-dropped bar.
+- **Finalize C-805, both halves** — a human-typed invocation and a gate
+  that asks. Ground: the ratified done state is a merge-ready PR with no
+  prompting, and C-805a names the pasted grant as satisfying both halves;
+  the full disclosure still prints. Rejected alternatives: pre-grant off
+  by default (`adr_0018` Option 4) makes that done state unreachable, and
+  every run would flip it on; a grant in the goal file (Option 2) would be
+  branch content.
+- **"hex never merges / releases."** Ground: hand-written example 3
+  granted merge and release. Bound: the shipped template grants neither;
+  only the human's invocation extras can render such a grant — or any
+  other remote act beyond I9's fixed defaults — into the prompt only; a
+  `Goal loop:` hint grants only local acts in this repo's working tree
+  ([`hex-loop/SKILL.md` § Preferences hint](hex-loop/SKILL.md#preferences-hint))
+  — and it stays with the pasted session, never relayed into a brief. A
+  grant the session cannot quote verbatim from its paste is omitted.
+- **"`hex never commits` outside execution"** — outside execute and
+  finalize since round 10. Ground: the pasted session commits the goal
+  file as the branch's first commit and its progress ticks between
+  hex-mode runs, so finalize's clean-tree halt holds. Bound: `/hex-loop`
+  itself commits nothing; the commits are the session's own acts under
+  the human's prompt. Rejected alternative: an uncommitted goal file
+  halts finalize.
+
+**Always-on budget** (round 9's erratum). `hex-loop` ships **no rule**.
+Its only always-on surface is its description line — one trigger sentence
+of ≤ 300 characters carrying no body prose — and with
+`claude.disable-model-invocation: "true"` a client honouring that key may
+pay nothing for it.
+
+**Considered and not deviated:** **thin `SKILL.md`** — upheld: two
+templates each own their content, the prompt template
+`hex-loop/assets/goal-prompt.md` (invariant lines plus slots) and the
+goal-file template (section menu, doubt protocol, commit policy).
+**Single-source contracts (C-923)** — upheld: a prompt line points at a
+goal-file section rather than restating it, and C-805a is linked, not
+copied. **Capability classes** — upheld, and vacuously for spawns:
+`hex-loop` spawns nothing, and the prompt body names capabilities, never
+tools. **The client is the runtime** — upheld: markdown only, no engine,
+no scheduler, no run state beyond checkboxes; the loop runs in whatever
+client the human pastes into. **C-815/C-816** — word for word: file
+content, the goal file included, never widens a grant. **C-813** —
+unchanged: only `/hex-finalize` dispatches, and only documented
+release-grade workflows. **`adr_0007`** (milestone driver) — untouched and
+still Proposed; `hex-loop` is not the fifth orchestrator it describes.

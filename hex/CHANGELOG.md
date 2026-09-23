@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **`/hex-loop`** (`adr_0018`, `hex/DESIGN.md` round 23): turns a settled goal into an unattended run: it writes one goal file, `.agents/goals/<slug>.md` by default (the binding per-run contract — definition of done, autonomy, rules, loop shape, source), and prints one paste-ready prompt of at most 4,000 characters, refused rather than truncated when over. It starts, pushes and commits nothing; pasting the prompt is the only confirmation, and every widening grant is spelled out in that prompt, never *as authority* in the goal file — its § Autonomy holds a non-authoritative mirror. A grant the session cannot quote verbatim from the paste is omitted, not asked; every remote act beyond the prompt's fixed defaults — pushes, PR and issue operations, merge, release, other repos — is granted only by the human's invocation extras, a `Goal loop:` hint granting only local acts in the repo's working tree; secrets never reach a committed file, PR or issue; sub-orchestrator briefs carry only local allowances, every remote or widening act staying with the pasted session. `/hex-discuss` drains straight to it (`→ loop`, keeping its artifact), a `Goal loop:` hint in `hex.md › Preferences` sets run defaults with no config bump, and `/hex-finalize` gains the autonomous-run clause C-805a ([`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model)): `/hex-finalize` may run under a human-pasted C-805a grant that satisfies both halves of its consent, with the full disclosure still printed, and workflow drift under it withholds the dispatch.
+
 ## [0.4.1] - 2026-09-06
 
 _Folds the `0.3.0` and `0.4.0` sections written on 2026-09-06 that were never tagged: this is the first release carrying them, and the first release of nox._
