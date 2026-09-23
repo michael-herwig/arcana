@@ -55,6 +55,22 @@ preferences, not copies. Team-shared — commit it.
   leaf and `L2` text reviews missed — merged-PR / landed-plan sources,
   grant relay into worker briefs, unfillable template lines. For a skill
   that renders prompts, run the dogfood before the `L2` seat, not after.
+- **Discussion handed off:** `discussions/retro.md` (`handed-off → loop`,
+  ratified 2026-09-23) — friction capture rule (one JSON file per entry,
+  main-checkout inbox) + new `hex-retro` skill: ledger valued by recurrence
+  × cost, add/prune proposals with rationale, gated (loop: branch + merge
+  gate), retro checkpoints between `hex-loop` milestones, dogfood log as
+  seed. Goal file `goals/retro.md`. Research:
+  `research/discuss-retro-{recon,priorart,community,vendor,archaeology}.md`.
+- **Plan done (no active plan):** `plans/plan_retro.md` (State: **done**,
+  tier high, executed 2026-09-23 on `hex/retro`, **Approved L3
+  re-validation 2026-09-23** at f7ae2db, archived in place; fold target:
+  none — no `## Spec Deltas` block; ADR `adrs/adr_0019_retro.md`
+  Proposed). Next: `/hex-finalize`. Execution log E1–E15 in the plan. **Review perspective that mattered:** the WP 6 dogfood (running
+  SKILL.md + `retro.py` literally on the seed and real transcripts) found
+  E5–E9 after every leaf review approved, and the cross-model adversary
+  found a wrapper-option secret leak in the miner that two raised-level
+  seats missed — for a script that parses untrusted input, keep both.
 - **Discussion handed off:** `discussions/autonomous-goal-loop.md`
   (`handed-off → plan`, ratified 2026-09-23) — new `hex-loop` skill that
   prints a paste-able `/goal` prompt of at most 4,000 characters, plus a
