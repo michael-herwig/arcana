@@ -6,7 +6,7 @@ registry = "ghcr.io"
 repository_prefix = "michael-herwig/arcana"
 # Static placeholder: `grim publish --dry-run` exits 65 on a version-less
 # manifest. `publish.yml` passes `--version <tag>`, which overrides it.
-version = "0.4.1"
+version = "0.5.0"
 
 # Announced to the public index like hex (owner decision 2026-09-06, supersedes
 # C-1037(5)'s "not in v1"): fork grimoire-rs/index → michael-herwig/index-1 and
