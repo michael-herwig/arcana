@@ -2446,3 +2446,12 @@ content, the goal file included, never widens a grant. **C-813** —
 unchanged: only `/hex-finalize` dispatches, and only documented
 release-grade workflows. **`adr_0007`** (milestone driver) — untouched and
 still Proposed; `hex-loop` is not the fifth orchestrator it describes.
+
+**Amendment pointer (2026-09-23, post-Accept):** Michael's answers to
+`plan_hex_loop`'s four deferred questions sit in that plan's § Deferred
+findings; `adr_0018` § Amendments records the contract one. The
+paste's I9 now names its branch (`{branch}`: the open PR's head branch,
+else `hex/<slug>`), so C-805a's instance binds to one named branch;
+C-805a's workflow-drift bullet gains guidance only (forge-side protected
+environments); `hex/README.md` names each client's unattended permission
+mode. No resolved position above changes.

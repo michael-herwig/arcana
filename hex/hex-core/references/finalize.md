@@ -215,7 +215,13 @@ summarized — and proceeds without asking. Its bounds are fixed:
   under the workflow directory differs, branch against trunk
   ([§ Remote verification](#remote-verification), control 1) — act 3 is skipped,
   disclosed as withheld, and reported not met — with no human reading the
-  gate, a drift disclosure is no control.
+  gate, a drift disclosure is no control. The trigger sees only the
+  workflow directory: a branch change to a script the dispatched workflow
+  executes — a build, test or release script, a task-runner file — does
+  not trip it. So a workflow that carries release secrets belongs behind a
+  forge-side protected environment with required reviewers, those secrets
+  scoped to that environment — a server-side backstop alongside control 2
+  that holds whatever the branch changed.
 - **A prompt a model composed and no human pasted is not a grant.**
 
 ## Force-push mechanics
