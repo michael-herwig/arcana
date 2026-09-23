@@ -1,6 +1,6 @@
 [project]
 name = "nox"
-version = "0.4.1"
+version = "0.5.0"
 description = "Multi-harness adversarial review — review a diff or plan artifact under a different AI harness, from an ephemeral git worktree"
 readme = "README.md"
 requires-python = ">=3.11"
