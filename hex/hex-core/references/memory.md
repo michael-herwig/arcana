@@ -83,9 +83,10 @@ lead's `Repos:` ledger, so the plan-state test is not what governs it
 (C-824). A hex skill that is not an orchestrator — one that resolves no
 plan, writes no plan or federation state, **and performs no act on a git
 remote or forge** (the act set `finalize.md` enumerates) — sits
-**outside** the halt rather than exempt from it; today that is
+**outside** the halt rather than exempt from it; today those are
 `hex-discuss`, whose memory writes are limited to the post-gate
-discussion hand-off record and index rows (C-708). Those
+discussion hand-off record and index rows (C-708), and `hex-retro`,
+whose only memory writes are its candidate lines (C-1444). Those
 writes land in whatever memory file the ordinary upward search resolves —
 in a satellite, that repo's own — and are **advisory**: no federated run
 reads a satellite's `hex.md` (§ Destination of knowledge › "One `hex.md`,
@@ -217,6 +218,8 @@ preferences, not copies. Team-shared — commit it.
 - Key rules: `CONTRIBUTING.md` › "Conventions"; code under `src/auth/**`
   is security-sensitive.
 - Worktrees: default `.agents/worktrees/` (gitignored).
+- Retro: `.agents/retro/` — inbox (gitignored), ledger + reports
+  (committed); owner /hex-retro.
 - Resource profile: `make check` — peak RSS 6 GB, wall 7m10s, class
   `heavy`; heavy ceiling 3 (measured 2026-09-06; re-measure on drift).
 - Scratch: per-run root under `${XDG_CACHE_HOME:-$HOME/.cache}/hex/<run-id>/`.

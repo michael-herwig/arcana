@@ -1,7 +1,11 @@
 # agents
 .agents/worktrees/
+.agents/retro/inbox/
 .claude/state
 .claude/settings.local.json
+
+# hex (retro.py is the bundle's first shipped executable)
+__pycache__/
 
 # user
 TODO.md
