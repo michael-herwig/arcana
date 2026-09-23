@@ -19,7 +19,7 @@ developed against Claude Code.
 
 ## hex — swarm orchestration
 
-The flagship bundle: seven slash commands that take a feature from idea to
+The flagship bundle: eight slash commands that take a feature from idea to
 merged, reviewed code with a tiered multi-agent swarm — not a single agent
 following a script.
 
@@ -30,7 +30,8 @@ grim add ghcr.io/michael-herwig/arcana/hex
 | Command | Phase |
 |---|---|
 | `/hex-init` | Audit &amp; bootstrap a project for the swarm |
-| `/hex-discuss` | Talk it through first — elaborate, grill, research; drains to a plan, an ADR, or a no |
+| `/hex-discuss` | Talk it through first — elaborate, grill, research; drains to a plan, an ADR, a goal loop, or a no |
+| `/hex-loop` | Turn a settled goal into one paste-ready autonomous-run prompt |
 | `/hex-plan` | Decompose a feature into a reviewed, contract-first TDD plan |
 | `/hex-execute` | Implement it — parallel git worktrees, review-fix loop, commit |
 | `/hex-review` | Adversarial pre-merge panel — findings and a verdict, never auto-fixes |
@@ -75,7 +76,7 @@ own.
 
 ```
 assets/   arcana logo (SVG source, rendered PNGs, favicon)
-hex/      the hex bundle — eight skills, one rule + bundle manifest
+hex/      the hex bundle — nine skills, one rule + bundle manifest
 nox/      the nox bundle — the nox-review skill + the Python it ships
 .agents/  hex dogfooding hex: the ADRs, plans, and research behind it
 ```

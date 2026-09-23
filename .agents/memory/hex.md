@@ -36,6 +36,28 @@ preferences, not copies. Team-shared — commit it.
 
 ## Memory
 
+- **Plan done:** `plans/plan_hex_loop.md` (State: **done**, tier high,
+  **Approved 2026-09-23** after 2 review rounds + re-validation,
+  `Reviewed: e808947`; fold target: none — no `## Spec Deltas`) — new
+  `hex/hex-loop` skill (goal file + ≤ 4,000-char `/goal` paste), goals
+  artifact class, `Goal loop:` hint (local acts only), `/hex-discuss →
+  loop`, finalize C-805a (flip split from act 4, workflow drift withholds
+  act 3), DESIGN round 23 — implements `adrs/adr_0018_goal_loop_prompt.md`
+  (**Proposed**; amendment 3 aligned with shipped C-805a). Cross-model
+  adversary ran both rounds. Deferred to Michael: branch-scripts control
+  under C-805a act 3, persisting the 195-check sweep, client permission
+  modes in README, naming the feature branch in the paste. Next:
+  `/hex-finalize`, then Accept adr_0018.
+- **Review perspective that mattered (hex-loop):** the dogfood round-trip
+  (following SKILL.md literally on real sources) found 17 defects the
+  leaf and `L2` text reviews missed — merged-PR / landed-plan sources,
+  grant relay into worker briefs, unfillable template lines. For a skill
+  that renders prompts, run the dogfood before the `L2` seat, not after.
+- **Discussion handed off:** `discussions/autonomous-goal-loop.md`
+  (`handed-off → plan`, ratified 2026-09-23) — new `hex-loop` skill that
+  prints a paste-able `/goal` prompt of at most 4,000 characters, plus a
+  `→ loop` drain target in `/hex-discuss`. Research:
+  `research/discuss-goal-loop-{recon,priorart,community,archaeology,examples}.md`.
 - **Active plan (executed, reviewed Needs Work):**
   `plans/plan_adr_0014_instruction_diet.md` (State: **executing**, tier
   medium, `Effective-tier: derived`; WPs 1, 2, 2b, 5, 6 merged, WP 3/4

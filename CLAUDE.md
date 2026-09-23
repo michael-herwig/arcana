@@ -50,5 +50,5 @@ Full sweep: `task publish -- --dry-run` (all bundles) and `task nox:verify`.
 
 <!-- hex:start -->
 Swarm memory: `.agents/memory/hex.md` (search upward; skill-managed).
-Commands: `/hex-init`, `/hex-discuss`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`, `/hex-finalize`.
+Commands: `/hex-init`, `/hex-discuss`, `/hex-loop`, `/hex-plan`, `/hex-execute`, `/hex-review`, `/hex-architect`, `/hex-finalize`.
 <!-- hex:end -->

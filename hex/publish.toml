@@ -40,6 +40,9 @@ path = "hex-architect"
 [skills."hex-discuss"]
 path = "hex-discuss"
 
+[skills."hex-loop"]
+path = "hex-loop"
+
 [skills."hex-finalize"]
 path = "hex-finalize"
 

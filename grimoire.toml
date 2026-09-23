@@ -12,6 +12,7 @@ hex-discuss = "./hex/hex-discuss"
 hex-execute = "./hex/hex-execute"
 hex-finalize = "./hex/hex-finalize"
 hex-init = "./hex/hex-init"
+hex-loop = "./hex/hex-loop"
 hex-plan = "./hex/hex-plan"
 hex-review = "./hex/hex-review"
 

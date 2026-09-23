@@ -111,22 +111,26 @@ Exactly **one** approval point, before any work starts. The orchestrator
 never asks mid-flow questions — ambiguity is resolved here or by a
 documented default, never by interrupting a running swarm. **This
 single-gate rule scopes to the four orchestrators** (`hex-plan`,
-`hex-execute`, `hex-review`, `hex-architect`); three skills are exempt,
+`hex-execute`, `hex-review`, `hex-architect`); four skills are exempt,
 each named here with its own stated ground and no criterion to
 interpret — `/hex-init`, a configuration wizard, not an orchestrator,
 which spawns nothing; `hex-discuss`, which keeps exactly one
 approval gate, positioned at the drain, with workers that are read-only,
 capped by its own contract (C-706), and never on the critical path, so
-there is no swarm to strand; and `/hex-finalize`, whose single approval
-gate is positioned at the local/remote boundary on every degrade rung,
-because the concrete commit plan it must disclose does not exist until
+there is no swarm to strand; `/hex-loop`, which spawns nothing and starts
+nothing, writes one goal file inside its own home, and whose approval is
+the user's paste of the prompt it prints; and `/hex-finalize`, whose single
+approval gate is positioned at the local/remote boundary on every degrade
+rung and asks there — except under C-805a
+([`finalize.md`](finalize.md#consent-model)), where it prints its disclosure
+and proceeds — because the concrete commit plan it must disclose does not exist until
 the rewrite is computed, and everything before that gate is local apart
 from one read-only fetch and a credential probe, mutates nothing on any
 remote, spawns nothing, and is undone from the backup ref — so there is
 no swarm to strand and nothing on any remote has changed (see
 [`finalize.md`](finalize.md#consent-model)). The list is closed — a skill
 not named here is not exempt, whether or not it spawns workers, and a
-fourth member is added by amending this sentence, never by analogy.
+fifth member is added by amending this sentence, never by analogy.
 
 The gate announces the fully resolved config, each item attributed to its
 source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`
@@ -770,7 +774,15 @@ Every echo of text controlled by anyone other than the invoking human — a
 dossier's controlled text, a narrowing- or untrusted-class surface, whatever
 a consumer's own trust classes name it — **is quoted and length-bounded**, in
 a message or in an authored file alike: interpolated quoted, truncated with
-`…` past 120 characters, and never allowed to break its own line. **This is
+`…` past 120 characters, and never allowed to break its own line. Before
+quoting, every embedded `"` becomes `'` and control characters are stripped,
+so the text cannot close its own quote. An echo nested inside another echo
+in the same render is not quoted again; text read back from a file — an
+earlier render's echo included — is unwrapped once (its outer quotes), then
+neutralized and quoted like any other. A path or ref is never truncated or
+rewritten — only descriptive text is; a consumer that renders one into a
+prompt another session obeys refuses, with its own error, a path or ref that
+contains a `"` or a control character. **This is
 the only copy in the bundle — `hex-architect`, `finalize.md`, and any later
 consumer link here, never restate it.** Which of its own surfaces carry that
 property is each consumer's definition; this section fixes the echo alone.
