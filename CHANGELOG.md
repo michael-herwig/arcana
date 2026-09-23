@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-09-23
+
+### Added
+
+- add finalize C-805a and the /hex-loop gate exemption
+- add the goal-file template and goals-home audit items
+- add the goal-file writer and goal-prompt printer
+- add the → loop drain target
+- name the branch in I9 and resolve deferred answers
+- add retro skill and friction capture rule
+- add retro checkpoints to hex-loop and hex-init
+
+### Chores
+
+- open 0.5.0 as the next train version
+- run retro over the dogfood seed
+- install hex-loop and hex-retro, update skills
+- re-pin claude, codex, copilot harness versions
+- bump publish manifests to 0.5.0, date hex changelog
+
+### Documentation
+
+- record the autonomous-goal-loop discussion and research
+- propose adr_0018 goal-loop prompt
+- document hex-loop in DESIGN, READMEs and changelog
+- record plan_hex_loop with its dogfood evidence
+- accept adr_0018 goal-loop prompt
+- add discussion, research and goal file
+- add ADR 0019, plan and design research
+- register hex-retro, DESIGN round 24
+- record finalize in plan status
+
+### Fixed
+
+- bind the named branch tighter
+
+### Other
+
+- announce nox to the public index alongside hex
+- update skills
+
 ## [0.4.1] - 2026-09-06
 
 ### Added

@@ -10,6 +10,18 @@ tracks the train, never a cadence of nox's own, and it is bumped in
 `pyproject.toml`, `src/nox/__init__.py` and `nox-review/SKILL.md` together or
 the release gate refuses to sign.
 
+## [0.5.0] - 2026-09-23
+
+### Chores
+
+- open 0.5.0 as the next train version
+- re-pin claude, codex, copilot harness versions
+- bump publish manifests to 0.5.0, date hex changelog
+
+### Other
+
+- announce nox to the public index alongside hex
+
 ## [0.4.1] - 2026-09-06
 
 ### Added
