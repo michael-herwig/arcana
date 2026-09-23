@@ -13,6 +13,7 @@
 - Verdict: Needs Work (/hex-review L3 round 2, delta 3caa292..68cce55, 2026-09-23) — round-1 3 High + 7 Warn closed; new 0 Block, 0 High, 2 Warn (check-ignore exit 128 fails open beyond bare repos; empty-assignment secret in program position), 3 Low; Converged; criterion j met
 - Verdict: Needs Work (/hex-review L3 re-validation, delta ae22e5e..9ef03c9, 2026-09-23) — round-2 2 Warn + actionable Low closed in code (mutants red on 3.11/3.14 for C-1430, C-1432); new 0 Block, 0 High, 1 Warn (E14 `.mine-state.json` depth vector vacuous: deep row at a top-level key `load_state` drops, fix-reverted mutant stays green; move it under `files`); Converged
 - Verdict: Approve (/hex-review L3 re-validation, delta 5f9e502..f7ae2db, 2026-09-23) — re-validation Warn closed (deep `files` row red on 3.12 with the `load_state` depth guard reverted); E15 decline matches owner decision #11 (mutants red: any-later-assign clear, plain-op drop); selftest 8/8 on 3.11 and 3.12; new 0 Block, 0 High, 0 Warn, 1 Low (`decline` rerun sub-check replays a pre-decline entry, so it never isolates the `recorded` skip — optional: replay a post-decline-dated recorded entry); Converged; Fold-Back not performed (no Spec Deltas)
+- Finalized: 2026-09-23 — 7-commit series at 7626080, PR https://github.com/michael-herwig/arcana/pull/14 ready; local verification green; no remote gate exists (no documented release-grade workflow)
 
 ---
 
