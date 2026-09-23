@@ -185,7 +185,7 @@ def test_the_output_schema_object_names_exactly_the_wire_contracts_own_keys(adap
 
 
 def test_a_probe_with_no_credentials_refuses_unauthenticated(adapter, live, tmp_path):
-    """C-1032: a required negative, and `login-status-unauthenticated-0.144.1.txt` proves it reproducible.
+    """C-1032: a required negative, and `login-status-unauthenticated-0.153.4.txt` proves it reproducible.
 
     `codex --version` exits 0 with no credentials at all, so this is the half of
     C-1014 a version probe cannot answer — and the failure it prevents (a 401

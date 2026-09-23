@@ -92,8 +92,14 @@ from nox.workspace import Workspace
 BINARY: Final[str] = "copilot"
 """The executable. `~/.npm-global/bin/copilot` on the owner's machine, resolved off the minimal `PATH`."""
 
-VERIFIED_AGAINST: Final[str] = "1.0.83"
-"""The version the installed binary reports — read off `version-1.0.83.txt`, never a document (E3, C-1020).
+VERIFIED_AGAINST: Final[str] = "1.0.88"
+"""The version the installed binary reports — read off `version-1.0.88.txt`, never a document (E3, C-1020).
+
+**The 1.0.88 re-pin re-recorded the same two free fixtures only**, under the same
+rule below. Its help page is a reformat (clap-style, one flag per line) that
+drops the `--effort` alias from the page — the binary still accepts it — so the
+adapter now emits the documented `--reasoning-effort` spelling; no other flag
+this adapter emits or denies left the page.
 
 **The 1.0.83 re-pin re-recorded the two free fixtures only** —
 `version-1.0.83.txt` and `help-1.0.83.txt` — and kept every paid or
@@ -491,7 +497,7 @@ class CopilotAdapter:
     honest one, and 1.0.82 offers no way to enumerate models (`--model bogus`
     answers `Model "bogus" from --model flag is not available.` and lists
     nothing). So `deep-reasoning` is the same model at the harness's own
-    reasoning-effort knob — `--effort high`, one of the seven levels
+    reasoning-effort knob — `--reasoning-effort high`, one of the seven levels
     `--help` documents — which is exactly the shape Codex's effort knob takes.
     """
 
@@ -642,15 +648,15 @@ class CopilotAdapter:
         | stream | `--output-format json` | JSONL, one object per line; `SEMANTIC` |
         | schema | — | none in 1.0.82: `STRUCTURED_OUTPUT` absent, fenced ask in the prompt |
         | containment | `CONTAINMENT_ARGV` | `tool-removal`; both axes `harness`, never `os` |
-        | model | `--model L` (+ `--effort E`) | from `MODELS[class]`, never config argv (C-1030) |
+        | model | `--model L` (+ `--reasoning-effort E`) | from `MODELS[class]`, never config argv (C-1030) |
         | cost | `--max-ai-credits 30` | AI credits, not USD; 30 is the binary's own floor |
         | noise | `--no-color`, `--log-level none` | keeps the merged stream to JSONL + footer |
         | passthrough | allowlist = **empty** | C-1023; every element is refused by name |
 
         Emission order is `--no-color --log-level none --output-format json
-        [--model L [--effort E]] --max-ai-credits 30 -p <prompt>` and then
+        [--model L [--reasoning-effort E]] --max-ai-credits 30 -p <prompt>` and then
         `*CONTAINMENT_ARGV` **last**, so the evidence run ends the argv and
-        C-1025's rule 2 holds structurally. `--effort` is emitted only beside a
+        C-1025's rule 2 holds structurally. `--reasoning-effort` is emitted only beside a
         `--model`, and only when the resolved `ModelSpecT` carries one.
 
         The prompt comes from `harness.review_prompt(ws, info, instructions)`
@@ -696,7 +702,7 @@ class CopilotAdapter:
         spec, _ = resolve_model(self.MODELS, cfg)
         model_words: tuple[str, ...] = ()
         if spec is not None:
-            model_words = ("--model", spec.model, *(("--effort", spec.effort) if spec.effort else ()))
+            model_words = ("--model", spec.model, *(("--reasoning-effort", spec.effort) if spec.effort else ()))
         _, text = review_prompt(ws, info, instructions)
         nox_flags = (
             "--no-color",

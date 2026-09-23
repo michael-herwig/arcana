@@ -28,9 +28,9 @@ carry the whole weight and are worth naming up front:
    claim — including the two (`--config=k=v`, `-ck=v`) a rule reading only the
    separated form would miss.
 
-Every fixture read here was recorded live from `codex-cli 0.144.1` (E3). The
-recorded attempt strings and the recorded nonce cannot be reproduced by a live
-run, which is why the decision they feed is *also* tested through a pure
+Every fixture read here was recorded live from `codex-cli 0.144.1`, the free
+ones re-recorded from 0.153.4 (E3, E30). The recorded attempt strings and the
+recorded nonce cannot be reproduced by a live run, which is why the decision they feed is *also* tested through a pure
 module-level helper the fixtures can be pointed at directly.
 
 The probe itself is tested from a **passing baseline**: `ProbeRunner` answers
@@ -113,16 +113,16 @@ NOX = Path(__file__).resolve().parents[2]
 FIXTURES = NOX / "tests" / "contract" / "fixtures" / "codex"
 ADAPTER_SOURCE = NOX / "src" / "nox" / "adapters" / "codex.py"
 
-VERSION_FIXTURE = "version-0.144.1.txt"
-AUTHENTICATED = "login-status-authenticated-0.144.1.txt"
-UNAUTHENTICATED = "login-status-unauthenticated-0.144.1.txt"
+VERSION_FIXTURE = "version-0.153.4.txt"
+AUTHENTICATED = "login-status-authenticated-0.153.4.txt"
+UNAUTHENTICATED = "login-status-unauthenticated-0.153.4.txt"
 FINDINGS = "review-findings-0.144.1.jsonl"
 APPROVE = "review-approve-0.144.1.jsonl"
 ERRORS = "error-events-0.144.1.jsonl"
 PROBE_PASS = "sandbox-probe-0.144.1.jsonl"
 PROBE_DECLINED = "sandbox-probe-declined-0.144.1.jsonl"
-HELP = "help-0.144.1.txt"
-REVIEW_HELP = "help-review-0.144.1.txt"
+HELP = "help-0.153.4.txt"
+REVIEW_HELP = "help-review-0.153.4.txt"
 ARG_CONFLICTS = "review-arg-conflicts-0.144.1.txt"
 SANDBOX_SUBCOMMAND_FIXTURE = "sandbox-subcommand-0.144.1.txt"
 EFFORT_ENUM = "effort-enum-0.144.1.jsonl"
@@ -1116,7 +1116,7 @@ def test_an_authenticated_probe_reports_the_version_and_the_shipped_tables(adapt
     """C-1020/E3: `verified_against` is read off a re-probe, never copied from a document."""
     _, probed = _probe(adapter, tmp_path, env, _lines(VERSION_FIXTURE), _lines(AUTHENTICATED))
     assert _lines(VERSION_FIXTURE)[0].startswith(VERSION_PREFIX)
-    assert probed.version == "0.144.1" == VERIFIED_AGAINST
+    assert probed.version == "0.153.4" == VERIFIED_AGAINST
     assert probed.verified_against == VERIFIED_AGAINST
     assert probed.capabilities == CAPABILITIES
     assert probed.heartbeat_kind == HEARTBEAT_KIND

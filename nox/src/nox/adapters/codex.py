@@ -2,7 +2,8 @@
 
 C-1007(codex), C-1012(codex), C-1023, C-1030(codex), C-1032, C-1040, D-v, E8,
 S-1002. Verified live against `codex-cli 0.144.1` on 2026-09-03; every fixture
-under `tests/contract/fixtures/codex/` was recorded from that binary (E3).
+under `tests/contract/fixtures/codex/` was recorded from that binary (E3), and
+the free ones re-recorded from 0.153.4 at the re-pin (see `VERIFIED_AGAINST`).
 
 Codex is the one v1 harness whose containment is enforced **below the model**,
 by the operating system, so it is the only adapter allowed to claim
@@ -26,7 +27,7 @@ fixture, and each on its own enough:
 2. **`codex exec review` has no `-s/--sandbox`.** So the second spelling of the
    sandbox setting cannot be emitted there, and WP6's carry-forward row — name
    both spellings, because core cannot know `--sandbox` and `sandbox_mode=` are
-   one setting — is unsatisfiable on that leg (`help-review-0.144.1.txt`).
+   one setting — is unsatisfiable on that leg (`help-review-0.153.4.txt`).
 
 Bare `codex exec` has neither problem: it takes the prompt as its
 positional, honours `--output-schema` exactly (`review-findings-0.144.1.jsonl`,
@@ -195,16 +196,25 @@ if TYPE_CHECKING:
 BINARY: Final[str] = "codex"
 """The executable, before any launcher prefix. On `PATH` at 0.144.1."""
 
-VERIFIED_AGAINST: Final[str] = "0.144.1"
-"""The version every fixture in `tests/contract/fixtures/codex/` was recorded from (E3).
+VERIFIED_AGAINST: Final[str] = "0.153.4"
+"""The version the installed binary reports, read off `version-0.153.4.txt` (E3).
 
-Read off `codex --version` at implementation time, never copied from a document.
-`version_warning` compares the probed version against this and warns on a
-mismatch; it never refuses (C-1020).
+Read off `codex --version`, never copied from a document. `version_warning`
+compares the probed version against this and warns on a mismatch; it never
+refuses (C-1020).
+
+**The 0.153.4 re-pin re-recorded the free fixtures only** — `version-`, `help-`,
+`help-review-` and the two `login-status-` files — and kept every paid or
+behavioural capture (the review streams, the sandbox probes, the error and
+effort/model streams, `review-arg-conflicts`, `sandbox-subcommand`,
+`strict-config`) at its 0.144.1 recording, under E30: a fixture's filename names
+the release it was actually captured from. Both help pages only gained flags
+(`exec fork`, `--approve-for-me`, `--thread-source`); none this adapter emits
+moved, and the contract tier re-derives the live behaviour on every release.
 """
 
 VERSION_PREFIX: Final[str] = "codex-cli "
-"""What `codex --version` prints before the version (`version-0.144.1.txt`)."""
+"""What `codex --version` prints before the version (`version-0.153.4.txt`)."""
 
 SUBCOMMAND: Final[tuple[str, ...]] = ("exec",)
 """Bare `codex exec`, not `codex exec review` — see the module docstring."""
@@ -218,7 +228,7 @@ LOGIN_SUBCOMMAND: Final[tuple[str, ...]] = ("login", "status")
 `codex --version` exits 0 with no credentials at all, so a version probe alone
 cannot answer C-1014 for this harness. `codex login status` is Codex's own
 answer to the question and needs no network: it prints `Logged in using ChatGPT`
-or `Not logged in` (fixtures `login-status-{,un}authenticated-0.144.1.txt`) and
+or `Not logged in` (fixtures `login-status-{,un}authenticated-0.153.4.txt`) and
 exits 0 either way, so the ANSWER is the line and never the status. It writes to
 **stderr**, which C-1009's merged drain delivers as ordinary lines.
 
@@ -270,7 +280,7 @@ knowledge lives:
 `-c` itself is exempt from rule 4 by design, which is what lets the model-effort
 knob ride a second `-c` for an unrelated key (C-1030).
 
-**A third spelling exists and is NOT closed here.** `help-0.144.1.txt` lists
+**A third spelling exists and is NOT closed here.** `help-0.153.4.txt` lists
 `-s, --sandbox <SANDBOX_MODE>`, and `harness._names_option("-s", "--sandbox")`
 is `False` — the short form names the same option and rule 4 would not see it,
 so an outside `-s danger-full-access` would corroborate this claim with the

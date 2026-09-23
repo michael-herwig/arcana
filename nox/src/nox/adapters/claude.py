@@ -6,7 +6,7 @@ Code has no operating-system sandbox nox drives, so `sandbox_probe` returns
 adapter never makes.
 
 **Every flag below was proven against the installed 2.1.260, not read off a
-document** (E3), and re-derived byte-identical from 2.1.263's `--help`. Two
+document** (E3), and re-checked against 2.1.281's `--help`. Two
 of the findings are the reason the set is what it is:
 
 - `--restricted --tools Read,Grep,Glob` alone reported a session tool list of
@@ -98,7 +98,7 @@ if TYPE_CHECKING:
 
 # ── Shipped literals, pinned from the real binary ────────────────────────────
 
-VERIFIED_AGAINST: Final[str] = "2.1.263"
+VERIFIED_AGAINST: Final[str] = "2.1.281"
 """The version the fixtures in `tests/contract/fixtures/claude/` were recorded from (E3).
 
 Set from a re-probe of the installed binary, never copied from a document
@@ -120,6 +120,14 @@ same E30 rule: a review costs a paid turn and a 401 needs a credential taken
 away, and neither was re-summoned for a patch release whose `--help` page is
 byte-identical to 2.1.260's (the contract tier re-derives that page live on
 every release, so a flag drift cannot hide behind this paragraph).
+
+**The 2.1.281 re-pin did the same** — `version-2.1.281.txt`, `help-2.1.281.txt`
+and `auth-status-2.1.281.json` re-recorded (the last with the new
+`configDirectory` key redacted like its siblings), every paid capture kept at
+its recorded version. The help page changed in prose only (`--agents` takes a
+file under `--print`, `--bare`/`--safe-mode`/`--system-prompt-snapshot` wording,
+`--fallback-model` no longer print-only); every flag this adapter emits is
+still documented.
 """
 
 PROBE_TIMEOUT_S: Final[int] = 60

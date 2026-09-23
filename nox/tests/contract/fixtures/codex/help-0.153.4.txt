@@ -1,10 +1,19 @@
-Run a code review against the current repository
+Run Codex non-interactively
 
-Usage: codex exec review [OPTIONS] [PROMPT]
+Usage: codex exec [OPTIONS] [PROMPT]
+       codex exec [OPTIONS] <COMMAND> [ARGS]
+
+Commands:
+  resume  Resume a previous session by id or pick the most recent with --last
+  fork    Fork a previous session by id into a new session
+  review  Run a code review against the current repository
+  help    Print this message or the help of the given subcommand(s)
 
 Arguments:
   [PROMPT]
-          Custom review instructions. If `-` is used, read from stdin
+          Initial instructions for the agent. If not provided as an argument (or if `-` is used),
+          instructions are read from stdin. If stdin is piped and a prompt is also provided, stdin
+          is appended as a `<stdin>` block
 
 Options:
   -c, --config <key=value>
@@ -15,17 +24,8 @@ Options:
           Examples: - `-c model="o3"` - `-c 'sandbox_permissions=["disk-full-read-access"]'` - `-c
           shell_environment_policy.inherit=all`
 
-      --uncommitted
-          Review staged, unstaged, and untracked changes
-
-      --base <BRANCH>
-          Review changes against the given base branch
-
       --enable <FEATURE>
           Enable a feature (repeatable). Equivalent to `-c features.<name>=true`
-
-      --commit <SHA>
-          Review the changes introduced by a commit
 
       --disable <FEATURE>
           Disable a feature (repeatable). Equivalent to `-c features.<name>=false`
@@ -34,11 +34,29 @@ Options:
           Error out when config.toml contains fields that are not recognized by this version of
           Codex
 
-      --title <TITLE>
-          Optional commit title to display in the review summary
+  -i, --image <FILE>...
+          Optional image(s) to attach to the initial prompt
 
   -m, --model <MODEL>
           Model the agent should use
+
+      --oss
+          Use open-source provider
+
+      --local-provider <OSS_PROVIDER>
+          Specify which local provider to use (lmstudio or ollama). If not specified with --oss,
+          will use config default or show selection
+
+  -p, --profile <CONFIG_PROFILE_V2>
+          Layer $CODEX_HOME/<name>.config.toml on top of the base user config
+
+  -s, --sandbox <SANDBOX_MODE>
+          Select the sandbox policy to use when executing model-generated shell commands
+          
+          [possible values: read-only, workspace-write, danger-full-access]
+
+      --approve-for-me
+          Route approval requests through automatic review using the workspace-write sandbox
 
       --dangerously-bypass-approvals-and-sandbox
           Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY
@@ -47,6 +65,15 @@ Options:
       --dangerously-bypass-hook-trust
           Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS.
           Intended only for automation that already vets hook sources
+
+  -C, --cd <DIR>
+          Tell the agent to use the specified directory as its working root
+
+      --add-dir <DIR>
+          Additional directories that should be writable alongside the primary workspace
+
+      --thread-source <SOURCE>
+          Source classification for newly created or forked threads
 
       --skip-git-repo-check
           Allow running Codex outside a Git repository
@@ -63,6 +90,12 @@ Options:
       --output-schema <FILE>
           Path to a JSON Schema file describing the model's final response shape
 
+      --color <COLOR>
+          Specifies color settings for use in the output
+          
+          [default: auto]
+          [possible values: always, never, auto]
+
       --json
           Print events to stdout as JSONL
 
@@ -71,3 +104,6 @@ Options:
 
   -h, --help
           Print help (see a summary with '-h')
+
+  -V, --version
+          Print version

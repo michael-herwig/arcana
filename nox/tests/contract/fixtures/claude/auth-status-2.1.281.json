@@ -4,6 +4,7 @@
   "apiProvider": "firstParty",
   "analyticsDisabled": false,
   "projectsDirectory": "<redacted>",
+  "configDirectory": "<redacted>",
   "email": "<redacted>",
   "orgId": "<redacted>",
   "orgName": "<redacted>",

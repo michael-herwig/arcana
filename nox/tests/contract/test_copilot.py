@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
@@ -233,7 +234,7 @@ def test_the_probe_declares_exactly_the_two_capabilities_this_harness_holds(info
         "--log-level",
         "--no-color",
         "--model",
-        "--effort",
+        "--reasoning-effort",
         "-p",
     ],
 )
@@ -244,7 +245,7 @@ def test_every_flag_this_adapter_emits_is_still_in_the_live_help(info: HarnessIn
     R15 names exactly that as this harness's residual — its containment is
     flags, so a flag rename removes half of it.
     """
-    assert f"\n  {flag}" in _help_text(info), flag
+    assert re.search(rf"(?m)^\s*{re.escape(flag)}\b", _help_text(info)), flag
 
 
 def test_the_recorded_help_is_byte_for_byte_the_installed_one(info: HarnessInfo) -> None:

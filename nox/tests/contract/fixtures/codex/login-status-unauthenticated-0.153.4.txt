@@ -1,0 +1,2 @@
+WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir "/tmp" (codex_home: AbsolutePathBuf("/tmp/claude-1000/-home-mherwig-dev-arcana/f3ec5a0d-6184-48d0-893a-95a7527ae230/scratchpad/emptyhome"))
+Not logged in
