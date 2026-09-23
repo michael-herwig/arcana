@@ -2452,7 +2452,6 @@ still Proposed; `hex-loop` is not the fifth orchestrator it describes.
 findings; `adr_0018` § Amendments records the contract one. The
 paste's I9 now names its branch (`{branch}`: the open PR's head branch,
 else `hex/<slug>`), so C-805a's instance binds to one named branch;
-C-805a's workflow-drift bullet gains guidance only — a release-secret
-workflow belongs behind a forge-side protected environment with required
-reviewers; `hex/README.md` names each client's unattended permission
+C-805a's workflow-drift bullet gains guidance only (forge-side protected
+environments); `hex/README.md` names each client's unattended permission
 mode. No resolved position above changes.

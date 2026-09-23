@@ -1113,7 +1113,7 @@ Residue: none open. `/hex-execute`'s L2 on WP 1 and WP 3 is the backstop.
     `assets/goal-prompt.md` I9); `adr_0018` § Amendments (dated note);
     `hex/DESIGN.md` round 23 amendment pointer; the goal template's
     `Ticks:` line already defers to "the branch I9 names", unchanged.
-    Dogfood re-rendered: example 2 2684/4000, example 5 3051/4000.
+    I9 now creates it from the trunk; an existing `hex/<slug>` on first print gets a note. Dogfood re-rendered: example 2 2702/4000, example 5 3069/4000.
 - **Architect suggestion to fold § Emphasis into § Context: declined.** The
   Amendment lists Emphasis as its own section.
 

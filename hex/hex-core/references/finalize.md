@@ -219,8 +219,9 @@ summarized — and proceeds without asking. Its bounds are fixed:
   workflow directory: a branch change to a script the dispatched workflow
   executes — a build, test or release script, a task-runner file — does
   not trip it. So a workflow that carries release secrets belongs behind a
-  forge-side protected environment with required reviewers — control 2's
-  server-side backstop, which holds whatever the branch changed.
+  forge-side protected environment with required reviewers, those secrets
+  scoped to that environment — a server-side backstop alongside control 2
+  that holds whatever the branch changed.
 - **A prompt a model composed and no human pasted is not a grant.**
 
 ## Force-push mechanics

@@ -80,9 +80,8 @@ before pasting a `/hex-loop` prompt (verified 2026-09-23):
 - Gemini CLI — `yolo` approval mode ([docs](https://geminicli.com/docs/reference/configuration/))
 - OpenCode — auto mode ([docs](https://opencode.ai/docs/permissions/))
 
-A workflow that carries release secrets belongs behind a forge-side
-protected environment with required reviewers — why:
-[`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model), C-805a.
+Release-secret workflows under such a run: see C-805a's workflow-drift
+bound in [`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model).
 
 ## Tier grammar
 
