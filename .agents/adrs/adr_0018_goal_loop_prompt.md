@@ -2,7 +2,7 @@
 
 ## Metadata
 
-**Status:** Proposed
+**Status:** Accepted (Michael, 2026-09-23, after implementation merged in PR #7 at `41ffe21`)
 **Date:** 2026-09-23
 **Deciders:** Michael Herwig (ratified discussion + amendment); drafted by /hex-plan (tier high)
 **Issue/Ticket:** N/A

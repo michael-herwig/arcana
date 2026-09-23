@@ -43,11 +43,11 @@ preferences, not copies. Team-shared — commit it.
   artifact class, `Goal loop:` hint (local acts only), `/hex-discuss →
   loop`, finalize C-805a (flip split from act 4, workflow drift withholds
   act 3), DESIGN round 23 — implements `adrs/adr_0018_goal_loop_prompt.md`
-  (**Proposed**; amendment 3 aligned with shipped C-805a). Cross-model
+  (**Accepted** 2026-09-23; amendment 3 aligned with shipped C-805a). Cross-model
   adversary ran both rounds. Deferred to Michael: branch-scripts control
   under C-805a act 3, persisting the 195-check sweep, client permission
-  modes in README, naming the feature branch in the paste. Next:
-  `/hex-finalize`, then Accept adr_0018.
+  modes in README, naming the feature branch in the paste. Finalized and
+  merged as PR #7 (`41ffe21`).
 - **Review perspective that mattered (hex-loop):** the dogfood round-trip
   (following SKILL.md literally on real sources) found 17 defects the
   leaf and `L2` text reviews missed — merged-PR / landed-plan sources,
