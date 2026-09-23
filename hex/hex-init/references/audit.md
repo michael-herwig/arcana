@@ -239,6 +239,15 @@ asked nothing, and hex never raises the question on its own.
   the team-shared `.agents/memory/hex.md` from version control and
   must be narrowed to `.agents/worktrees/` specifically.
 
+### Retro home gitignored? (conditional)
+
+Asked only when a retro home exists (`.agents/retro/`, or the Pointers `Retro:` row), or the user asks.
+
+- **Look for:** the retro inbox (`<home>/inbox/`) excluded from version control.
+- **Where:** the ignore file, and `hex.md › Pointers` for a declared home.
+- **Resolved looks like:** the exact path `<home>/inbox/` (trailing slash) in the ignore file, with `<home>/ledger/` and `<home>/reports/` **not** ignored. Flag `.agents/` or `<home>/` ignored wholesale — that drops the committed ledger and reports.
+- **Recorded as:** one `hex.md › Pointers` row — ``- Retro: `<home>` — inbox (gitignored), ledger + reports (committed); owner /hex-retro.`` `/hex-retro` reads this row, never writes it.
+
 ### Cross-model adversary skill installed?
 
 - **Look for:** an installed skill's `SKILL.md` frontmatter carrying a

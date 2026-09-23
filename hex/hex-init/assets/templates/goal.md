@@ -112,6 +112,7 @@ with an unclear cause — runs this protocol:
   Past `<N>`, the DONE block reports every remaining criterion `not met`
   and the run stops.
 - Inner loop: <optional, from the extras — delete the line when none>
+- Retro checkpoints: after each outer cycle <optional, from the extras — delete the line when none>; the retro run itself counts no cycle; an in-loop large route counts one.
 - Ticks: /hex-loop commits nothing. The session creates or switches to
   the branch the pasted prompt's I9 names and commits this file first on
   it. A box is ticked only between hex-mode runs, never during one, and
