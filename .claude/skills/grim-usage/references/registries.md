@@ -544,6 +544,13 @@ is treated as a repository path component under the primary registry:
 Short references (no `/`-prefix alias, no explicit registry) still expand
 against the primary registry unchanged.
 
+The `alias/repo` expansion only works for an `oci`-type entry. An
+index-type alias has no single registry host, so the same form fails.
+It exits 65: `invalid identifier '...': repository must match the OCI
+name grammar`. The refusal is intended. Use the fully-qualified
+reference from the index instead. `grim search` prints it in the
+`Repo` column.
+
 ## Scopes
 
 grim works in two scopes. The **project** scope is the `grimoire.toml`
@@ -703,7 +710,9 @@ grouped collapsible tree view; the tree's opening mode, opening depth, and
 path-splitting characters are configurable via `[options.tui]` in
 `grimoire.toml` (`default_view`, `group_by_type`, `tree_separators`,
 `expand_levels` — how many tree levels open expanded; the `z` key folds
-between that depth and fully-expanded at runtime. Set them with `grim
+between that depth and fully-expanded at runtime — and `sort` /
+`sort_order`, the order and direction the browse opens in; `--sort`
+overrides the order per run, `s`/`S` change both live. Set them with `grim
 config set options.tui.<key>`, see [Managing Config](#managing-config)).
 Declared local path sources and dev-installs have no registry to root
 under — they group under a top-level **Local** tree root, where install/
@@ -803,13 +812,37 @@ error condition:
   document from a newer schema all mean *unrated*, logged at `debug`. A
   browse never fails over ratings, and `null` never means `0`.
 
-`--sort <name|updated|rating>` applies to `grim search` and `grim tui`
-alike. Unrated and undated artifacts sort into a bucket of their own at
-the *end* rather than as zero votes or epoch 0, and every mode is total —
+### Download counts {#downloads}
+
+The same sidecar carries a second, independent signal. When the browsed
+index publishes it, `grim search --format json` carries a `downloads`
+object per row — `{total, as_of, versions}`, or `null` when the count is
+unknown. `total` is the pull count; `as_of` is when the producer read it and
+may itself be `null`; `versions` is the per-release breakdown, ordered highest
+release first, `[]` when the producer published none.
+
+`total` is **not** the sum of `versions` — a channel tag carries traffic that
+names no release — so never derive one from the other.
+
+`null` is the **common** case here, not the exception: no OCI
+distribution-spec endpoint exposes a per-artifact download counter, and
+neither GHCR nor the GitLab registry publishes one in any API. Read absence
+as *unknown* — never as zero pulls. A `total` of `0` is a real measurement
+and means something different.
+
+The two signals are independent: an artifact may be rated and uncounted,
+counted and unrated, or neither. Neither implies the other.
+
+`--sort <name|updated|rating|downloads>` applies to `grim search` and
+`grim tui` alike (`downloads` orders by `total` descending, then date).
+Unrated, uncounted and undated artifacts sort into a bucket of their own at
+the *end* rather than as zero votes, zero pulls or epoch 0, and every mode is total —
 two runs over the same catalog render identically. Given together with a
 query, `--sort` **replaces** relevance ranking rather than composing with
 it; omitted, ordering is exactly what it was before the flag existed.
-Confirm with `grim search --help`.
+Inside the TUI the `s` key cycles the same orders live and `S` flips the
+direction; the Catalog title names the active one. Confirm with
+`grim search --help`.
 
 `grim rate <ref>` casts a vote. It posts publicly under **your own** forge
 account, so an interactive run confirms first and a non-interactive one
