@@ -2455,3 +2455,69 @@ else `hex/<slug>`), so C-805a's instance binds to one named branch;
 C-805a's workflow-drift bullet gains guidance only (forge-side protected
 environments); `hex/README.md` names each client's unattended permission
 mode. No resolved position above changes.
+
+## Retro round (2026-09-23, round 24)
+
+`adr_0019` (retro — friction capture in the one hex rule, and a
+script-folded findings ledger) **adds a bundle member that is not an
+orchestrator and amends three resolved positions, each in the open.** Full
+adjudication: `adr_0019` § Rationale;
+[`hex-retro/SKILL.md`](hex-retro/SKILL.md).
+
+**The member.** `/hex-retro [--loop <goal file>] [--import <log>]` folds
+recorded friction — self-report plus objective trajectory signals — into a
+committed ledger and proposals. Like `hex-loop`/`hex-finalize` it is **not
+an orchestrator**: no tiers, no `classify.md`/`overlays.md`, spawns
+nothing.
+
+**Capture.** `hex-state.md` gains three lines (trigger, entry schema +
+discriminator, plain-dir/Pointers-override recipe) — a stated, bounded
+growth over round 9's "single concrete line per shipped mode" bound (the
+discuss paragraph is three lines too).
+
+**Script deviation.** `hex-retro/scripts/retro.py` is the bundle's
+first executable — "hex ships markdown, the client is the runtime"
+(round 23) yields: the ratified ledger is "maintained mechanically,
+never by agents by hand," and transcript/cost arithmetic is not
+reliable model work. Stdlib only; a compiled hex binary stays out of
+scope (discussion).
+
+**Amendments, in the open.**
+
+1. Gate-exemption list gains a **fifth** named member (`hex-retro`):
+   spawns nothing; its gate is one structured question listing the local
+   proposals (all / none / pick), or the loop allow-list check.
+2. § Upkeep's non-orchestrator carve-out gains a second case:
+   `hex-retro`'s `hex.md › Memory` candidate lines, beside `hex-discuss`'s
+   hand-off record.
+3. `memory.md`'s outside-the-halt list gains `hex-retro`: it resolves no
+   plan and touches no remote/forge, so it sits outside like
+   `hex-discuss`; its writes are advisory.
+
+**Named deviations** (`adr_0019` § Rationale):
+
+- Loop route narrowed to an **allow-list**: only targets inside a
+  path-sourced skill/rule source dir apply unasked or in-loop; every other
+  target → Memory candidate + Deferred (project-context edits reach later
+  sub-orchestrators before review).
+- Inbox resolved via the first `git worktree list --porcelain` entry, not
+  `--git-common-dir` (wrong parent inside a submodule).
+- `hex never commits` outside execute/finalize extended by one act:
+  loop-mode retro edits land on the loop branch; `/hex-retro` itself never
+  commits, the pasted session does — extends `adr_0018`'s session-commit
+  deviation.
+- Single-source contracts echoed, not restated: `hex-state.md` echoes the
+  entry field names `hex-retro` § Entry owns (the writer never loads the
+  skill); thresholds are not mirrored, `retro.py` reads § Thresholds at
+  runtime.
+
+**Considered and not deviated:** C-719 hardening-never-precondition (retro
+runs fully with the rule absent); the heartbeat out-of-tree rule (inbox is
+data, not a control surface); capability classes / no harness tool names
+(client tool names appear only as parsed constants in `retro.py`); thin
+`SKILL.md` (report shape in `assets/report.md`, bookkeeping in the
+script).
+
+The protocol's nudge is the bundle's **first hex-core → member link**:
+`hex-retro/SKILL.md#entry` and `hex-retro/SKILL.md#thresholds` — without
+`hex-retro` installed the link dangles harmlessly, no nudge prints.
