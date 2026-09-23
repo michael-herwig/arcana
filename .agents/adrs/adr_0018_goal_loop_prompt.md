@@ -157,3 +157,18 @@ honor that key the line may cost nothing always-on.
 `hex/hex-init`, `hex/hex-architect` and `hex/hex-finalize`, plus
 `task publish -- --dry-run`. The round-trip evidence is
 `.agents/research/hex-loop-roundtrip.md`.
+
+## Amendments
+
+- **2026-09-23, after Accept (Michael, plan_hex_loop § Deferred findings) —
+  I9 names its branch.** Amendment 3's instance gate binds acts to "*this
+  run's feature branch*"; the paste now names that branch instead of
+  saying "the feature branch". An open, same-repo PR source keeps its PR
+  head branch; every other source — a MERGED or CLOSED PR included —
+  renders `"hex/<slug>"`, `<slug>` the goal file's slug, so the force-push
+  and PR grants bind to one named branch. The slot is `{branch}`
+  (formerly `{pr-branch}`), defined in `hex/hex-loop/SKILL.md` § The
+  prompt. The decision above is otherwise unchanged; C-805a's bounds are
+  unchanged, and its workflow-drift bullet gains guidance only (a
+  release-secret-bearing workflow belongs behind a forge-side protected
+  environment with required reviewers).

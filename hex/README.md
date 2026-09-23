@@ -70,6 +70,20 @@ one approval gate — except a C-805a human-pasted grant, which answers it
 — and never merges; with no forge CLI it
 [degrades to a local-only run](hex-core/references/finalize.md#degrade-ladder).
 
+**Unattended runs:** start the client in its unattended permission mode
+before pasting a `/hex-loop` prompt (verified 2026-09-23):
+
+- Claude Code — `auto` mode ([docs](https://code.claude.com/docs/en/permission-modes))
+- Codex CLI — approval policy `never` ([docs](https://learn.chatgpt.com/docs/agent-approvals-security))
+- Cursor CLI — Run Everything, its auto-run toggle ([docs](https://cursor.com/docs/cli/reference/permissions))
+- Copilot CLI — autopilot with all permissions allowed ([docs](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/autopilot))
+- Gemini CLI — `yolo` approval mode ([docs](https://geminicli.com/docs/reference/configuration/))
+- OpenCode — auto mode ([docs](https://opencode.ai/docs/permissions/))
+
+A workflow that carries release secrets belongs behind a forge-side
+protected environment with required reviewers — why:
+[`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model), C-805a.
+
 ## Tier grammar
 
 The four orchestrators — `hex-plan`, `hex-execute`, `hex-review`,

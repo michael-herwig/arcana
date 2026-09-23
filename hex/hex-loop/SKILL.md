@@ -79,8 +79,8 @@ must also be a branch PR: its head branch is neither the base nor the
 default branch, and the head branch name passes
 `git check-ref-format --branch` **and** matches `^[A-Za-z0-9._/-]{1,100}$` —
 else [Errors](#errors) (h). A MERGED or CLOSED PR proceeds with
-`{pr-branch}` empty — its follow-ups land on a new feature branch and a new
-PR — and the note `— PR <ref> is <MERGED|CLOSED>: follow-ups land on a new
+`{branch}` naming a new branch ([The prompt](#the-prompt)) — its follow-ups
+land there and on a new PR — and the note `— PR <ref> is <MERGED|CLOSED>: follow-ups land on a new
 branch and PR`. These are **the PR checks**; a re-print re-runs them
 ([The goal file](#the-goal-file)).
 
@@ -252,7 +252,7 @@ a committed file's `Source:` is never trusted, because a run may have edited
 it and `/hex-finalize`'s recompose can fold that edit into the commit that
 added the file; else [Errors](#errors) (s). A bound `Source:` is re-fetched
 and put through the same PR checks ([Argument syntax](#argument-syntax))
-before `{pr-branch}` is filled; a filled binding is printed as the note
+before `{branch}` takes its PR form; that binding is printed as the note
 `— re-print: PR binding <url> → "<branch>"`, so the human sees which PR the
 paste lands on.
 § Autonomy's forbidden acts delete I9 default acts as narrowing extras do —
@@ -282,7 +282,7 @@ deleting forbidden I9 default acts (below). Its seven slots, each filled once:
 |---|---|
 | `{wrapper}` | `/goal ` — always ([Clients](#clients)) |
 | `{refinement-rounds}` | the resolved outer-cycle cap |
-| `{pr-branch}` | for a fetched open PR source that passed the PR checks ([Argument syntax](#argument-syntax)), the whole clause ` — land on PR <ref>'s existing branch "<branch>"; no new PR`; otherwise (a MERGED or CLOSED PR included) empty, so the clause drops with no stray punctuation |
+| `{branch}` | for a fetched open PR source that passed the PR checks ([Argument syntax](#argument-syntax)), `PR <ref>'s existing branch "<branch>"; no new PR`; otherwise (a MERGED or CLOSED PR included) `"hex/<slug>"`, `<slug>` the goal file's filename stem put through the slug rule of [The goal file](#the-goal-file) — a no-op on a stem `/hex-loop` wrote — so the force-push and PR grants bind to one named branch |
 | `{grants}` | the run's widening grants and allowances with the restrictions that qualify them ([Extras](#extras)), verbatim — a hint allowance as its labelled echo ([The goal file](#the-goal-file)) — each with its trailing punctuation stripped (never a labelled echo's closing quote), joined by `; ` — the template's final period ends them; `none` when there are none |
 | `{goal-file}` | the goal file's repo-relative path |
 | `{entry}` | the entry sentence below |

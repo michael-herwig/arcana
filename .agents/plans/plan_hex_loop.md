@@ -1093,6 +1093,27 @@ Residue: none open. `/hex-execute`'s L2 on WP 1 and WP 3 is the backstop.
   - The cross-model adversary **did run** in round 1 (`codex:rescue`,
     code-diff scope). An `adr_0018` adversary pass remains optional before
     Accept.
+- **Michael's answers (2026-09-23, after Accept; branch
+  `hex/hex-loop-followups`).** Question → decision → where applied:
+  - **Workflow drift** → keep act 3 in I9's default grants; the forge gate
+    is the control → guidance only, no behaviour change:
+    `hex-core/references/finalize.md` § Consent model, C-805a's
+    workflow-drift bullet (a release-secret workflow belongs behind a
+    forge-side protected environment with required reviewers, since the
+    drift trigger does not cover branch scripts the workflow runs);
+    linked from `hex/README.md`.
+  - **Sweep script** → let it go; no repo check. Recorded here only.
+  - **Permission modes** → yes, one line and link each →
+    `hex/README.md` "Unattended runs" (Claude Code, Codex CLI, Cursor CLI,
+    Copilot CLI, Gemini CLI, OpenCode; verified against each client's
+    docs 2026-09-23).
+  - **Branch name** → yes, name it → the slot `{pr-branch}` becomes
+    `{branch}`: an open PR keeps its head branch, every other source
+    renders `"hex/<slug>"` (`hex-loop/SKILL.md` § The prompt,
+    `assets/goal-prompt.md` I9); `adr_0018` § Amendments (dated note);
+    `hex/DESIGN.md` round 23 amendment pointer; the goal template's
+    `Ticks:` line already defers to "the branch I9 names", unchanged.
+    Dogfood re-rendered: example 2 2684/4000, example 5 3051/4000.
 - **Architect suggestion to fold § Emphasis into § Context: declined.** The
   Amendment lists Emphasis as its own section.
 
