@@ -1,0 +1,23 @@
+{
+  "artifact": "hex-core",
+  "cost_min": 0,
+  "entries": [
+    "20260923T000000Z-5f531702.json"
+  ],
+  "first_seen": "2026-09-23T00:00:00Z",
+  "fixed": null,
+  "folded_at": "2026-09-23T17:25:20Z",
+  "folds": 1,
+  "id": "hex-core-negative-search-control",
+  "kind": "pitfall",
+  "last_seen": "2026-09-23T00:00:00Z",
+  "occurrences": 1,
+  "scope": "harness",
+  "severity": "medium",
+  "status": "deferred",
+  "title": "F-008 negative search reported without a positive control",
+  "v": 1,
+  "versions": [
+    "sha256:bb6540f43a442ceaf87ab27e8e122081fc4138996dbb1cd9bc30b8f3bf7cb7fd"
+  ]
+}

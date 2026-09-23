@@ -111,7 +111,7 @@ Exactly **one** approval point, before any work starts. The orchestrator
 never asks mid-flow questions — ambiguity is resolved here or by a
 documented default, never by interrupting a running swarm. **This
 single-gate rule scopes to the four orchestrators** (`hex-plan`,
-`hex-execute`, `hex-review`, `hex-architect`); four skills are exempt,
+`hex-execute`, `hex-review`, `hex-architect`); five skills are exempt,
 each named here with its own stated ground and no criterion to
 interpret — `/hex-init`, a configuration wizard, not an orchestrator,
 which spawns nothing; `hex-discuss`, which keeps exactly one
@@ -119,8 +119,12 @@ approval gate, positioned at the drain, with workers that are read-only,
 capped by its own contract (C-706), and never on the critical path, so
 there is no swarm to strand; `/hex-loop`, which spawns nothing and starts
 nothing, writes one goal file inside its own home, and whose approval is
-the user's paste of the prompt it prints; and `/hex-finalize`, whose single
-approval gate is positioned at the local/remote boundary on every degrade
+the user's paste of the prompt it prints; `/hex-retro`, which spawns
+nothing, whose one gate is a single structured question at the point
+it would apply a local edit, and whose loop-mode edits land before
+the loop branch's closing `/hex-review` and pass it and the human's
+PR merge; and `/hex-finalize`, whose single approval gate is
+positioned at the local/remote boundary on every degrade
 rung and asks there — except under C-805a
 ([`finalize.md`](finalize.md#consent-model)), where it prints its disclosure
 and proceeds — because the concrete commit plan it must disclose does not exist until
@@ -130,7 +134,7 @@ remote, spawns nothing, and is undone from the backup ref — so there is
 no swarm to strand and nothing on any remote has changed (see
 [`finalize.md`](finalize.md#consent-model)). The list is closed — a skill
 not named here is not exempt, whether or not it spawns workers, and a
-fifth member is added by amending this sentence, never by analogy.
+sixth member is added by amending this sentence, never by analogy.
 
 The gate announces the fully resolved config, each item attributed to its
 source (`classifier` / `hex.md preference` / `user flag` / `tier baseline`
@@ -824,6 +828,13 @@ single-gate rule governs *pre-work* approval and is not violated by a
 post-completion offer. Never more than one question, and never a question
 in place of the block.
 
+**Retro nudge.** When the retro inbox ([`hex-retro` §
+Entry](../../hex-retro/SKILL.md#entry)) holds at least the nudge count
+([§ Thresholds](../../hex-retro/SKILL.md#thresholds)) of top-level
+`*.json` entries — counted, never parsed — the block's last line is
+`Retro inbox: <N> entries — /hex-retro`. No inbox, below the count, or
+`hex-retro` not installed prints nothing.
+
 **An execution run's block carries a timing rollup — six figures, read from
 the plan the run just wrote** (the schedule log's `phase` and `merged`
 lines, [Parallel-by-default
@@ -863,8 +874,17 @@ staleness rules are in [`memory.md`](memory.md).
 
 The upkeep duties in this section belong to the four orchestrators; a
 **non-orchestrator hex skill makes an upkeep write only where its own
-contract names one**, and `hex-discuss`'s post-gate discussion hand-off
-record and index rows (C-708) are the single such case today.
+contract names one**: `hex-discuss`'s post-gate discussion hand-off
+record and index rows (C-708) and `hex-retro`'s candidate lines (C-1444)
+are the only such cases.
+
+`hex-retro`'s candidate lines, in `hex.md › Memory`: `- Retro candidate
+(<perspective|review-value|checklist-item|project-context>): "<≤120
+chars>" — ledger <id>, <report path>.` One line per ledger id (skip when
+a line naming that id exists). `project-context` rides the C-711
+promotion route; the other three ride this section's own three candidate
+classes (C-990). No `hex.md` on disk → no candidate lines are written; a
+report note says so.
 
 **Which sections bind a spawning non-orchestrator skill.** Bound:
 [Worker

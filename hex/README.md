@@ -21,6 +21,7 @@ Then, in a project:
 /hex-execute
 /hex-review
 /hex-finalize                 # optional — recompose and publish the branch
+/hex-retro [--loop <goal file>] [--import <log>]  # consolidate recorded friction into ledger + proposals
 ```
 
 `/hex-init` audits your project's context (CLAUDE.md/AGENTS.md-equivalent)
@@ -58,6 +59,7 @@ Two runtime contracts back a long run: [worker liveness](hex-core/references/pro
 | [`hex-review`](hex-review/) | Adversarial pre-merge review of a branch, PR, or diff — reports findings and a verdict, never auto-fixes. |
 | [`hex-architect`](hex-architect/) | Design specs, ADRs, and trade-off analysis for decisions that are hard to reverse. |
 | [`hex-finalize`](hex-finalize/) | Recomposes a review-approved branch into a commit series the project's rules would accept, then — after one gate — force-pushes it and readies its pull request. Never merges. |
+| [`hex-retro`](hex-retro/) | Consolidates recorded friction — agent self-report plus objective trajectory signals — into a committed ledger and proposals; interactive with one structured question over its local proposals (all / none / pick), or `--loop` for an allow-list-gated pass inside a goal loop. |
 
 **Rules:** [`hex-state`](hex-state.md) — always on, re-anchors hex state from
 files after context loss, and holds code and config edits while a local
@@ -87,7 +89,7 @@ bound in [`finalize.md` § Consent model](hex-core/references/finalize.md#consen
 
 The four orchestrators — `hex-plan`, `hex-execute`, `hex-review`,
 `hex-architect` — scale their work through one shared tier **vocabulary**.
-`hex-init`, `hex-discuss`, `hex-loop` and `hex-finalize` are not orchestrators
+`hex-init`, `hex-discuss`, `hex-loop`, `hex-finalize` and `hex-retro` are not orchestrators
 and have no tiers.
 `low|medium|high|xhigh|max`+`auto` mean the same thing in every project:
 

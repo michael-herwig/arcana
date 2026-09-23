@@ -1,0 +1,27 @@
+{
+  "artifact": "hex-core",
+  "cost_min": 80.6,
+  "entries": [
+    "20260903T090339Z-90078004.json",
+    "20260903T205306Z-4ff3302e.json",
+    "20260903T210520Z-5d25b858.json",
+    "20260923T000000Z-25a79a47.json"
+  ],
+  "first_seen": "2026-09-03T09:03:39Z",
+  "fixed": null,
+  "folded_at": "2026-09-23T17:25:20Z",
+  "folds": 1,
+  "id": "hex-core-monitor-not-wake-signal",
+  "kind": "pitfall",
+  "last_seen": "2026-09-23T00:00:00Z",
+  "occurrences": 4,
+  "scope": "harness",
+  "severity": "medium",
+  "status": "deferred",
+  "title": "F-002 an armed log Monitor is not a wake signal for a background gate",
+  "v": 1,
+  "versions": [
+    "sha256:bb6540f43a442ceaf87ab27e8e122081fc4138996dbb1cd9bc30b8f3bf7cb7fd",
+    "sha256:e190ebc98dc023313455194a2044fa5a08b9732f6386eee2085dd6464a477b96"
+  ]
+}

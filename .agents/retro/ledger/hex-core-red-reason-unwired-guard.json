@@ -1,0 +1,23 @@
+{
+  "artifact": "hex-core",
+  "cost_min": 0,
+  "entries": [
+    "20260923T000000Z-afec23e4.json"
+  ],
+  "first_seen": "2026-09-23T00:00:00Z",
+  "fixed": null,
+  "folded_at": "2026-09-23T17:25:20Z",
+  "folds": 1,
+  "id": "hex-core-red-reason-unwired-guard",
+  "kind": "pitfall",
+  "last_seen": "2026-09-23T00:00:00Z",
+  "occurrences": 1,
+  "scope": "harness",
+  "severity": "high",
+  "status": "deferred",
+  "title": "F-009 red proven on exit code not reason; guards never wired to a gate",
+  "v": 1,
+  "versions": [
+    "sha256:bb6540f43a442ceaf87ab27e8e122081fc4138996dbb1cd9bc30b8f3bf7cb7fd"
+  ]
+}

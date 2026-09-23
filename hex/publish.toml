@@ -46,6 +46,9 @@ path = "hex-loop"
 [skills."hex-finalize"]
 path = "hex-finalize"
 
+[skills."hex-retro"]
+path = "hex-retro"
+
 [rules."hex-state"]
 path = "hex-state.md"
 

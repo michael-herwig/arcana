@@ -1,0 +1,23 @@
+{
+  "artifact": "hex-retro",
+  "cost_min": 0,
+  "entries": [
+    "20260923T000000Z-e2237ec6.json"
+  ],
+  "first_seen": "2026-09-23T00:00:00Z",
+  "fixed": null,
+  "folded_at": "2026-09-23T17:25:20Z",
+  "folds": 1,
+  "id": "hex-retro-harness-defect-shapes",
+  "kind": "inconvenient",
+  "last_seen": "2026-09-23T00:00:00Z",
+  "occurrences": 1,
+  "scope": "harness",
+  "severity": "low",
+  "status": "deferred",
+  "title": "F-004 no retro pass separated harness from project defects",
+  "v": 1,
+  "versions": [
+    "unknown"
+  ]
+}

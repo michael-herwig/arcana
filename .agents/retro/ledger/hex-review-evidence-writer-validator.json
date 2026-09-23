@@ -1,0 +1,23 @@
+{
+  "artifact": "hex-review",
+  "cost_min": 0,
+  "entries": [
+    "20260923T000000Z-56d5f413.json"
+  ],
+  "first_seen": "2026-09-23T00:00:00Z",
+  "fixed": null,
+  "folded_at": "2026-09-23T17:25:20Z",
+  "folds": 1,
+  "id": "hex-review-evidence-writer-validator",
+  "kind": "pitfall",
+  "last_seen": "2026-09-23T00:00:00Z",
+  "occurrences": 1,
+  "scope": "harness",
+  "severity": "medium",
+  "status": "deferred",
+  "title": "F-007 status artefact cited as evidence without reading its writer and validator",
+  "v": 1,
+  "versions": [
+    "sha256:07fa7b48db0712034ac521c8b3c665186ec9f410c79c011299de357d26e0355e"
+  ]
+}

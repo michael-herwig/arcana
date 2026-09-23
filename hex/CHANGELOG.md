@@ -7,6 +7,33 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - **`/hex-loop`** (`adr_0018`, `hex/DESIGN.md` round 23): turns a settled goal into an unattended run: it writes one goal file, `.agents/goals/<slug>.md` by default (the binding per-run contract — definition of done, autonomy, rules, loop shape, source), and prints one paste-ready prompt of at most 4,000 characters, refused rather than truncated when over. It starts, pushes and commits nothing; pasting the prompt is the only confirmation, and every widening grant is spelled out in that prompt, never *as authority* in the goal file — its § Autonomy holds a non-authoritative mirror. A grant the session cannot quote verbatim from the paste is omitted, not asked; every remote act beyond the prompt's fixed defaults — pushes, PR and issue operations, merge, release, other repos — is granted only by the human's invocation extras, a `Goal loop:` hint granting only local acts in the repo's working tree; secrets never reach a committed file, PR or issue; sub-orchestrator briefs carry only local allowances, every remote or widening act staying with the pasted session. `/hex-discuss` drains straight to it (`→ loop`, keeping its artifact), a `Goal loop:` hint in `hex.md › Preferences` sets run defaults with no config bump, and `/hex-finalize` gains the autonomous-run clause C-805a ([`finalize.md` § Consent model](hex-core/references/finalize.md#consent-model)): `/hex-finalize` may run under a human-pasted C-805a grant that satisfies both halves of its consent, with the full disclosure still printed, and workflow drift under it withholds the dispatch. The paste's I9 names its branch — an open PR's head branch, else `hex/<slug>` — so the pasted force-push and PR grants bind to one branch (`adr_0018` § Amendments); a workflow carrying release secrets belongs behind a forge-side protected environment, since the drift withhold does not cover the branch scripts it runs; and `hex/README.md` names each client's unattended permission mode.
+- **`/hex-retro`** (`adr_0019`, `hex/DESIGN.md` round 24): consolidates
+  recorded friction into a committed ledger and proposals. Capture is
+  hybrid — agent self-report plus an objective channel, `retro.py mine`
+  over Claude Code transcripts (recurring command cost, repeated tool
+  errors/retries, shape-guarded, never a guess) — landing in a lock-free
+  per-entry inbox (`.<name>.tmp` then rename, no writer script) that
+  survives worktree removal, resolved via the first `git worktree list
+  --porcelain` entry. `retro.py fold` does all ledger arithmetic
+  idempotently over one-file-per-finding entries, valuing a finding by
+  objective cost share or by recurrence across folds (Sentry-style
+  version-guarded reopen), never by agent judgment; the model only tags
+  decisions and writes the report. Interactive mode asks one structured
+  question listing the local proposals (all / none / pick) and applies
+  the chosen ones to the working tree, never committing; loop mode applies only to targets inside a path-sourced
+  skill or rule source dir unasked (small) or in-loop (large, one I8
+  cycle), routing every other target to a `hex.md › Memory` candidate
+  plus Deferred — `/hex-loop`'s goal template gains an optional `- Retro
+  checkpoints:` line and I8 runs it before the closing `/hex-review` so
+  its commits fall inside that review's range. `--import <log>` converts
+  the handwritten dogfood findings (F-001..F-012) into seed entries, the
+  first acceptance test. `hex-state.md` gains three capture lines (a
+  stated, bounded growth over round 9's one-line-per-mode bound); the
+  gate-exemption list, § Upkeep's non-orchestrator carve-out, and
+  `memory.md`'s outside-the-halt list each gain `hex-retro` as a named
+  case; `retro.py` is the bundle's first shipped executable, stdlib only,
+  because a ledger "maintained mechanically, never by agents by hand" is
+  not reliable model work.
 
 ## [0.4.1] - 2026-09-06
 
