@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-10-04
+
+### Added
+
+- fast path — parallel pipelines, counted gates, no waiting
+- planning reviews each decision once
+
+### Chores
+
+- bump train to 0.5.1, date hex changelog
+- re-pin claude, copilot harness versions
+- re-pin copilot to 1.0.91
+
+### Tests
+
+- count opencode denials in the first agent block
+
 ## [0.5.0] - 2026-09-23
 
 ### Added
