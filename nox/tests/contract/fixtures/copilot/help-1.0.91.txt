@@ -23,6 +23,7 @@ Commands:
   skill        Manage skills
   instruction  Inspect instruction sources
   lsp          Inspect language server configuration
+  sandbox      Manage command sandboxing
   completion   Generate a shell completion script
 
 Options:

@@ -92,8 +92,11 @@ from nox.workspace import Workspace
 BINARY: Final[str] = "copilot"
 """The executable. `~/.npm-global/bin/copilot` on the owner's machine, resolved off the minimal `PATH`."""
 
-VERIFIED_AGAINST: Final[str] = "1.0.90"
-"""The version the installed binary reports — read off `version-1.0.90.txt`, never a document (E3, C-1020).
+VERIFIED_AGAINST: Final[str] = "1.0.91"
+"""The version the installed binary reports — read off `version-1.0.91.txt`, never a document (E3, C-1020).
+
+**The 1.0.91 re-pin re-recorded the same two free fixtures only.** Its help page
+adds the `sandbox` subcommand; no flag this adapter emits or denies changed.
 
 **The 1.0.90 re-pin re-recorded the same two free fixtures only.** Its help page
 adds the `workflow` subcommand and `--mcp-github-auth`, drops `fast` from
