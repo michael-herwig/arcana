@@ -30,6 +30,8 @@ emitted by the classifier; an explicit request for either announces
 `low | medium | high | xhigh | max`, every 2026-07-19 tier shifted one step
 up and a zero-spawn inline `low` inserted below.
 
+**Erratum pointer (2026-10-04):** `hex-execute` leaves this shape (no classifier, overlays or tier files), and the capability-class names below give way to `light` / `standard` / `standard-high` / `deep` (round 25).
+
 ## Two-layer knowledge model (revised 2026-07-19, round 2)
 
 Principle: **hex is the outer loop.** Anything that is knowledge about
@@ -854,6 +856,8 @@ never copied. The **two-layer knowledge model**, `adr_0005`'s fold path, and
 
 ## Execution-performance round (2026-08-30, round 12)
 
+**Erratum pointer (2026-10-04):** Per-merge scoped verification and checkpointed backstops are superseded by round 25 (step feedback, two full gates per run). Delta-scoped review rounds stand.
+
 `adr_0010` (scoped per-merge verification, checkpointed backstops,
 delta-scoped review rounds, and the failure cascade) amends **three
 positions in § Worktrees** — two from round 4 and its 2026-07-20 perf pass,
@@ -1089,6 +1093,8 @@ the tier files to link it, which is a `hex/` change outside `adr_0011`'s
 scope. **`config.md` gains no key.**
 
 ## Execution-performance quick-wins round (2026-09-05, round 14)
+
+**Erratum pointer (2026-10-04):** The scoped check at every tier (C-925) is superseded by round 25.
 
 The Wave 0 quick-wins plan
 (`.agents/plans/plan_wave0_quick_wins.md`) amends **three positions
@@ -1527,6 +1533,8 @@ date and left as written; the shipped condition and its render live at
 
 ## Per-WP effective-tier round (2026-09-06, round 17)
 
+**Erratum pointer (2026-10-04):** Superseded by round 25: no per-WP effective tier, no risk flags, no `hex-execute` tier files or overlays.
+
 `adr_0012` (the per-WP effective tier — plan tier becomes a ceiling, each
 work package derives its own) makes **four amendments — items 1, 2, 4 and
 5 below**: **one position in § Worktrees**, **one canonical phase list in
@@ -1795,6 +1803,8 @@ and that is amendment 5 above, not a non-deviation.** **`config.md` gains
 no key** and its frozen key vocabulary is not reopened.
 
 ## Execution-runtime round (2026-09-06, round 18)
+
+**Erratum pointer (2026-10-04):** Worker heartbeats, the heavy semaphore and the decomposing coordinator are superseded by round 25 (workers never wait; heavy tools are gate-only).
 
 `adr_0013` (the execution runtime — worker liveness, resource limits,
 per-work-package sub-orchestration and run telemetry) amends **eight
@@ -2153,6 +2163,8 @@ identical.
 
 ## Review-by-join-level round (2026-09-06, round 20)
 
+**Erratum pointer (2026-10-04):** Superseded by round 25: review is one `/hex-review` after all pipelines land, at most 3 calls per run; no `L0`-`L2` join reviews.
+
 `adr_0015` (review by join level) **replaces the review half of round 17's
 per-WP effective tier and retires two positions recorded above.** It
 changes no execution semantics: phases and model class still scale with
@@ -2161,7 +2173,7 @@ decides how deep a diff is reviewed*: no longer the tier, the per-WP
 `Review` budget or a plan-wide ceiling, but **the join level** at which
 the diff lands. Full adjudication and the option comparison: `adr_0015`
 § Considered Options; the contract itself is
-[`loop.md` § Review by join level](hex-core/references/loop.md#review-by-join-level).
+`loop.md` § Review by join level (removed in round 25).
 
 **The rule.** Four levels, closed and versioned (C-980). `L0` — every
 builder return carries an evidence table (`<ID> → <path>:<line>`) the
@@ -2222,6 +2234,8 @@ orchestrator's to read.
 
 ## Parallel-adversary and checklist round (2026-09-06, round 21)
 
+**Erratum pointer (2026-10-04):** The `L0`-`L3` references are superseded by round 25; the parallel adversary and the checklist stand.
+
 `adr_0016` (parallel adversary, review checklist, reviewer configuration)
 **amends round 20 in one place and adds two things it left implicit.**
 It changes no review level and no join rule: `L0`–`L3` stand as round 20
@@ -2274,6 +2288,8 @@ literal model names** — untouched. **`config.md`'s frozen vocabulary** —
 v1 and v2 not reopened; `review.<level>.checklist` is a v3 leaf.
 
 ## Five-tier round (2026-09-06, round 22)
+
+**Erratum pointer (2026-10-04):** The tier grammar now applies to `hex-plan`, `hex-review` and `hex-architect` only; `hex-execute` has no tiers (round 25).
 
 `adr_0017` (five-tier grammar) **supersedes the 2026-07-19 tier rename
 recorded at the top of this file** and reopens the one thing that rename
@@ -2521,3 +2537,97 @@ script).
 The protocol's nudge is the bundle's **first hex-core → member link**:
 `hex-retro/SKILL.md#entry` and `hex-retro/SKILL.md#thresholds` — without
 `hex-retro` installed the link dangles harmlessly, no nudge prints.
+
+## Fast-path round (2026-10-04, round 25)
+
+`adr_0020` (fast path) replaces `/hex-execute`'s work-package machinery with
+parallel pipelines and counted gates. Evidence: the ocx interface-contract
+run (108 transcripts): compile/test parallelism 1.0, builders 36 % of their
+lifetime in lock/verify/wait calls, 89 of 107 spawns on the deep class.
+Every gate was eager and local: decided per change by an agent that sees one
+change and none of the cost, so each cautious "yes" multiplied, and locks
+turned the DAG into a queue. Workers now never raise cost; the orchestrator
+raises it a few counted times per run. Design: `adr_0020` § Decision Outcome.
+
+**Resolved decisions.**
+
+1. **Pipelines and steps.** A plan is a few *pipelines*, cut along contracts,
+   run in parallel, one worktree each. A pipeline is a serial chain of
+   *steps*, each a fresh agent with a small brief; no merge, review or gate
+   between steps. Splitting into steps keeps contexts small; splitting into
+   pipelines only where a contract can be fixed up front.
+2. **Contract wave.** Stubs plus contract tests for every pipeline, committed
+   once, before any pipeline starts. A step that edits a contract-wave file is
+   caught by `git diff` at its return and the orchestrator re-briefs the
+   affected pipelines. A small task is one pipeline: no wave, one review, one
+   gate.
+3. **Step feedback is the only inner check.** A behavioural step runs the
+   tests it wrote or touched, once, with the narrowest command it picks,
+   never the project's gate wrapper. A non-behavioural step runs nothing.
+4. **Two full gates per run, fixed by count.** *Integration*: after all
+   pipelines land, concurrent with the review. *Release*: `/hex-finalize`,
+   fresh with no cache, plus the project's hooks and lint over the final
+   range. Red: one fix pass, then the gate again, cap 2, then the user.
+5. **`--no-verify`.** Every commit and merge on a hex-owned branch uses it;
+   it is the preferred path. The step brief states that the run's exit gates
+   satisfy the project's verify-before-commit instructions.
+6. **Hub and generated files** (lockfiles, baselines, goldens) are never
+   committed by a pipeline; they are regenerated once at integration,
+   minimally.
+7. **Review.** One `/hex-review` after all pipelines land: staged panel plus
+   codex, seats split per pipeline plus one for the seams, fix delta only,
+   cap 2 rounds. The orchestrator may add at most 2 mid-run calls for a very
+   big finished chunk; total at most 3, each covering `anchor..HEAD`. A
+   pipeline reviews itself only when the plan marks it. Seats run on the
+   `standard` class at every tier (tier scales seat count only); `deep` seats
+   only on user request. Codex unavailable: log a skip line, never wait.
+8. **Workers never wait** on a lock, a gate or a poll; a worker that would
+   wait returns. Parallel builds share one build's budget: live pipelines x
+   jobs per pipeline <= the project's single-build jobs. Heavy or exclusive
+   tools are gate-only. No shipped text or learned project lesson adds a
+   worker-side lock.
+9. **Orchestration.** Two levels. The main loop only dispatches and merges;
+   anything slow runs in the background. Event-driven, with a fallback of at
+   least 20 minutes. `/hex-loop` gains a `paused` state.
+10. **Model classes**: `light` (search, inventory, mechanical edits),
+    `standard` (default: steps, fixers, review seats), `standard-high`
+    (escalation; plan-marked hard steps), `deep` (architect, plan design,
+    last-resort escalation). They replace `fast-balanced` / `deep-reasoning`.
+    Shipped files name classes only; the one literal-name mapping is an
+    "e.g. on a Claude harness" line in `models.md`. `/hex-init` instantiates
+    each class as an agent definition where the client supports per-agent
+    effort.
+11. **Escalation is the orchestrator's alone**, only when the same step
+    fails repeatedly (returned incomplete, or output rejected; a red TDD
+    phase is not a failure): retry at the same class with the failure
+    attached, then one class up, then defer as residue. Plan marks reach
+    `standard-high` only, on at most 1 in 4 pipelines.
+12. **Planning reviews each decision once.** `/hex-plan` and `/hex-architect`
+    classify by the **lowest** band that fits; a higher tier only when the
+    user names it. Research defaults to 0-1 axis; 3 axes only on request.
+    The design panel plus codex runs for a one-way-door ADR. A plan built
+    from an accepted ADR runs no research or architect on its decisions and
+    gets one `standard` seat on its decomposition only. Any other plan or ADR
+    gets one `standard` seat. Re-validation runs only after a fixed
+    Block-severity finding.
+
+**The numbers are constitution.** Full gates per run: **2**. Review calls per
+run: **<= 3**. Workers wait: **never**. Escalation: **orchestrator only, on
+repeated failure**. Changing one takes an ADR backed by a measured run.
+
+**Removed.** Per-WP effective tier and risk flags, `L0`-`L2` join reviews,
+per-merge and checkpoint verify gates, the heavy semaphore, Verify-Architecture
+per WP, the red-at-stub check, the decomposing coordinator, worker heartbeat
+beats, `/hex-execute`'s tier files, overlays and classifier. **Kept**:
+`/hex-review` (panel, codex), `/hex-finalize`, `/hex-loop`, contract-first TDD
+inside steps, ADR and plan review for one-way doors, the last-reviewed anchor.
+
+**Named deviations.** `hex-execute` is no longer a tiered orchestrator
+(§ Shared shape scopes to `hex-plan`, `hex-review`, `hex-architect`); the
+capability-class names change (`adr_0001`'s two become four); `--no-verify`
+overrides a project's verify-before-commit lines for hex-owned branches only,
+the exit gates standing in.
+
+**Considered and not deviated:** thin `SKILL.md` dispatchers; single-source
+contracts (one definition per rule, linked); capability classes, never literal
+model names in shipped files.

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Fast path** (`adr_0020`, `hex/DESIGN.md` round 25): `/hex-execute` runs a few parallel *pipelines* cut along contracts, each a serial chain of fresh *steps* in one worktree, after one contract wave (stubs plus contract tests). A behavioural step runs only the tests it touched, once, with the narrowest command; a non-behavioural step runs nothing. A run has exactly two full gates (integration, concurrent with the review; release, `/hex-finalize`, fresh) and at most three `/hex-review` calls, each covering `anchor..HEAD`. Workers never wait on a lock, gate or poll; parallel builds share one build's job budget; heavy tools are gate-only. Commits and merges on hex-owned branches use `--no-verify`. Model classes are now `light`, `standard`, `standard-high`, `deep`, replacing `fast-balanced` and `deep-reasoning`; only the orchestrator escalates, on repeated failure of the same step. `/hex-loop` gains a `paused` state. Planning reviews each decision once: `/hex-plan` and `/hex-architect` pick the lowest tier that fits, research defaults to 0-1 axis, the panel plus codex runs only for a one-way-door ADR, and a plan built from an accepted ADR gets one seat on its decomposition only. The four numbers (2 gates, <= 3 review calls, never wait, orchestrator-only escalation) are constitution.
+
+### Removed
+
+- Per-WP effective tier and risk flags, `L0`-`L2` join-level review, per-merge and checkpoint verify gates, the heavy semaphore, Verify-Architecture per WP, the red-at-stub check, the decomposing coordinator, worker heartbeat beats, and `/hex-execute`'s tier files, overlays and classifier. `/hex-execute` no longer takes a tier.
+
 ## [0.5.0] - 2026-09-23
 
 ### Added

@@ -1,6 +1,6 @@
 # hex
 
-Tiered multi-agent swarm orchestration for the full feature lifecycle:
+Multi-agent swarm orchestration for the full feature lifecycle:
 planning, contract-first TDD execution, adversarial review, and
 architecture design. Generalized, client-neutral — no assumptions about
 which AI coding client you run it in.
@@ -39,23 +39,22 @@ last step, taking a review-approved branch from *the work is right* to *this
 is ready to merge* — verify, recompose, one gate, publish — and stopping at
 the merge, which stays yours.
 
-Inside `/hex-execute`, each work-package merge is gated by a **scoped
-check** — that package's own contract tests plus your build gate — with your
-full verification as a periodic backstop and at the final gate, so a long
-suite is paid a few times per run instead of once per merge.
-
-Two runtime contracts back a long run: [worker liveness](hex-core/references/protocol.md#worker-liveness) finds and re-spawns a hung agent, and the [resource contract](hex-core/references/resources.md) meters heavy commands against your host's measured profile.
+`/hex-execute` runs a few **pipelines** in parallel — each a serial chain of
+fresh **steps** in its own worktree, cut along contracts committed first in
+one contract wave. A step runs only the tests it touched; the full gate runs
+**twice per run** (integration, then `/hex-finalize`), and a run makes at most
+three review calls. Workers never wait on a lock, a gate or a poll.
 
 ## Members
 
 | Skill | What it does |
 |---|---|
-| [`hex-core`](hex-core/) | Shared reference library — worker roles, model matrix, swarm protocol, memory spec. Never invoked directly. |
+| [`hex-core`](hex-core/) | Shared reference library — worker roles, model classes, swarm protocol, memory spec. Never invoked directly. |
 | [`hex-init`](hex-init/) | Audits and bootstraps a project for the swarm: verification, conventions, `.agents/memory/hex.md`. |
 | [`hex-discuss`](hex-discuss/) | Pre-plan discussion mode: talks a problem through — elaborate, grill, research, capture — and drains to a plan, an ADR, a goal loop, or a decision not to build. |
 | [`hex-loop`](hex-loop/) | Turns a settled goal into one paste-ready autonomous-run prompt for an unattended multi-round session. |
 | [`hex-plan`](hex-plan/) | Decomposes a feature/issue/PR into a contract-first TDD plan through discover, research, design, decompose, and review. |
-| [`hex-execute`](hex-execute/) | Implements a plan or free-text task: stub, specify, implement, review-fix loop, commit. |
+| [`hex-execute`](hex-execute/) | Implements a plan or free-text task: contract wave, then parallel pipelines of fresh steps, two counted full gates, commit. |
 | [`hex-review`](hex-review/) | Adversarial pre-merge review of a branch, PR, or diff — reports findings and a verdict, never auto-fixes. |
 | [`hex-architect`](hex-architect/) | Design specs, ADRs, and trade-off analysis for decisions that are hard to reverse. |
 | [`hex-finalize`](hex-finalize/) | Recomposes a review-approved branch into a commit series the project's rules would accept, then — after one gate — force-pushes it and readies its pull request. Never merges. |
@@ -87,10 +86,9 @@ bound in [`finalize.md` § Consent model](hex-core/references/finalize.md#consen
 
 ## Tier grammar
 
-The four orchestrators — `hex-plan`, `hex-execute`, `hex-review`,
-`hex-architect` — scale their work through one shared tier **vocabulary**.
-`hex-init`, `hex-discuss`, `hex-loop`, `hex-finalize` and `hex-retro` are not orchestrators
-and have no tiers.
+The three orchestrators — `hex-plan`, `hex-review`, `hex-architect` — scale
+their work through one shared tier **vocabulary**. `hex-execute`, `hex-init`,
+`hex-discuss`, `hex-loop`, `hex-finalize` and `hex-retro` have no tiers.
 `low|medium|high|xhigh|max`+`auto` mean the same thing in every project:
 
 | Tier | Intent |
@@ -107,15 +105,10 @@ in its Status block) has its `Tier:` shifted one step up on read and
 announced, never rewritten
 ([`protocol.md` § Tier grammar](hex-core/references/protocol.md#tier-grammar)).
 
-In `/hex-execute`, a plan's tier is a **ceiling**: each work package derives
-its own effective tier from cells the plan already carries — never authored,
-never above the ceiling — and that is what scales its phases and model class
-([`decompose.md` § The effective
-tier](hex-core/references/decompose.md#the-effective-tier)). Review depth
-is keyed on **join level** instead — one fast leaf reviewer where a WP
-lands, one deep aggregate seat where two or more join, the trunk pass only
-when `/hex-review` is run ([`loop.md` § Review by join
-level](hex-core/references/loop.md#review-by-join-level)).
+Models are chosen by **class**, not tier: `light`, `standard` (the default
+for steps, fixers and review seats), `standard-high` and `deep` (design only).
+Tier scales review seat count, never the seat's class; only the orchestrator
+escalates, and only when the same step fails repeatedly.
 
 Per-tier **content** — phase spawn counts (via `tiers`), and later the phase
 plan itself (via `workflows`, reserved for a future release) in
@@ -153,7 +146,7 @@ neither competitor closes.
 
 | Axis | hex | spec-kit | OpenSpec |
 |---|---|---|---|
-| Execution model | Tiered swarm: parallel work packages in git worktrees, topological merge, contract-first TDD | Single agent, sequential (`/implement`); worktree/DAG only in unreviewed community extensions | Single agent |
+| Execution model | Swarm: parallel pipelines in git worktrees after a contract wave, contract-first TDD | Single agent, sequential (`/implement`); worktree/DAG only in unreviewed community extensions | Single agent |
 | Full SDD lifecycle | plan → execute → review → **fold-back into the spec** | plan → implement; no fold-back | plan → **fold-back** → but review is a 3-item checklist |
 | Spec fold-back | A converged, approved plan's deltas fold back into the project's own spec home, guarded against silent requirement loss | — | Its one structural lead — but the deterministic guard was regressed into "use your judgment" |
 | Config depth | Per-path reviewers, per-tier counts, tier lineage, capability-class model routing, a cross-model adversary — all as user config | Presets/workflow engine, but no swarm to configure | Minimal |
