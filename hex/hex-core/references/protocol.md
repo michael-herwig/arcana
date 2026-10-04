@@ -67,10 +67,10 @@ Five tiers plus `auto` (`adr_0017` C-991). The grammar serves `/hex-plan`,
 |---|---|---|---|
 | `low` | Trivial two-way door: one file, ≤30 lines, no structural marker, no security-sensitive or hot path | **none** — the orchestrator is the worker, inline | 1 approval; the orchestrator answers the `spec` + `quality` checklist itself; no adversary |
 | `medium` | Two-way door: flag/option change, doc edit, ≤3 files, one area | 1 explorer; inline design; 1 reviewer, single pass | 1 approval; no adversary |
-| `high` | One-way-door, medium blast radius: new command, new storage/index layout, 1–2 areas | architecture-explorer + 2–4 explorers; 1 researcher; architect; review panel | 1 approval; `full` checklist; adversary on one-way-door signals |
-| `xhigh` | One-way-door, high blast radius: new module/package, breaking API, cross-area, protocol change | `high` set + mandatory architect, mandatory multi-axis research | 1 approval; `adversarial` checklist; adversary a default part of the flow |
+| `high` | One-way-door, medium blast radius: new command, new storage/index layout, 1–2 areas | architecture-explorer + 2–4 explorers; 0–1 researcher; architect only for a one-way-door decision no accepted ADR covers; 1 reviewer, or the panel for a one-way-door ADR | 1 approval; `full` checklist; adversary on one-way-door signals |
+| `xhigh` | One-way-door, high blast radius: new module/package, breaking API, protocol change | `high` set; 3 research axes only when the user names the tier | 1 approval; `adversarial` checklist; adversary on |
 | `max` | Everything `xhigh` is, bought explicitly: **every** configured adversary, five research axes with `competitive-research` mandatory, and usage simulation by four user patterns | `xhigh` set + one `researcher` per extra axis + `simulator` ×4 | `xhigh`'s, plus the simulators' one merged fix pass; **never auto-selected** |
-| `auto` (default) | Classifier picks `low` … `xhigh` from signals; never `max` | — | — |
+| `auto` (default) | Classifier picks the **lowest** tier that fits, `low` … `xhigh`; never `max` | — | — |
 
 `auto` is the default; the classifier resolves it to one of the four
 auto-selectable tiers and shows its reasoning at the gate. **`max` is

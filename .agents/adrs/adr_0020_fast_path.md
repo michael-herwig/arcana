@@ -162,3 +162,4 @@ contract, mitigated by the contract tests committed in the wave and the
 | Date | Author | Change |
 |------|--------|--------|
 | 2026-10-04 | Michael Herwig / Claude | Initial draft (Proposed) |
+| 2026-10-04 | Michael Herwig / Claude | Planning: lowest-fit classifier, 0-1 research axis, panel + codex only for one-way-door ADRs, a plan from an accepted ADR reviews its decomposition only (DESIGN round 25 item 12) |

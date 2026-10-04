@@ -1,6 +1,6 @@
 # Tier: high
 
-The **default** architecture tier — one-way-door-medium decisions: a storage
+One-way-door-medium decisions: a storage
 layout, a caching strategy, an internal contract spanning a module or two.
 Grounds the decision in a real architecture map, delegates the design to a
 dedicated `architect` worker, and produces an ADR. Five phases, not six —
@@ -102,6 +102,8 @@ axis, paired with the architecture-explorer's output so external findings
 stay grounded in local code. Findings longer than a paragraph **must**
 persist as a research artifact in the convention-resolved location.
 
+Zero when an unexpired research artifact or an accepted ADR already covers
+the axis ([`overlays.md`](overlays.md)) — research is never repeated.
 Override: `--research=3` launches all three top candidate axes in a single
 concurrent batch — everything else in this tier (single `architect` worker,
 ADR-only artifact, bounded review) stays as below. Researcher model class is
@@ -204,7 +206,10 @@ on the ADR — **plan-artifact scope: one panel round**; fix application,
 conditional re-validation, and escalation follow the canonical loop's
 artifact-scope rule, never restated here.
 
-**Round 1** — launch concurrently:
+**Two-way-door ADR** (the classifier fired no one-way-door signal): one
+`standard` `reviewer` (focus `spec`), no panel, no adversary.
+
+**One-way-door ADR — Round 1**, launched concurrently:
 
 - `reviewer` (focus `spec`) — are the contracts testable? Internally
   consistent with the stated decision?
@@ -227,8 +232,8 @@ signals or dossier fast-path input, or explicit `--adversary`;
 panel batch, last** — never after the panel — and run once in
 `plan-artifact` scope on the ADR (`adr_0016` C-987). One-shot, 4-way
 triage; its actionable findings join the same fix application as the
-panel's and are re-validated by the same single `reviewer` (focus `spec`)
-pass; graceful skip when unavailable
+panel's, with re-validation only after a fixed Block finding
+([`loop.md`](../hex-core/references/loop.md#the-review-fix-loop)); graceful skip when unavailable
 ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the ADR is ready for handoff; deferred findings are documented.

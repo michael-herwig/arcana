@@ -1,8 +1,8 @@
 # Tier: high
 
-The **default** planning tier — medium-scope, one-way-door-medium work: a new
-command, a new index or storage layout, a change spanning 1–2 areas. This is
-the baseline any caller gets without an explicit tier.
+Medium-scope, one-way-door-medium work: a new command, a new index or storage
+layout, a change too wide for `medium`. The classifier lands here only when
+no lower band fits ([`classify.md`](classify.md)).
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -42,17 +42,20 @@ place of a broad scan; a PR's file list is the explicit scope for the
 **Gate** — worker reports are in; the architecture is mapped, reusable
 components are identified, prior artifacts are checked for overlap.
 
-## Phase 2: Research (parallel, 1 axis)
+## Phase 2: Research (0–1 axis)
 
-Launch **1** `researcher` on the single most relevant axis (technology *or*
-patterns *or* domain), paired with at least one explorer's output so
-external findings stay grounded in local code. The project's product
+Research is never repeated: when the plan is built from an accepted ADR, or
+the topic already has a persisted research artifact, **skip** it and cite
+the artifact. Otherwise launch **1** `researcher` on the single most relevant
+axis (technology *or* patterns *or* domain), paired with at least one
+explorer's output so external findings stay grounded in local code. The project's product
 knowledge (research keywords, comparable tools — located via
 `hex.md › Pointers`) seeds the axis choice and search terms when present.
 Findings longer than a paragraph **must** persist as a research artifact in
 the convention-resolved location for reuse.
 
-Override: `--research=3` launches all three axes in a single concurrent batch.
+Override: `--research=3` — the user's to ask for — launches all three axes
+in a single concurrent batch.
 The researcher's model class is `standard`
 ([`models.md`](../hex-core/references/models.md)).
 
@@ -66,7 +69,7 @@ Determine reversibility and scope; record it in the plan header:
 | Scope | Reversibility | Artifacts |
 |---|---|---|
 | Small (1–3 days) | Two-way door | plan |
-| Medium (1–2 weeks) | One-way door (medium) | plan + ADR (when a boundary decision is made) |
+| Medium (1–2 weeks) | One-way door (medium) | plan + ADR (only when a boundary decision no accepted ADR covers is made) |
 | Large (2+ weeks) | One-way door (high) | plan + ADR + persisted research |
 
 Artifact formats follow the project's documented conventions; the templates
@@ -75,12 +78,15 @@ and re-run** as `/hex-plan xhigh "…"` — no silent upgrade mid-pipeline.
 
 **Gate** — scope and reversibility documented in the plan header.
 
-## Phase 4: Design (delegated for one-way-door, inline otherwise)
+## Phase 4: Design (delegated for a new one-way door, inline otherwise)
 
-For **one-way-door medium** or cross-area work, launch an `architect`
-(`--architect=on`) to produce an ADR or system design; its model class is
-`deep` ([`models.md`](../hex-core/references/models.md)). For two-way-door
-scope, design inline in the plan.
+Launch an `architect` (`--architect=on`) **only** when the plan carries a new
+one-way-door decision that no accepted ADR covers; it produces the ADR or
+system design, and its model class is `deep`
+([`models.md`](../hex-core/references/models.md)). A plan built from an
+accepted ADR (or a discussion handed off with one) never re-runs an
+architect on that ADR's decisions — design inline in the plan, citing the
+ADR. Two-way-door scope also designs inline.
 
 Design must include:
 
@@ -130,39 +136,40 @@ restated here:
 Parallelization section shows the widest wave structure the contracts
 permit.
 
-## Phase 6: Review (one reviewer; panel for a one-way door)
+## Phase 6: Review (one reviewer; panel only for a new one-way door)
 
 Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
 on the draft plan — **plan-artifact scope: one round**; fix application,
-conditional re-validation, and escalation follow the canonical loop's
-artifact-scope rule, never restated here.
+re-validation (only after a fixed Block finding), and escalation follow the
+canonical loop's artifact-scope rule, never restated here. Each decision is
+reviewed once across the chain.
 
-**No ADR (two-way-door scope)** — launch **1** `reviewer` (focus `spec`,
-phase `post-stub`), `standard` class, alone.
+Launch **1** `reviewer` (focus `spec`, phase `post-stub`), `standard` class.
+It mechanically verifies every C-/S- ID maps to at least one pipeline Scope
+cell and at least one test step; an uncovered ID is an actionable finding
+([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
+For a plan built from an accepted ADR it checks **only the decomposition** —
+contracts testable, pipelines cut cleanly along contracts, steps sized for a
+fresh agent — never the ADR's decisions.
 
-**One-way-door / ADR** — launch the panel concurrently:
+**Panel and cross-model review** — only when the plan itself carries a new
+one-way-door decision no accepted ADR covers, or the user asks (`--adversary`).
+Launch concurrently with the reviewer:
 
-- `reviewer` (focus `spec`, phase `post-stub`) — are the contracts testable?
-  Do they match the user-experience section? Mechanically verifies every
-  C-/S- ID maps to at least one pipeline Scope cell and at least one test
-  step; an uncovered ID is an actionable finding
-  ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
 - `architect` — are the trade-offs honest, the alternatives considered, any
   boundary violations introduced?
 - `researcher` — does the plan miss a trending pattern, a known pitfall, or a
   state-of-the-art approach?
+- the **cross-model plan review** (`adversary=on`), launched **in the
+  Round 1 batch, last** — never after the panel — and run once in
+  `plan-artifact` scope (`adr_0016` C-987). One-shot, 4-way triage; its
+  actionable findings join the same fix application; graceful skip when
+  unavailable
+  ([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
-Either way the reviewer flags an unjustified constitution violation as an
-actionable finding
+The reviewer flags an unjustified constitution violation as an actionable
+finding
 ([constitution gate](../hex-core/references/protocol.md#constitution-gate)).
-
-**Cross-model plan review** (when `adversary=on` — auto-on for one-way-door
-signals, or explicit `--adversary`): launched **in the Round 1 panel batch,
-last** — never after the panel — and run once in `plan-artifact` scope
-(`adr_0016` C-987). One-shot, 4-way triage; its actionable findings join
-the same fix application as the panel's and are re-validated by the same
-single `reviewer` (focus `spec`) pass; graceful skip when unavailable
-([adversary contract](../hex-core/references/adversary.md#adversary-contract)).
 
 **Gate** — the plan is ready for `/hex-execute`; deferred findings are
 documented. Then run the

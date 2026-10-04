@@ -32,7 +32,8 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 ```
 
 - **tier** (optional): `low | medium | high | xhigh | max | auto`. Default
-  `auto` — the classifier picks `low` … `xhigh`. **`max` is explicit
+  `auto` — the classifier picks the lowest-fit tier, `low` … `xhigh`
+  ([`classify.md`](classify.md)); a higher tier needs the user. **`max` is explicit
   only** — `--tier=max`, or a plan whose Status block says `Tier: max`; the
   classifier never emits it
   ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
@@ -134,17 +135,16 @@ tier file (format:
 ```
 hex-plan
   Tier:      high                         (auto — classifier: new subcommand, 2 areas)
-  Overlays:  architect=on                   (classifier: cross-area design)
+  Overlays:  architect=inline               (accepted ADR covers the design)
              research=1                      (tier baseline)
-             adversary=on                    (hex.md preference: one-way-door signals)
+             adversary=off                   (tier baseline)
   Spawn set:
     architecture-explorer                    (tier baseline)
     explorer ×3                              (tier baseline)
     researcher ×1                            (overlay research=1)
-    architect                                (overlay architect=on)
     reviewer: spec                           (tier baseline)
-  Models:    standard default; architect → deep                  (models.md)
-  Adversary: codex-adversary, plan-artifact scope            (hex.md preference)
+  Models:    standard default                                    (models.md)
+  Adversary: off
   Degraded:  no — subagent spawning available
 ```
 
@@ -197,12 +197,12 @@ planning phases; the tier files set the actual counts.
 |---|---|---|---|
 | Discover | `architecture-explorer` | 0–1 | Map the current architecture, dependencies, reusable code |
 | Discover | `explorer` | 1–4 | Deep-dive each involved area |
-| Research | `researcher` | 0–3 | Technology / patterns / domain landscape |
-| Design | `architect` | 0–1 | ADR or system design (when delegated) |
-| Review | `reviewer` (focus `spec`) | 1 | Plan ↔ design consistency |
-| Review | `architect` | 0–1 | Trade-off honesty (one-way-door) |
-| Review | `researcher` | 0–1 | SOTA / known-pitfall gap check |
-| Adversary | configured adversary skill (`plan-artifact`) | 0–1 | Cross-model review |
+| Research | `researcher` | 0–1 (3 only when the user asks) | Technology / patterns / domain landscape |
+| Design | `architect` | 0–1 | ADR or system design — only for a new one-way-door decision no accepted ADR covers |
+| Review | `reviewer` (focus `spec`) | 1 | Plan ↔ design consistency; for a plan built from an accepted ADR, the decomposition only |
+| Review | `architect` | 0–1 | Trade-off honesty (new one-way door with no ADR, or the user asks) |
+| Review | `researcher` | 0–1 | SOTA / known-pitfall gap check (same condition) |
+| Adversary | configured adversary skill (`plan-artifact`) | 0–1 | Cross-model review (same condition) |
 
 A project's `tiers.hex-plan.<tier>.counts` can override any Count cell above
 against the baseline this table sets
@@ -298,6 +298,12 @@ in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
 
 - Every task carries **testable acceptance criteria** — no vague behaviors.
 - **Discover runs at every tier** — never assume context.
+- **Each artifact is reviewed once; research is never repeated.** A plan
+  built from an accepted ADR (or a discussion handed off with one) never
+  re-runs research or an architect on that ADR's decisions, and its single
+  reviewer checks only the decomposition — contracts testable, pipelines cut
+  cleanly along contracts, steps sized for a fresh agent
+  ([plan-artifact scope](../hex-core/references/loop.md#the-review-fix-loop)).
 - **Never skip Review**; never exceed the concurrency cap
   ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)).
 - **No mid-flow questions** — ambiguity is resolved at the single gate.

@@ -2602,6 +2602,14 @@ raises it a few counted times per run. Design: `adr_0020` § Decision Outcome.
     phase is not a failure): retry at the same class with the failure
     attached, then one class up, then defer as residue. Plan marks reach
     `standard-high` only, on at most 1 in 4 pipelines.
+12. **Planning reviews each decision once.** `/hex-plan` and `/hex-architect`
+    classify by the **lowest** band that fits; a higher tier only when the
+    user names it. Research defaults to 0-1 axis; 3 axes only on request.
+    The design panel plus codex runs for a one-way-door ADR. A plan built
+    from an accepted ADR runs no research or architect on its decisions and
+    gets one `standard` seat on its decomposition only. Any other plan or ADR
+    gets one `standard` seat. Re-validation runs only after a fixed
+    Block-severity finding.
 
 **The numbers are constitution.** Full gates per run: **2**. Review calls per
 run: **<= 3**. Workers wait: **never**. Escalation: **orchestrator only, on

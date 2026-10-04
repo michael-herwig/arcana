@@ -83,10 +83,12 @@ attached, then one class up, then defer as residue and keep the loop going.
   list. A `loop rounds` value in `hex.md › Preferences` or a `--loop-rounds`
   flag may lower the cap, never raise it.
 - **Plan-artifact scope** (a draft plan or ADR under review by its own
-  orchestrator): **one** panel round → the orchestrator applies actionable
-  fixes → **one** re-validation pass by `reviewer` (focus `spec`) *whenever
-  any actionable fix was applied* → anything still actionable escalates to
-  the user. Re-enabling multi-round artifact loops takes an **explicit**
+  orchestrator): **one** round → the orchestrator applies actionable
+  fixes → **one** re-validation pass by `reviewer` (focus `spec`) *only when
+  a Block-severity finding was fixed* → anything still actionable escalates
+  to the user. **Each decision is reviewed once across the chain**: a plan
+  built from an accepted ADR reviews only its decomposition, never the
+  ADR's decisions again ([`/hex-plan`](../../hex-plan/SKILL.md)). Re-enabling multi-round artifact loops takes an **explicit**
   `artifact loop rounds: N` limit in `hex.md › Preferences`.
 - **Exit** — no actionable findings remain, the integration gate is green
   on the final state, and deferred findings are documented for handoff.
