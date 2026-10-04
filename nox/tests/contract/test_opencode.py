@@ -148,8 +148,22 @@ def _run(info, env: dict[str, str], cwd: Path, *args: str, timeout: float = 600.
 
 
 def _denials(lines: tuple[str, ...]) -> int:
-    """Count the `deny` actions in an `agent list` listing, colour codes and all."""
-    return sum(line.count('"action": "deny"') for line in lines)
+    """Count the `deny` actions in the FIRST agent's block of an `agent list` listing.
+
+    opencode exits before flushing a piped stdout, so a listing is cut off at
+    a random point late in its ~20k lines (measured on 1.18.22: the trailing
+    agents vary run to run). The first block always arrives whole, and the
+    inline config's rules apply to every agent, so it alone carries the signal.
+    """
+    count = 0
+    headers = 0
+    for line in lines:
+        if line.rstrip().endswith(("(primary)", "(subagent)")):
+            headers += 1
+            if headers > 1:
+                break
+        count += line.count('"action": "deny"')
+    return count
 
 
 def _group_members(pgid: int) -> tuple[str, ...]:
