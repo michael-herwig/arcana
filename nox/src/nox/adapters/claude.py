@@ -6,7 +6,7 @@ Code has no operating-system sandbox nox drives, so `sandbox_probe` returns
 adapter never makes.
 
 **Every flag below was proven against the installed 2.1.260, not read off a
-document** (E3), and re-checked against 2.1.281's `--help`. Two
+document** (E3), and re-checked against 2.1.289's `--help`. Two
 of the findings are the reason the set is what it is:
 
 - `--restricted --tools Read,Grep,Glob` alone reported a session tool list of
@@ -98,7 +98,7 @@ if TYPE_CHECKING:
 
 # ── Shipped literals, pinned from the real binary ────────────────────────────
 
-VERIFIED_AGAINST: Final[str] = "2.1.281"
+VERIFIED_AGAINST: Final[str] = "2.1.289"
 """The version the fixtures in `tests/contract/fixtures/claude/` were recorded from (E3).
 
 Set from a re-probe of the installed binary, never copied from a document
@@ -128,6 +128,11 @@ its recorded version. The help page changed in prose only (`--agents` takes a
 file under `--print`, `--bare`/`--safe-mode`/`--system-prompt-snapshot` wording,
 `--fallback-model` no longer print-only); every flag this adapter emits is
 still documented.
+
+**The 2.1.289 re-pin did the same** — `version-`, `help-` and `auth-status-` re-recorded
+as 2.1.289, paid captures kept. The help page gained `--desktop` and the
+`purge` subcommand (replacing `project`) and lost a model-name example; no flag
+this adapter emits changed.
 """
 
 PROBE_TIMEOUT_S: Final[int] = 60

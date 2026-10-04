@@ -15,6 +15,7 @@ Commands:
   init         Initialize Copilot instructions
   update       Download the latest version
   version      Display version information
+  workflow     Run dynamic workflows
   sessions     Manage saved sessions
   memories     Manage memories
   plugin       Manage plugins
@@ -48,7 +49,7 @@ Options:
       --context <tier>
           Set the context window tier (overrides persisted setting) [possible values: default, long_context]
       --auto-tier <preference>
-          Set the Auto routing profile [possible values: efficiency, balance, intelligence, fast]
+          Set the Auto routing profile [possible values: efficiency, balance, intelligence]
       --agent <agent>
           Specify a custom agent to use
   -r, --resume [<value>]
@@ -115,7 +116,7 @@ Options:
           Disable a specific MCP server (can be used multiple times)
       --disable-builtin-mcps
           Disable all built-in MCP servers (currently:
-          github-mcp-server)
+          github-mcp-server, githubiq)
       --enable-all-github-mcp-tools
           Enable all GitHub MCP server tools instead of the default
           CLI subset. Overrides --add-github-mcp-toolset and
@@ -140,6 +141,11 @@ Options:
           relative @ path resolves against the session working
           directory (the --resume/--worktree/-C directory) and a
           leading ~/ expands to your home directory
+      --mcp-github-auth <server=origin>
+          Send the signed-in GitHub account credential only to this
+          explicit --additional-mcp-config server and approved origin.
+          HTTPS is required except for literal loopback HTTP. Never
+          put a token in this argument. Can be used multiple times.
       --allow-all-mcp-server-instructions
           Include initialization instructions from all MCP servers in
           the system prompt instead of only allowlisted servers

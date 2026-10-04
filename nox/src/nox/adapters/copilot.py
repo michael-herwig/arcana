@@ -92,8 +92,13 @@ from nox.workspace import Workspace
 BINARY: Final[str] = "copilot"
 """The executable. `~/.npm-global/bin/copilot` on the owner's machine, resolved off the minimal `PATH`."""
 
-VERIFIED_AGAINST: Final[str] = "1.0.88"
-"""The version the installed binary reports — read off `version-1.0.88.txt`, never a document (E3, C-1020).
+VERIFIED_AGAINST: Final[str] = "1.0.90"
+"""The version the installed binary reports — read off `version-1.0.90.txt`, never a document (E3, C-1020).
+
+**The 1.0.90 re-pin re-recorded the same two free fixtures only.** Its help page
+adds the `workflow` subcommand and `--mcp-github-auth`, drops `fast` from
+`--auto-tier`, and lists `githubiq` as a built-in MCP server; no flag this
+adapter emits or denies changed.
 
 **The 1.0.88 re-pin re-recorded the same two free fixtures only**, under the same
 rule below. Its help page is a reformat (clap-style, one flag per line) that

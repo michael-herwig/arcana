@@ -2,7 +2,7 @@
 
 Every file here came off the installed binary. None was copied from a
 document. `VERIFIED_AGAINST` in `nox/src/nox/adapters/copilot.py` is set from
-`version-1.0.88.txt` and nothing else.
+`version-1.0.90.txt` and nothing else.
 
 Binary: `~/.npm-global/bin/copilot`, authenticated. The two free fixtures
 (`version-`, `help-`) were re-recorded from **1.0.83** on 2026-09-06 when the
@@ -12,12 +12,13 @@ below still names **1.0.82**, its actual recording (2026-09-03), per E30. The
 `--enable-reasoning-summaries`, a flag the adapter never emitted. The same two
 were re-recorded again from **1.0.88** on 2026-09-23; that help page is a
 clap-style reformat that no longer lists the `--effort` alias, so the adapter
-now emits `--reasoning-effort`.
+now emits `--reasoning-effort`. Re-recorded once more from **1.0.90** on 2026-10-04;
+that page adds `workflow` and `--mcp-github-auth` and changes no flag the adapter emits.
 
 | File | Command |
 |---|---|
-| `version-1.0.88.txt` | `copilot --version` |
-| `help-1.0.88.txt` | `copilot --help` |
+| `version-1.0.90.txt` | `copilot --version` |
+| `help-1.0.90.txt` | `copilot --help` |
 | `output-format-json-1.0.82.txt` | `copilot --no-color --log-level none --output-format json --disable-builtin-mcps --no-custom-instructions --deny-tool shell --deny-tool write --model gpt-5.6-luna -p 'Reply with exactly: NOX-JSON-OK'`, stdout |
 | `text-footer-1.0.82.txt` | the same run with `--output-format text` — **stderr**, verbatim |
 | `tools-1.0.82.txt` | the tool names Copilot offered the model, read off `model.model_call_success.data.requestCapture.tools` in a live `--output-format json` run |
