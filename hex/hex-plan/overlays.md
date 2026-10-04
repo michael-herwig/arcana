@@ -26,7 +26,7 @@ Controls the Design phase.
 | Value | Effect |
 |---|---|
 | `inline` | The orchestrator drafts the design inline in the plan artifact. No `architect` worker launched. Fine for two-way-door changes. |
-| `on` | Launch an `architect` worker to produce an ADR or system design. Its model class comes from [`models.md`](../hex-core/references/models.md) (row `architect` — **deep-reasoning** at every tier); a per-run bump or a per-cell override in `hex.md › Preferences` can adjust it, announced at the gate. Use for one-way-door decisions with real trade-offs. |
+| `on` | Launch an `architect` worker to produce an ADR or system design. Its model class comes from [`models.md`](../hex-core/references/models.md) (row `architect` — **deep** at every tier); a per-run bump or a per-cell override in `hex.md › Preferences` can adjust it, announced at the gate. Use for one-way-door decisions with real trade-offs. |
 
 Per-tier defaults:
 
@@ -51,7 +51,7 @@ Controls the Research phase worker count.
 Per-tier defaults: low → `skip`, medium → `skip`, high → `1`, xhigh → `3`
 (mandatory), max → `5` (mandatory, one axis `competitive-research`;
 `adr_0017` C-995).
-Researcher model class is `fast-balanced` at every tier
+Researcher model class is `standard` at every tier
 ([`models.md`](../hex-core/references/models.md)); literal model choices and
 per-role overrides live in `hex.md › Preferences`, never in a flag.
 

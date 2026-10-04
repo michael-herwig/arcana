@@ -2,8 +2,7 @@
 
 The **default** planning tier — medium-scope, one-way-door-medium work: a new
 command, a new index or storage layout, a change spanning 1–2 areas. This is
-the baseline any caller gets without an explicit tier. Preserve the
-contract-first TDD skeleton (Stub → Specify → Implement → Review).
+the baseline any caller gets without an explicit tier.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
 Shared vocabulary is linked, not restated: roles in
@@ -54,7 +53,7 @@ Findings longer than a paragraph **must** persist as a research artifact in
 the convention-resolved location for reuse.
 
 Override: `--research=3` launches all three axes in a single concurrent batch.
-The researcher's model class is `fast-balanced`
+The researcher's model class is `standard`
 ([`models.md`](../hex-core/references/models.md)).
 
 **Gate** — research findings persisted (or an explicit "no new signals"
@@ -80,7 +79,7 @@ and re-run** as `/hex-plan xhigh "…"` — no silent upgrade mid-pipeline.
 
 For **one-way-door medium** or cross-area work, launch an `architect`
 (`--architect=on`) to produce an ADR or system design; its model class is
-`deep-reasoning` ([`models.md`](../hex-core/references/models.md)). For two-way-door
+`deep` ([`models.md`](../hex-core/references/models.md)). For two-way-door
 scope, design inline in the plan.
 
 Design must include:
@@ -105,68 +104,56 @@ reading any code.
 
 ## Phase 5: Decompose (sequential)
 
-Break the design into right-sized tasks for contract-first TDD execution,
-**decomposed to maximize parallelism**
-([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
+Cut the design into **pipelines** and **steps** — the cutting rules are
+[`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)'s,
+the plan's shape [`SKILL.md`](SKILL.md#the-plan-artifact)'s; neither is
+restated here:
 
-- Each task maps to a Stub → Specify → Implement → Review cycle.
-- Cut along structural boundaries, never feature slices; every WP declares
-  its expected file set, and two tasks needing the same file become
-  sequential steps of one WP.
-- Waves are computed from the dependency graph (topological levels); the
-  critical path is identified and marked.
-- A WP the author knows is riskier than its file set shows gets a `risk`
-  hint in its `Review` cell (otherwise empty), and a WP below the overhead
-  floor **folds into its nearest sibling** as sequential steps
-  ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
-- The plan's Parallelization section carries the WP table (id, scope,
-  expected files, size, wave, depends-on, review, verify, status — status
-  initialized `pending`), the wave-grouped mermaid `graph TD`, a
-  "Shippable after wave: N — <what ships>" line, and the serialized
-  topological-order merge plan (waves derived)
-  ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
-  Fewer parallel WPs than file-disjointness allows → one-line
-  justification; an isolated sub-overhead WP carries one too.
+- Write the contract wave: the stubs and contract tests every pipeline
+  starts from.
+- Fill the Parallelization table, the steps of each pipeline, the
+  wave-grouped mermaid `graph TD`, the critical path and the "Shippable
+  after wave: N — <what ships>" line
+  ([`worktree.md`](../hex-core/references/worktree.md#pipeline-worktree-mechanics)).
+- Marks only where the author knows better than the defaults — rare.
 - **Federation:** when `hex.md › Pointers` carries `Federation:` bullets,
-  offer **per-repo WP decomposition** — a WP whose scope lies in a
-  satellite gets that satellite's key in the plan's `Repo` column — and add
-  the mandatory integration WP that depends on every satellite WP it joins
-  (C-311). Wave-cutting compares `(Repo, path)` pairs, not bare paths, when
-  applying the file-disjointness key (C-316). `/hex-plan` never runs the
-  C-303 pre-flight and never writes into a satellite — it only proposes the
-  column (C-314). Absent `Federation:` bullets, no offer, no column, plan
-  unchanged.
+  offer **per-repo pipelines** — a pipeline whose scope lies in a satellite
+  gets that satellite's key in the plan's `Repo` column — and add the
+  mandatory integration pipeline that depends on every satellite pipeline it
+  joins (C-311). Disjointness compares `(Repo, path)` pairs, not bare paths
+  (C-316). `/hex-plan` never runs the C-303 pre-flight and never writes into
+  a satellite — it only proposes the column (C-314). Absent `Federation:`
+  bullets, no offer, no column, plan unchanged.
 
-Print the **effective-tier histogram** at this gate, linking rather than restating
-its grammar
-([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
+**Gate** — the plan holds a contract wave and pipelines whose steps
+`/hex-execute` can run without further decomposition, and the
+Parallelization section shows the widest wave structure the contracts
+permit.
 
-**Gate** — the plan holds executable phases `/hex-execute` can run without
-further decomposition, and the Parallelization section shows the widest
-wave structure the file sets permit.
-
-## Phase 6: Review (parallel panel, bounded loop)
+## Phase 6: Review (one reviewer; panel for a one-way door)
 
 Run the [Review-Fix Loop](../hex-core/references/loop.md#the-review-fix-loop)
-on the draft plan — **plan-artifact scope: one panel round**; fix
-application, conditional re-validation, and escalation follow the
-canonical loop's artifact-scope rule, never restated here.
+on the draft plan — **plan-artifact scope: one round**; fix application,
+conditional re-validation, and escalation follow the canonical loop's
+artifact-scope rule, never restated here.
 
-**Round 1** — launch concurrently:
+**No ADR (two-way-door scope)** — launch **1** `reviewer` (focus `spec`,
+phase `post-stub`), `standard` class, alone.
+
+**One-way-door / ADR** — launch the panel concurrently:
 
 - `reviewer` (focus `spec`, phase `post-stub`) — are the contracts testable?
   Do they match the user-experience section? Mechanically verifies every
-  C-/S- ID maps to at least one WP Scope cell and at least one test step; an
-  uncovered ID is an actionable finding
+  C-/S- ID maps to at least one pipeline Scope cell and at least one test
+  step; an uncovered ID is an actionable finding
   ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
-  Also checks the Parallelization table for an unjustified sub-overhead WP.
 - `architect` — are the trade-offs honest, the alternatives considered, any
-  boundary violations introduced? *(required for one-way-door decisions)*
+  boundary violations introduced?
 - `researcher` — does the plan miss a trending pattern, a known pitfall, or a
   state-of-the-art approach?
 
-The panel flags an unjustified constitution violation as an actionable
-finding
+Either way the reviewer flags an unjustified constitution violation as an
+actionable finding
 ([constitution gate](../hex-core/references/protocol.md#constitution-gate)).
 
 **Cross-model plan review** (when `adversary=on` — auto-on for one-way-door

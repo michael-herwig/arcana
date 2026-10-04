@@ -99,7 +99,7 @@ the record header.
 
 ## Phase 4: Reason & Design (architect mandatory, ADR + system-design)
 
-Launch **1** `architect` worker; its model class is `deep-reasoning`
+Launch **1** `architect` worker; its model class is `deep`
 ([`models.md`](../hex-core/references/models.md)). A downward override is
 honored but never silent — the announce block flags it. Produce the ADR
 and, when scope warrants, the system-design doc.

@@ -2,7 +2,7 @@
 
 The full treatment for **one-way-door-high** work — a new module or package,
 a breaking API, a cross-area refactor, a protocol or storage-layout change.
-Preserve contract-first TDD, and add a mandatory architect, mandatory 3-axis
+Add a mandatory architect, mandatory 3-axis
 research, and the cross-model plan review as a default gate before handoff.
 
 `Read` this file from [`SKILL.md`](SKILL.md) after the config is announced.
@@ -78,7 +78,7 @@ plan header.
 
 ## Phase 4: Design (architect mandatory, ADR mandatory)
 
-Launch **1** `architect`; its model class is `deep-reasoning`
+Launch **1** `architect`; its model class is `deep`
 ([`models.md`](../hex-core/references/models.md)). A downward `--architect`
 override is honored but never silent — the announce block flags it ("high
 tier recommends a delegated architect — running inline per user flag").
@@ -103,41 +103,13 @@ testable.
 
 ## Phase 5: Decompose (sequential)
 
-Break the design into right-sized tasks, each mapping to a Stub → Specify →
-Implement → Review cycle so `/hex-execute` runs unchanged — **decomposed to
-maximize parallelism**
-([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
-cut along structural boundaries, declare every WP's expected file set and
-optional `Review` risk hint (`risk` on a WP the author knows is riskier
-than its file set shows; a sub-overhead WP folds into its nearest sibling), compute waves from the
-dependency graph, and mark the critical path. The
-Parallelization section carries the WP table (id, scope, expected files,
-size, wave, depends-on, review, verify, status — status initialized
-`pending`), the wave-grouped mermaid `graph TD`, a "Shippable after wave:
-N — <what ships>" line, and the serialized topological-order merge plan
-(waves derived)
-([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics));
-fewer parallel WPs than file-disjointness allows → one-line justification.
-At this tier the wave structure is itself a design output — a cross-area
-change that decomposes into one sequential chain usually means the
-boundaries were cut as feature slices; re-cut before shipping the plan.
+As [`tier-high.md` § Phase 5](tier-high.md#phase-5-decompose-sequential).
+At this tier the pipeline cut is itself a design output — a cross-area
+change that decomposes into one pipeline usually means the boundaries were
+cut as feature slices, or no contract was fixed up front; re-cut before
+shipping the plan.
 
-**Federation.** When `hex.md › Pointers` carries `Federation:` bullets,
-Decompose offers per-repo WP decomposition — a WP whose scope lies in a
-satellite gets that satellite's key in the `Repo` column — and adds the
-mandatory integration WP that depends on every satellite WP it joins
-(C-311); wave-cutting applies the file-disjointness key over `(Repo, path)`
-pairs, not bare paths (C-316). `/hex-plan` never runs the C-303 pre-flight
-and never writes into a satellite — it only proposes the column (C-314).
-Absent `Federation:` bullets, none of this fires and the plan is unchanged.
-
-Print the **effective-tier histogram** at this gate, linking rather than restating
-its grammar
-([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
-
-**Gate** — the plan holds executable phases `/hex-execute` can run without
-further decomposition, and the Parallelization section shows the widest
-wave structure the file sets permit.
+**Gate** — as `high`.
 
 ## Phase 6: Review (parallel panel + mandatory cross-model)
 
@@ -150,10 +122,9 @@ canonical loop's artifact-scope rule, never restated here.
 
 - `reviewer` (focus `spec`, phase `post-stub`) — are the contracts testable?
   Do they match the user-experience section? **Mandatory mechanical check**:
-  every C-/S- ID maps to at least one WP Scope cell and at least one test
+  every C-/S- ID maps to at least one pipeline Scope cell and at least one test
   step; an uncovered ID is an actionable finding, no exceptions at this tier
   ([traceability IDs](../hex-core/references/protocol.md#traceability-ids)).
-  Also checks the Parallelization table for an unjustified sub-overhead WP.
 - `architect` — are the trade-offs honest, the alternatives considered, any
   boundary violations introduced?
 - `researcher` — does the plan miss a trending pattern, a known pitfall, or a

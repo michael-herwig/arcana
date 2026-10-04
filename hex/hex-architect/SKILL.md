@@ -285,7 +285,7 @@ hex-architect
     researcher ×1                             (overlay research=1, axis: technology/tooling)
     architect                                 (tier baseline — design delegate)
     reviewer: spec, quality                   (tier baseline — adversarial design panel)
-  Models:    fast-balanced default; architect → deep-reasoning   (models.md)
+  Models:    standard default; architect → deep            (models.md)
   Adversary: off                              (tier baseline)
   Degraded:  no — subagent spawning available
 ```
@@ -305,7 +305,7 @@ Model names above are class placeholders — shipped files never hardcode
 literals; the running orchestrator resolves and prints each spawn's
 literal model per the
 [Models line contract](../hex-core/references/protocol.md#the-meta-plan-approval-gate). The `architect` row
-recommends `deep-reasoning` at every tier — a downward override is honored
+recommends `deep` at every tier — a downward override is honored
 but announced loudly. On a client that cannot spawn subagents, announce
 `Degraded: inline workers` and run each worker prompt inline and sequentially
 ([`protocol.md`](../hex-core/references/protocol.md#worker-coordination)).

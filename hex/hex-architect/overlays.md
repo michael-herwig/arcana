@@ -39,7 +39,7 @@ tier (single architect worker, ADR-only artifact, bounded review) stays at
 interactive picker; it is still echoed at the gate for confirmation, and its
 length must match the resolved count (extra names beyond the count are
 dropped with a note, fewer names fall back to classifier candidates for the
-remainder). Researcher model class is `fast-balanced` at every tier
+remainder). Researcher model class is `standard` at every tier
 ([`models.md`](../hex-core/references/models.md)); literal model choices
 live in `hex.md › Preferences`, never in a flag.
 

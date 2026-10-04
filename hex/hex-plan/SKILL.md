@@ -143,7 +143,7 @@ hex-plan
     researcher ×1                            (overlay research=1)
     architect                                (overlay architect=on)
     reviewer: spec                           (tier baseline)
-  Models:    fast-balanced default; architect → deep-reasoning   (models.md)
+  Models:    standard default; architect → deep                  (models.md)
   Adversary: codex-adversary, plan-artifact scope            (hex.md preference)
   Degraded:  no — subagent spawning available
 ```
@@ -223,9 +223,7 @@ project rules), cached in the Pointers section of
 `.agents/memory/hex.md`
 ([`memory.md`](../hex-core/references/memory.md#the-three-sections)). "Verify"
 anywhere below means **run the project's documented verification**
-([`verify.md`](../hex-core/references/verify.md#verification)) — the
-work-package table's `Verify` column is the exception: its cell grammar is
-the plan template's (C-905).
+([`verify.md`](../hex-core/references/verify.md#verification)).
 
 ## The plan artifact
 
@@ -249,21 +247,15 @@ execute and review skills read and mutate — no external state file:
 - State:   plan-approved      <!-- planning → plan-approved → executing → review → done -->
 - Tier:    high
 - Tier-grammar: 5
-- Effective-tier: derived
 - Updated: 2026-07-19
 - Next:    /hex-execute <this plan path>
 ```
 
 hex-plan initializes it at `plan-approved` on handoff, writes
-`- Effective-tier: derived` and `- Tier-grammar: 5` (the tier grammar the
-`Tier:` value was written in, [`protocol.md` § Tier grammar](../hex-core/references/protocol.md#tier-grammar), `adr_0017` C-997)
-into every new plan's Status block, and records
-the pointer in `hex.md › Memory`; `/hex-execute` advances `State` and `Next`
-as it runs. The field is written explicitly rather than left absent because
-every ecosystem this marker copies tells authors to set it by hand, so the
-absent case's meaning can never safely change later
-([`decompose.md`](../hex-core/references/decompose.md#the-effective-tier)
-holds the value's semantics).
+`- Tier-grammar: 5` (the tier grammar the `Tier:` value was written in,
+[`protocol.md` § Tier grammar](../hex-core/references/protocol.md#tier-grammar),
+`adr_0017` C-997) into every new plan's Status block, and records the pointer
+in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
 
 **Required content** (every tier — the tier files scale depth, not presence):
 
@@ -276,23 +268,28 @@ holds the value's semantics).
   ([`protocol.md`](../hex-core/references/protocol.md#traceability-ids)).
 - **User-experience scenarios** — action → expected outcome → error cases for
   each user-facing behavior.
-- **Executable phases** — a Stub → Specify → Implement → Review cycle per
-  task, runnable by `/hex-execute` without further decomposition.
-- **Parallelization** — decomposed to maximize parallel execution
-  ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)):
-  a work-package table (id, repo, scope, expected files, size, wave,
-  depends-on, review and verify — the optional `risk` review hint and
-  the `scoped | full` verify budget, one budget over the WP's merge gate and
-  the Review-Fix Loop's exit gate that immediately precedes it, and nothing
-  beyond those two — and status, initialized `pending`), its Scope column
-  citing the C-/S- IDs each WP covers,
-  a wave-grouped mermaid `graph TD` as its visual index
-  (the table stays canonical), the critical path, a "Shippable after wave:
-  N" line (tier medium and below exempt — single WP), the serialized topological-order
-  merge plan (waves derived), and — when fewer parallel WPs than
-  file-disjointness allows, or a sub-overhead WP stays isolated — a
-  one-line justification
-  ([`worktree.md`](../hex-core/references/worktree.md#worktree-work-package-mechanics)).
+- **Contract wave** — the stubs **plus contract tests** for every pipeline,
+  committed once before any pipeline starts. Contract-first TDD runs inside
+  each step (Stub → Specify → Implement), never as plan-level phases. A
+  one-pipeline plan has no contract wave.
+- **Pipelines** — the plan is a few **pipelines** cut along contracts, each an
+  ordered chain of **steps**; cutting rules and the table's columns are in
+  [`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition).
+  A Parallelization table with one row per pipeline (id, repo, scope citing
+  the C-/S- IDs it covers, expected files, wave, depends-on, marks, status —
+  initialized `pending`), the steps of each pipeline as an ordered list of
+  small briefs, a wave-grouped mermaid `graph TD` as its visual index (the
+  table stays canonical), the critical path, a "Shippable after wave: N"
+  line (tier medium and below exempt — one pipeline), and — when fewer
+  parallel pipelines than file-disjointness allows — a one-line
+  justification
+  ([`worktree.md`](../hex-core/references/worktree.md#pipeline-worktree-mechanics)).
+- **Marks** — rare, set only where the author knows better than the defaults;
+  `hard` on at most one pipeline in four, `review` on a pipeline that earns
+  its own review
+  ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition),
+  [`models.md`](../hex-core/references/models.md)). Everything else runs
+  `standard`.
 - **Open questions** — unresolved ambiguities as `[NEEDS CLARIFICATION: …]`
   markers, **hard cap 3**. More than three means the target is underspecified;
   raise it at the gate rather than guessing.
@@ -343,12 +340,9 @@ proceed question may follow it.
 - <research artifact path(s)>
 - <ADR path> (one-way-door only)
 
-### Executable phases (for /hex-execute)
-- Stub: components to create as the public surface
-- Specify: tests to write from the design record
-- Implement: stub bodies to fill
-- Review: perspectives to run
-- Parallelization: <N> WPs in <M> waves; critical path <WP a → WP b>
+### Pipelines (for /hex-execute)
+- Contract wave: stubs and contract tests to commit first (none for one pipeline)
+- Parallelization: <N> pipelines, <M> steps in <W> waves; critical path <pipeline a → pipeline b>; marks: <K> `hard`, <J> `review`
 
 ### Deferred findings (need human judgment)
 - Review panel: …

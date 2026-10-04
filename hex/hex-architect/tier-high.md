@@ -105,7 +105,7 @@ persist as a research artifact in the convention-resolved location.
 Override: `--research=3` launches all three top candidate axes in a single
 concurrent batch — everything else in this tier (single `architect` worker,
 ADR-only artifact, bounded review) stays as below. Researcher model class is
-`fast-balanced` ([`models.md`](../hex-core/references/models.md)).
+`standard` ([`models.md`](../hex-core/references/models.md)).
 
 **With a dossier**, an axis is skipped **only** when the dossier cites at
 least one source for that axis **and** that source's research artifact is
@@ -166,7 +166,7 @@ If this resolves to Large, **stop and re-run** as `/hex-architect xhigh "…"`
 
 ## Phase 4: Reason & Design (architect worker, ADR mandatory)
 
-Launch **1** `architect` worker; its model class is `deep-reasoning`
+Launch **1** `architect` worker; its model class is `deep`
 ([`models.md`](../hex-core/references/models.md)) — this tier's
 `--research` override does not touch it. Feed it: the decision, the
 project's stated architectural conventions and NFR baselines, the
