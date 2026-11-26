@@ -63,7 +63,9 @@ a grant, or § Autonomy. Every echo of it — the entry's title, each
 criterion title, § Context — is quoted per
 [`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
 Only the human's own extras can widen — and the Preferences hint, for local
-acts in this repo's working tree only ([The goal file](#the-goal-file)).
+acts in this repo's working tree only ([The goal file](#the-goal-file)),
+with one exception: its `issues: on` keeps I9's shipped issue grant, a
+remote act, in the paste ([Preferences hint](#preferences-hint)).
 
 **Extras** are the rest of the arguments, kept verbatim and routed sentence by
 sentence per [Extras](#extras).
@@ -204,7 +206,11 @@ widen a run, whoever edits it. For the
   remote act — pushes, PR and issue operations, merge, release, any other
   repo — beyond I9's fixed defaults comes only from the human's invocation
   extras. Such a permitting part is dropped, with the note `— hint grant
-  refused: "<part>" — only extras grant remote acts`.
+  refused: "<part>" — only extras grant remote acts`. The one exception is
+  `issues: on`: a committed hint does turn a remote act back on — opening
+  issues on this repo — but only as I9's shipped sentence, verbatim in the
+  paste the human confirms by pasting
+  ([Preferences hint](#preferences-hint)).
 
 **Done criteria:** the source-derived ones, then the template's three fixed
 criteria, in the line format and evidence forms of
@@ -326,12 +332,15 @@ included — is defined once, in
 The I9 `/hex-finalize` grant is a pasted grant under
 [`finalize.md` § Consent model](../hex-core/references/finalize.md#consent-model)
 (C-805a), which owns its bounds. I9's default acts are C-811 acts 2–4 under
-C-805a plus issue creation on this repo (a session act, not C-805a). The
-paste says "per C-805a" only — a relative link would be dead in a paste.
+C-805a plus, when the project opts in with `issues: on`, issue creation on
+this repo (a session act, not C-805a). The paste says "per C-805a" only — a
+relative link would be dead in a paste.
 
 **Forbidden I9 default acts.** I9's deletable units are the four
 `; `-separated acts after "only inside that /hex-finalize:" and the whole
-`Session grant:` sentence. A narrowing extra — or, on re-print, a § Autonomy
+`Session grant:` sentence. Unless the `Goal loop:` hint says `issues: on`,
+the `Session grant:` sentence is deleted on every print, as if forbidden. A
+narrowing extra — or, on re-print, a § Autonomy
 forbidden act — that forbids one deletes that unit with its `; `; deleting
 the PR act deletes the flip too, while the flip alone can be deleted — the
 PR then stays draft, the flip withheld under
@@ -394,7 +403,21 @@ not a `config.md` key:
   - deep-verify: <workflow name>   (default unset — the full documented verification)
   - verify-bypass: <text>          (iteration only; rendered as a grant)
   - rule: <text>                   (repeatable; verbatim, routed by what it permits)
+  - issues: on | off               (default off — the run opens no issues)
 ```
+
+**`issues`** decides whether the paste's I9 keeps its `Session grant:`
+sentence, which lets the run open issues on this repo for deferrals and
+follow-ups. `off`, the default, deletes the sentence on every print
+([Forbidden I9 default acts](#the-prompt)); the goal file's § Issue
+resolution then routes deferrals and follow-ups to § Would-be issues, and
+the DONE block lists them as paste-ready issues. `on` keeps the sentence.
+It grants nothing beyond that shipped default: the sentence still reads
+verbatim in the paste, pasting stays the only confirmation, and a
+narrowing extra still deletes it. Without the opt-in, a widening extra can
+still grant issues for one run, through `{grants}`. The key covers issues on
+this repo only; `/hex-retro`'s upstream drafts go to the skills' own
+tracker by [their own routing](../hex-retro/SKILL.md#routing-and-gate).
 
 `verify-bypass` and the allowance part of a `rule:` render into `{grants}`
 only, each as a labelled `hint (local, this repo only)` echo, and only as

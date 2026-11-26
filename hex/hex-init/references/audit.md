@@ -257,6 +257,10 @@ asked nothing, and hex never raises the question on its own.
   `Goal loop:` sub-item for adoption as `hex.md › Preferences` prose, with
   consent. It is prose, never a config key: `config.md`'s vocabulary gains
   nothing here.
+- **Issues are opt-in.** The hint's `issues:` sub-item is `off` unless
+  the project sets `issues: on`; propose it only when the user asks for
+  hex-loop runs to open issues on this repo
+  ([`hex-loop/SKILL.md`](../../hex-loop/SKILL.md#preferences-hint)).
 - **Optional** — no candidates and no hint means the shipped defaults
   apply and the item stays silent.
 

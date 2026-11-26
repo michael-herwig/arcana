@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **`/hex-loop` opens issues only when the project opts in.** The paste's I9 used to grant every run "open issues on this repo for deferrals and follow-ups". That `Session grant:` sentence is now printed only when the project's `Goal loop:` hint in `hex.md › Preferences` says `issues: on` ([`SKILL.md` § Preferences hint](hex-loop/SKILL.md#preferences-hint)); by default it is deleted, and the goal file's § Issue resolution routes deferrals and follow-ups to a new § Would-be issues section, which the DONE block lists as paste-ready issues (I11). A widening extra can still grant issues for one run. `/hex-retro`'s upstream drafts are not affected.
 - **`/hex-retro` names the tracker of every upstream draft.** A draft goes to the issue tracker of the project its artifact names as `repository`, filed with that forge's CLI ([`SKILL.md` § Routing and gate](hex-retro/SKILL.md#routing-and-gate)); before, the target was left implicit. The report's § Upstream drafts gains a `Tracker:` line per draft; an artifact without a `repository` gets `Tracker: unknown` and is filed nowhere.
 
 ### Fixed
