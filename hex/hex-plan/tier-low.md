@@ -17,7 +17,7 @@ Shared vocabulary is linked, not restated: roles in
 Read the target file the prompt names and the project rules for its area
 (project context, cached in `hex.md › Pointers`,
 [`memory.md`](../hex-core/references/memory.md#the-three-sections)). No
-explorer. GitHub: a PR's file list is the scope.
+explorer. Forge: a PR's file list is the scope.
 
 **Gate** — the one file is identified and the change fits the `low` row.
 

@@ -49,8 +49,11 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
     working tree is clean, fall back to the current branch's diff against the
     resolved baseline and say so in the announce block.
   - a **branch name** — diffed against the resolved baseline.
-  - `<N>` / `#<N>` / `PR <N>` / `pull/<N>` / a full GitHub PR URL — an
-    explicit pull request.
+  - a **PR reference** on GitHub or GitLab — `<N>`, `#<N>` (GitHub only),
+    `!<N>`, `PR <N>`, `MR <N>`, or a full PR/MR URL; the forms are in
+    [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
+    A reference that resolves to an issue is not a review target: say so
+    and stop.
   - a path to a **markdown plan, ADR, or spec artifact** — review the file
     directly, not a code diff. Diff metrics do not apply; see
     [`classify.md`](classify.md#plan-and-artifact-targets).
@@ -93,14 +96,11 @@ If the resolved `hex.md` carries a `Federation lead:` bullet, **halt** per
 
 ### 2. Resolve the target and baseline
 
-Detect the target (order above). For a GitHub reference, fetch title, body,
-labels, base ref, and file list in this order of preference:
-
-1. the client's **GitHub MCP tools** (PR read) when it exposes them;
-2. the **`gh` CLI** (`gh pr view --json baseRefName,title,body,labels,files`)
-   as fallback;
-3. neither available — treat the input as a branch name or free text and
-   continue.
+Detect the target (order above). For a PR reference, fetch title, body,
+labels, base ref, and file list by
+[`forge.md` § Fetch ladder](../hex-core/references/forge.md#fetch-ladder),
+GitHub and GitLab alike; when no rung fetches, treat the input as a branch
+name or free text and continue.
 
 Resolve the baseline: user `--base=<ref>` wins; else, where the traced plan
 carries a valid `Reviewed:` anchor and the invocation is a review round

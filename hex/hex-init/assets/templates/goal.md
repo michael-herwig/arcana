@@ -87,7 +87,7 @@ with an unclear cause — runs this protocol:
 
 1. Delegate the research to a sub-orchestrator.
 2. Record question → research → decision in this file or in the PR.
-3. Defer to a GitHub issue only in hard cases — the research ends with no
+3. Defer to an issue only in hard cases — the research ends with no
    decision, or the decision needs an act outside the grants; the issue
    link is the recorded decision.
 4. Every doubt not deferred ends in an action.

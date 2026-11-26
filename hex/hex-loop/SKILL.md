@@ -45,8 +45,9 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 
 - a **path** to a discussion, ADR, plan, spec, or goal file — repo-relative,
   absolute, or in a sibling repo; read as a read-only pointer, never edited;
-- `#N`, `PR N`, or `issue N`;
-- a GitHub PR or issue URL.
+- a PR or issue reference on GitHub or GitLab — `#N`, `!N`, `PR N`,
+  `issue N`, or a full URL
+  ([`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms)).
 
 **A path's kind** is read from its first `#` heading — `# Discussion:`,
 `# ADR:`, `# Plan:`, `# Spec:` (the hex-init templates), or `# Retro:` (a
@@ -67,10 +68,11 @@ acts in this repo's working tree only ([The goal file](#the-goal-file)).
 **Extras** are the rest of the arguments, kept verbatim and routed sentence by
 sentence per [Extras](#extras).
 
-A GitHub ref is fetched by
-[`/hex-plan` § 2's ladder](../hex-plan/SKILL.md#2-resolve-the-target). A ref
-no rung can fetch — a bare `#N` included — is [Errors](#errors) (r): fail
-closed, since none of the PR checks below could run.
+A PR or issue ref is fetched by
+[`forge.md` § Fetch ladder](../hex-core/references/forge.md#fetch-ladder),
+whose field names the PR checks below read. A ref no rung can fetch — a
+bare `#N` included — is [Errors](#errors) (r): fail closed, since none of
+the PR checks below could run.
 
 **A PR source** is fetched with its `state`. Whatever that state, it must be
 a same-repo PR of this checkout: its base repo is this checkout's repo and
@@ -426,7 +428,7 @@ nothing is written and no paste is printed.
 | (o) cannot count | `Error: cannot count the paste (<python3 unavailable \| temp write failed>)` | install python3 or free the client's temp dir, then `/hex-loop <goal file> <widening extras>` |
 | (p) goal template not installed | `Error: goal template missing` | `grim add ghcr.io/michael-herwig/arcana/hex-init:latest` |
 | (q) re-print value invalid | `Error: <path> § <name>: <unfilled placeholder \| malformed criterion line \| Refinement rounds not a positive integer>` | fix § <name> per the goal template, then re-run |
-| (r) GitHub ref not fetchable | `Error: <ref> could not be fetched` | pass a fetchable PR ref, or the plan/issue |
+| (r) PR or issue ref not fetchable | `Error: <ref> could not be fetched` | pass a fetchable PR ref, or the plan/issue |
 | (s) re-print of a committed goal file with a PR `Source:`, and that PR ref not passed as an extra | `Error: <path> Source: <ref> is committed — the PR binding is not trusted` | if `<ref>` is the PR you mean, pass it to the re-print; otherwise `/hex-loop <the PR you mean> …` to write a fresh goal file |
 | (t) path carries a `"` or a control character, or a goal-file stem leaves an empty slug | `Error: a source or goal-file path contains a " or a control character, or its stem leaves no slug` | rename the file or the goals home to a plain path, then re-run |
 

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **GitLab merge requests and issues as targets and sources.** `/hex-plan`, `/hex-review` and `/hex-loop` read a GitLab merge request or issue as they read a GitHub pull request or issue: `!<N>`, `MR <N>`, `#<N>` (an issue on GitLab), and `/-/merge_requests/<N>`, `/-/issues/<N>` or `/-/work_items/<N>` URLs, fetched through the client's GitLab MCP tools or `glab`. The forge comes from the URL's shape or from which CLI is signed in to the `origin` host. [`forge.md`](hex-core/references/forge.md) is the one definition site for the forms, the fetch ladder for both CLIs and the field names; `/hex-plan`, `/hex-review`, `/hex-loop` and `/hex-architect` link to it instead of each carrying a GitHub-only ladder. A reference into another project is read by naming that project, and GitHub's open review threads come from GraphQL on the PR's own host. `/hex-review` stops on a reference that resolves to an issue. `/hex-loop`'s goal template defers to "an issue" rather than "a GitHub issue".
+
 ### Changed
 
 - **`/hex-retro` names the tracker of every upstream draft.** A draft goes to the issue tracker of the project its artifact names as `repository`, filed with that forge's CLI ([`SKILL.md` § Routing and gate](hex-retro/SKILL.md#routing-and-gate)); before, the target was left implicit. The report's § Upstream drafts gains a `Tracker:` line per draft; an artifact without a `repository` gets `Tracker: unknown` and is filed nowhere.

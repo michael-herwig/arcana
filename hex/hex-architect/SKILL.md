@@ -38,7 +38,7 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
   ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **decision** — free text: a question to decide, a component or feature
   that needs a design, or a one-way-door choice to evaluate. Unlike
-  `/hex-plan`, hex-architect does not resolve GitHub issues or PRs itself —
+  `/hex-plan`, hex-architect does not resolve issues or PRs itself —
   paste the relevant conversation into the prompt when the decision
   originates there. A path naming a drained discussion artifact instead
   engages the fast path — see
@@ -373,7 +373,8 @@ When the client exposes them, prefer:
 - **Library/API-docs tool** (e.g. a Context7-style MCP) when a decision
   hinges on a dependency's current shape — training-data knowledge of a
   library's API decays; fall back to fetching its official docs site.
-- **Issue/PR lookup tool** (a GitHub MCP or the `gh` CLI) when the decision
+- **Issue/PR lookup tool** (the forge's MCP or CLI,
+  [`forge.md`](../hex-core/references/forge.md#fetch-ladder)) when the decision
   references an issue or PR the user names — fall back to asking the user to
   paste the relevant text.
 
