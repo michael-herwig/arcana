@@ -102,7 +102,9 @@ and writes nothing:
 2. **not the primary checkout** — an agent worktree is refused, detected from
    the repository's own worktree state; finalizing from a worktree would
    rewrite a branch this session did not open;
-3. **working tree not clean**, in two variants:
+3. **working tree not clean** — an untracked retro inbox never counts
+   ([§ Pre-flight halts](../hex-core/references/finalize.md#pre-flight-halts)) —
+   in two variants:
    - the **recompose-aware** variant **takes precedence**, on the simplest
      predicate — an **armed** backup ref plus *any* unclean tree. The armed
      name exists only while a run is in flight, so armed-and-dirty means one

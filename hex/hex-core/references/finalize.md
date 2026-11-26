@@ -687,7 +687,13 @@ Error: this is an agent worktree (`<worktree-path>`), not the primary
 Fix:   cd <primary-checkout> && git switch <branch>   # then re-run
 ```
 
-**(3) Working tree not clean.** The halt has **two variants, and the
+**(3) Working tree not clean.** An untracked retro inbox
+(`<retro home>/inbox/`, the `hex.md › Pointers` `Retro:` home, else
+`.agents/retro/inbox/`) never makes the tree unclean: its entries are local
+by design ([`memory.md` § Version control](memory.md#version-control)), and
+an inbox created before its `.gitignore` existed would otherwise halt every
+finalize. The ledger and reports are versioned and still count. The halt
+has **two variants, and the
 recompose-aware one takes precedence** on the simplest possible predicate:
 **an armed backup ref plus *any* unclean tree**, whatever the dirty set looks
 like. The armed name exists only while a run is in flight (every terminal
