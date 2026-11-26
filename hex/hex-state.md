@@ -17,7 +17,8 @@ No discussions home on disk means nothing to check — that negative holds until
 An armed `backup/<branch>-pre-finalize` ref for the checked-out branch means a `/hex-finalize` is in flight or was interrupted → do not commit onto, rewrite, or merge that branch.
 Re-read the `finalize.md` contract and re-enter `/hex-finalize`, or release it by renaming the ref inert (that file gives the one command). Absence of the armed ref means nothing to check.
 
-Real friction with a skill, rule or project config (a retry, a corrected assumption, a workaround, a step far over its expected time, a misleading instruction) → write one retro entry; never edit skills or rules for it — `/hex-retro` proposes.
+In a hex project — one where `.agents/memory/hex.md` is found searching upward — real friction with a skill, rule or project config (a retry, a corrected assumption, a workaround, a step far over its expected time, a misleading instruction) → write one retro entry; never edit skills or rules for it — `/hex-retro` proposes.
+Outside a hex project this paragraph does not apply: write no entry and don't mention skipping one, and change a skill or rule when the user asks for it.
 Entry: JSON `{"v":1,"ts":<UTC ISO-8601>,"kind":"slow|inconvenient|pitfall|defect","scope":"harness|project","artifact":<skill or rule name, or "project">,"what":…,"tell":<observable symptom>}` — `scope` is `harness` if a different codebase with the same skills would hit it too, else `project`; optional `proposed_change`, `severity` (low|medium|high), `evidence`; no secrets or raw output.
 Inbox: `inbox/` under the `hex.md › Pointers` `Retro:` home, else `.agents/retro/inbox/`, in the main checkout (first `git worktree list` entry) — a plain in-repo dir, never via a symlink; write `.<name>.tmp` there, then rename it to `<YYYYMMDDTHHMMSSZ>-<8 random hex>.json` — no lock, never touch another entry.
 
