@@ -303,9 +303,10 @@ path.
   index points at plans, the fold's write lands with
   `git add <spec-path> <plan-path>`, `/hex-loop` commits its goal file
   first, and an in-flight discussion is shared once committed.
-- **Uncommitted is not ignored.** `/hex-plan`, `/hex-review` and
-  `/hex-retro` never commit, so what they write stays uncommitted until
-  the change that lands the work commits it. To keep an artifact out of a
+- **Uncommitted is not ignored.** `/hex-review` and `/hex-retro` never
+  commit, and `/hex-plan` commits its plan only for a `/hex-loop` brief,
+  so what they write stays uncommitted until the change that lands the
+  work commits it. To keep an artifact out of a
   change, leave it uncommitted or commit it on its own — never add an
   ignore line for it.
 - **`/hex-init` audits both directions:**
