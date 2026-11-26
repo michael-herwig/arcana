@@ -163,6 +163,10 @@ propose adopting what exists via pointer before proposing anything new:
   [`references/audit.md`](references/audit.md#hub--generated-file-list-documented).
 - Is the release gate's no-cache switch documented? See
   [`references/audit.md`](references/audit.md#release-gate-no-cache-switch-documented).
+- Is the gate level documented — a **conditional** item, asked only when the
+  full suite cannot run locally: `targeted` runs the selective command
+  locally and takes the CI run as the full suite's proof. See
+  [`references/audit.md`](references/audit.md#gate-level-documented-conditional).
 - Are agent worktrees (`.agents/worktrees/` by default) excluded from
   IDE file watchers and search indexers, not just from version control?
   See
@@ -281,7 +285,7 @@ discussions row above.
 
 **Run-cost items.** What the single-build, hub-file and fresh-gate items
 find is proposed for adoption via pointer; their rows (`Build jobs:`,
-`Hub files:`, `Fresh gate:`) and the best-practice blocks are in
+`Hub files:`, `Fresh gate:`, `Gate level:`) and the best-practice blocks are in
 [`references/audit.md`](references/audit.md#best-practice-blocks). A lock
 to remove or a carve-out line to add is project text: propose the exact
 edit as a diff, write it only with consent, never rewrite a project lesson
@@ -409,8 +413,8 @@ the other two sections:
   product-knowledge homes provisioned in Step 2, the discussions home when
   one was resolved, the goals home when one was resolved, key
   architectural rules, any worktree-location deviation, the constitution
-  location (optional), and the run-cost rows `Build jobs:`, `Hub files:`
-  and `Fresh gate:` when found.
+  location (optional), and the run-cost rows `Build jobs:`, `Hub files:`,
+  `Fresh gate:` and `Gate level:` when found.
   Pointers only, never copies — the product-knowledge pointer is how
   researchers and reviewers reach the product facts that live in project
   context.

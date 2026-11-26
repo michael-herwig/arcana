@@ -117,6 +117,24 @@ vague impression that "it's probably in there somewhere."
   `--no-cache`, an env var — recorded as a `Fresh gate:` row; or an explicit
   "no cache in this project".
 
+### Gate level documented? (conditional)
+
+Asked only when project context, CI config or the run history shows that
+the full suite cannot run locally — CI-only toolchains, a documented suite
+too long for a gate, failures by design outside CI.
+
+- **Look for:** whether the project runs the gates `targeted` — the
+  selective command locally, the full suite proven by CI
+  ([`verify.md` § Gate level](../../hex-core/references/verify.md#gate-level)).
+- **Where:** project context, and `hex.md › Pointers` for a `Gate level:`
+  row.
+- **Documented looks like:** `full` (the default, silent), or `targeted`
+  with both a documented selective command
+  ([above](#selective-test-command-documented)) and the CI workflow or job
+  that runs the full suite on the pushed head. Proposed in project context
+  plus the `Gate level:` row, with consent; never inferred from one slow
+  run.
+
 ### Commit and landing requirements documented?
 
 - **Look for:** whether the project requires DCO sign-off, signed commits,
@@ -560,12 +578,13 @@ A `hex.md › Pointers` row records where it is documented, in this grammar:
 
 ### Run-cost rows
 
-Three more `hex.md › Pointers` rows, proposed from the run-cost items above
+Four more `hex.md › Pointers` rows, proposed from the run-cost items above
 and written only with consent:
 
 ``- Build jobs: `<n>` — one build's parallel jobs; live pipelines × jobs per pipeline stay within it.``
 ``- Hub files: `<location>` — lockfiles, baselines, goldens, with regeneration commands; pipelines never commit them.``
 ``- Fresh gate: `<command or switch>` — the no-cache full verification the release gate runs.``
+``- Gate level: `targeted` — full suite: `<CI workflow or job>` on the pushed head; locally the selective command.`` (only when not `full`)
 
 When a verify-before-commit line has no carve-out, the proposed sentence
 for project context is:
