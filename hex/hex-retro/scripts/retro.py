@@ -38,7 +38,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import tomllib
+
+# Preflight (a), before the 3.11-only import below can crash with a traceback.
+if sys.version_info < (3, 11):
+    sys.stderr.write("Error: python3 3.11+ not found — /hex-retro folds the ledger with it\n")
+    sys.exit(3)  # EXIT_ENV, defined below
+
+import tomllib  # noqa: E402 — guarded by the preflight above
 from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath

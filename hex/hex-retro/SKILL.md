@@ -343,7 +343,7 @@ the inbox is untouched.
 
 | Case | `Error:` | `Fix:` |
 |---|---|---|
-| (a) no `python3` ≥ 3.11 | `Error: python3 3.11+ not found — /hex-retro folds the ledger with it` | install python3 (3.11+), then re-run /hex-retro |
+| (a) no `python3` ≥ 3.11 (`retro.py` exits 3 with this line before any import can crash) | `Error: python3 3.11+ not found — /hex-retro folds the ledger with it` | run `retro.py` with a 3.11+ interpreter — a project venv, or `uv run --no-project --python ">=3.11" python <retro.py> …` — or install python3 3.11+, then re-run /hex-retro |
 | (b) not a git work tree | `Error: not inside a git work tree` | run /hex-retro from the project checkout |
 | (c) home unsafe | `Error: retro home <path> is a symlink, outside the repo, or in a client configuration directory` | point the Pointers `Retro:` row at a plain in-repo directory such as `.agents/retro/` (/hex-init) |
 | (d) `--loop` target not a goal file | `Error: <path> is not a goal file` | /hex-retro --loop <goal file written by /hex-loop> |
