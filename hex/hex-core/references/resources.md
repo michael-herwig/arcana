@@ -54,6 +54,16 @@ directories, daemons it started, containers it started. Rules:
    prune -f --volumes` — it destroys unrelated work on the machine.
 3. **Daemons stop with the worktree** (`./gradlew --stop`), so no daemon
    outlives the tree it serves.
+4. **No `rm -rf`, no `--force`.** Clients' permission layers deny
+   `rm -rf`, above all inside a compound command, for workers and
+   orchestrators alike. Remove a worktree with `git worktree remove <path>`
+   (then `git worktree prune`): it deletes the tree's ignored build outputs
+   along with it, and it refuses a tree that holds modified or untracked
+   files — report those paths and leave the worktree (rule 1). Never
+   `--force`, which deletes uncommitted work. Put other transient files
+   under the run's scratch root, so nothing outside a worktree needs
+   deleting; whatever still lies outside is reported, never deleted by the
+   run.
 
 ## Per-ecosystem knob sheet
 
