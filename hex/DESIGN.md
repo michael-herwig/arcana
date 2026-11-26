@@ -2615,6 +2615,10 @@ raises it a few counted times per run. Design: `adr_0020` § Decision Outcome.
 run: **<= 3**. Workers wait: **never**. Escalation: **orchestrator only, on
 repeated failure**. Changing one takes an ADR backed by a measured run.
 
+**Amendment pointer (2026-11-26):** round 26 keeps all four numbers but
+narrows what two of them count — see
+[§ Contract-fix round](#contract-fix-round-2026-11-26-round-26).
+
 **Removed.** Per-WP effective tier and risk flags, `L0`-`L2` join reviews,
 per-merge and checkpoint verify gates, the heavy semaphore, Verify-Architecture
 per WP, the red-at-stub check, the decomposing coordinator, worker heartbeat
@@ -2631,3 +2635,58 @@ the exit gates standing in.
 **Considered and not deviated:** thin `SKILL.md` dispatchers; single-source
 contracts (one definition per rule, linked); capability classes, never literal
 model names in shipped files.
+
+## Contract-fix round (2026-11-26, round 26)
+
+This round amends four decisions above, from issues
+[#16](https://github.com/michael-herwig/arcana/issues/16) and
+[#17](https://github.com/michael-herwig/arcana/issues/17) and from running
+hex on GitLab-hosted repositories. Two of them change what round 25's
+constitution numbers count. Round 25 says that takes an ADR backed by a
+measured run; none exists yet, so this round records the proposal and
+leaves the ADRs to the maintainer. Each change rests on the issue or
+review it names.
+
+**Amendments to earlier rounds.**
+
+1. **Review calls per run (round 25, constitution: <= 3).** Fix-round
+   re-checks and the exit call are separate `/hex-review` calls that
+   `/hex-execute` starts. The three counts branch-scope review calls only —
+   round 1 and the mid-run calls; a re-check counts toward the 2-round fix
+   cap, and so does an exit call that does not approve. Ground: #17 —
+   the execute → finalize path never marked a plan done, because fix-round
+   re-checks recorded no verdict. Of `/hex-execute`'s calls only the exit
+   call, made once the integration gate is green, writes the terminal
+   review state, so `/hex-execute` never ends a red gate at `done`. A call
+   with neither flag — a human's, or `/hex-loop`'s closing review — still
+   writes it on Approve, and `/hex-execute`'s handoff flags a plan done
+   while its gate ended red (`hex-core/references/loop.md` § The loop).
+2. **Full gates per run (round 25, constitution: 2).** Still two, fixed by
+   count, but a project may run both at gate level `targeted`: the
+   selective command locally over the whole branch, the full suite proven
+   by a named CI job on the pushed head, which `/hex-finalize` reads and
+   never dispatches, and for which it holds the draft → ready flip. Ground:
+   #16 P-1 — a CI-only suite run locally (about 1,500 tests,
+   30 minutes, some 360 failures by design). `full` stays the default
+   (`hex-core/references/verify.md` § Gate level).
+3. **"A `Goal loop:` hint grants only local acts" (round 23).** I9's
+   issue grant is no longer a shipped default: it is printed only when the
+   hint says `issues: on`, the one hint value that turns a remote act on,
+   and only as I9's verbatim sentence in the paste. By default deferrals
+   and follow-ups become would-be issues in the goal file. Ground:
+   unattended runs filed issues nobody asked for
+   (`hex-loop/SKILL.md` § Preferences hint).
+4. **"`hex never commits` outside execution" (rounds 10–23).** `/hex-plan`
+   commits its plan artifact, and nothing else, when a `/hex-loop`
+   sub-orchestrator brief asks for it; it still never pushes. Ground:
+   #16 P-6.
+
+**Additions with no earlier decision to depart from.** Forge-neutral reads
+of PR and issue references (`hex-core/references/forge.md`); one table of
+which hex paths git tracks (`hex-core/references/memory.md` § Version
+control) and the audit probe for it; `/hex-retro` drafts addressed to the
+artifact's own tracker; the `hex-state` retro clause scoped to hex
+projects; builder deferral instead of copying; cleanup without `rm -rf` or
+`--force`; by-name staging and the foreign-file merge check;
+`retro.py`'s version guard; the plain `Next:` line of the discuss → loop
+drain. `CHANGELOG.md` § Unreleased lists each with its ground.

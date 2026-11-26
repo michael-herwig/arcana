@@ -40,7 +40,8 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 ## The run
 
 Counts are fixed ([`DESIGN.md`](../DESIGN.md)): **two** full gates (integration,
-release), **≤ 3** review calls beside the fix re-checks and the exit call,
+release), **≤ 3** review calls beside the fix re-checks and the exit call
+([`DESIGN.md` § round 26](../DESIGN.md#contract-fix-round-2026-11-26-round-26)),
 workers **never** wait, escalation by the orchestrator only.
 
 ### 1. Resolve memory and target
