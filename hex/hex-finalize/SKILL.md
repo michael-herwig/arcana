@@ -425,7 +425,11 @@ check, local-only and success alike. It carries:
   emits no hex command**.
 
 Its quality-status mirror is one line appended to the plan's existing terminal
-Status block — the writer role the shipped plan template already names.
+Status block — the writer role the shipped plan template already names. A
+plan that is not at its terminal review state gets no append, and the
+handoff says so in a line of its own —
+`Plan: <path> is at State: <state>, not done — no quality status appended`
+— instead of skipping the append without a word.
 [`archive.md`](../hex-core/references/archive.md) § Plan archive owns what that
 append is and is not.
 

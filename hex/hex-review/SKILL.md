@@ -68,6 +68,13 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
     off.
   - `--dry-run` — make the meta-plan gate block for explicit approval and
     stop there (preview only, no workers launched).
+  - `--round` — loop mode, from `/hex-execute`: round 1 or a fix
+    re-check. It records its verdict but never writes the terminal review
+    state, because the integration gate may still be red.
+  - `--exit` — loop mode, from `/hex-execute`: the run's exit call, made
+    once the integration gate is green; its Approve writes the terminal
+    review state
+    ([`loop.md` § The loop](../hex-core/references/loop.md#the-loop)).
 
 ## Dispatch
 
@@ -112,7 +119,11 @@ baseline doesn't resolve (`git rev-parse --verify <base>` fails) — print
 remediation and stop. An empty baseline-to-HEAD diff reports
 "nothing to review" and exits clean where no converged pass is outstanding;
 an empty `anchor..HEAD` delta proceeds to that pass instead
-([`loop.md`](../hex-core/references/loop.md#delta-round-scope)).
+([`loop.md`](../hex-core/references/loop.md#delta-round-scope)). An
+`--exit` call with an empty delta runs no diff panel but always runs the
+convergence check (Stage 1's `reviewer`, focus `spec`, against the plan);
+it approves when the call names no open actionable finding and the check
+reports Converged, whatever `State` reads.
 A markdown-artifact target skips baseline resolution entirely.
 
 **Federation refusal (C-323).** A run is federated only if its own resolved
@@ -317,9 +328,15 @@ terminal review state — `done`, or `landing` for a plan carrying a `Repo`
 column — where the run ended with a non-empty stranded set
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 This skill runs when invoked, by the user or in loop mode, and remains the
-sole writer of the terminal review state.
+sole writer of the terminal review state. **A `--round` call never writes
+it**: its Approve sets `State: review` and leaves `Next` alone, because the
+integration gate may still be red. An `--exit` call, and a call with
+neither flag — a human's, or `/hex-loop`'s closing review — write it on
+Approve.
 Writing the `Reviewed:` anchor is a Status-block write, the class of write
-`hex-review` already performs — a branch-scope pass only
+`hex-review` already performs — a branch-scope pass only, plus the loop's
+exit call: an `--exit` call that approves writes `Reviewed: <head>` with
+the terminal review state
 ([`loop.md`](../hex-core/references/loop.md#the-last-reviewed-anchor)).
 
 **Federated diff scope (C-309).** When the target traces to a plan carrying a
