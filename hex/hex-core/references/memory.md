@@ -266,9 +266,52 @@ preferences, not copies. Team-shared — commit it.
 - **Keep it small — pointers, not prose dumps.** If a section wants to
   grow, move the content into a file under `.agents/` (or a
   project doc home) and point at it.
-- **Team-shared: it belongs in version control.** Never gitignore
-  `.agents/` wholesale — that would drop shared memory. Gitignore
-  `.agents/worktrees/` specifically (transient checkouts).
+- **Team-shared: it belongs in version control**, like every hex
+  artifact. [§ Version control](#version-control) lists what git tracks
+  and the two paths it ignores.
+
+## Version control
+
+The single definition site for which hex paths git tracks. Every path
+hex writes is in this table; a home that project context or Pointers
+moves keeps its row, so the Git column follows the home, not the default
+path.
+
+| Path (default) | Holds | Git |
+|---|---|---|
+| `.agents/memory/hex.md` | this file: Pointers, Preferences, Memory, the artifact index | versioned |
+| plans home (`.agents/plans/`) | plans with their Status blocks — the archive, in place ([`archive.md`](archive.md#plan-archive)) | versioned |
+| spec, ADR and research homes (`.agents/specs/`, `.agents/adrs/`, `.agents/research/`) | specs (the fold target), decisions, research artifacts | versioned |
+| discussions home (`.agents/discussions/`) | `/hex-discuss` artifacts | versioned |
+| goals home (`.agents/goals/`) | `/hex-loop` goal files | versioned |
+| retro ledger and reports (`.agents/retro/ledger/`, `.agents/retro/reports/`) | consolidated findings and retro reports | versioned |
+| project configuration `/hex-init` provisions: `.agents/product.md`, the seeded templates, `.agents/workers/`, `.agents/workflows/` | product context, templates, personas, workflow forks | versioned |
+| worktree path (`.agents/worktrees/`) | `/hex-execute`'s transient pipeline checkouts | **ignored** |
+| retro inbox (`.agents/retro/inbox/`) | raw friction entries, its `consumed/` and `rejected/`, `.mine-state.json` | **ignored** |
+| per-run scratch root (Pointers `Scratch:`) | a run's transient files | outside the repo |
+
+- **Exactly the two ignored rows are hex's to ignore.** The project's
+  ignore file names the worktree path and the retro inbox (the block
+  `/hex-init` proposes:
+  [`audit.md` § hex ignore block](../../hex-init/references/audit.md#hex-ignore-block)).
+  `retro.py` also writes `<inbox>/.gitignore` with `*`, so the inbox stays
+  ignored before that line exists; a tracked inbox entry is skipped as
+  planted.
+- **Never ignore a versioned row** — not `.agents/` wholesale, not one
+  home such as `.agents/plans/`, not a pattern that matches its files.
+  Later runs and teammates read them from version control: the artifact
+  index points at plans, the fold's write lands with
+  `git add <spec-path> <plan-path>`, `/hex-loop` commits its goal file
+  first, and an in-flight discussion is shared once committed.
+- **Uncommitted is not ignored.** `/hex-plan`, `/hex-review` and
+  `/hex-retro` never commit, so what they write stays uncommitted until
+  the change that lands the work commits it. To keep an artifact out of a
+  change, leave it uncommitted or commit it on its own — never add an
+  ignore line for it.
+- **`/hex-init` audits both directions:**
+  [worktree path](../../hex-init/references/audit.md#worktree-path-gitignored)
+  and [retro inbox](../../hex-init/references/audit.md#retro-home-gitignored-conditional)
+  ignored, and [no versioned home ignored](../../hex-init/references/audit.md#versioned-hex-homes-not-ignored).
 
 ## Destination of knowledge
 

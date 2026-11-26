@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
 
 - **`/hex-retro` names the tracker of every upstream draft.** A draft goes to the issue tracker of the project its artifact names as `repository`, filed with that forge's CLI ([`SKILL.md` § Routing and gate](hex-retro/SKILL.md#routing-and-gate)); before, the target was left implicit. The report's § Upstream drafts gains a `Tracker:` line per draft; an artifact without a `repository` gets `Tracker: unknown` and is filed nowhere.
 
+### Fixed
+
+- **`/hex-init` flags ignore rules that hide versioned hex artifacts.** The audit caught only `.agents/` or the whole retro home being ignored, so a narrower line such as `.agents/plans/` or `.agents/goals/` passed; such lines get added when an uncommitted plan or goal file looks like noise in a change. The new audit item [Versioned hex homes not ignored?](hex-init/references/audit.md#versioned-hex-homes-not-ignored) probes every versioned path with `git check-ignore -q` (`-v` only names the source of a hit, since it also exits 0 on an un-ignore line) and offers to remove the matching ignore line. [`memory.md` § Version control](hex-core/references/memory.md#version-control) is one table of every path hex writes and whether git tracks it: exactly the worktree path and the retro inbox are ignored, everything else is versioned, and an artifact a skill leaves uncommitted is never ignored to keep it out of a change. The ignore block `/hex-init` proposes names both local paths and carries that policy as a comment.
+
 ## [0.5.1] - 2026-10-04
 
 ### Changed

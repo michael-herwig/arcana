@@ -131,11 +131,14 @@ propose adopting what exists via pointer before proposing anything new:
   context, cached in `hex.md › Pointers`) — or none used? Optional;
   absent is fine.
 - Is the worktree path (default `.agents/worktrees/`) gitignored — and
-  does this project use a different one? **And the converse: is that rule
-  narrow enough to leave `hex.md` committable?** A bare `.agents/` line
-  drops the team-shared memory file from version control and is a defect,
-  not a safer-because-broader choice. See
+  does this project use a different one? See
   [`references/audit.md`](references/audit.md#worktree-path-gitignored).
+- **The converse: is every versioned hex home still committable?** An
+  ignore rule that matches `hex.md`'s directory or an artifact home —
+  `.agents/` wholesale, or one home such as `.agents/plans/` — is a
+  defect, not a safer-because-broader choice; git decides, one probe per
+  home. See
+  [`references/audit.md`](references/audit.md#versioned-hex-homes-not-ignored).
 - Is a cross-model adversary skill installed but not pinned — a skill
   carrying the `hex-adversary-scopes` marker with no matching `adversary:`
   line in `hex.md › Preferences`? And the reverse: does an existing
