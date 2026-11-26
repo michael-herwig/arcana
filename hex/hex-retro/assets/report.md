@@ -32,7 +32,7 @@ Inputs: <n> entries (<n> self, <n> trajectory, <n> seed), <n> skipped, <n> ignor
 
 ## Upstream drafts
 
-<per upstream-draft proposal: an issue draft — title, its P-<n> fields, the quoted evidence — or none>
+<per upstream-draft proposal: an issue draft — `Tracker:` (the project its artifact names as `repository`, or `unknown`), title, its P-<n> fields, the quoted evidence — or none>
 
 ## Deferred
 

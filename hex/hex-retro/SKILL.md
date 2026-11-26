@@ -231,6 +231,17 @@ that source path, never an installed copy under a client directory;
 anything else is **upstream** (`<name>@<pinned>`). Without grim, upstream
 unless the artifact's source directory is found in the repo.
 
+**Upstream tracker.** An upstream draft is addressed to the project its
+artifact names as `repository` — a skill's `metadata.repository`, a
+rule's frontmatter, a bundle's TOML — and to that project's issue
+tracker, filed with that forge's CLI (`gh issue create -R <owner/repo>`,
+`glab issue create -R <group/…/project>`). A fork that republishes hex
+under its own `repository` thereby gets the drafts in its own tracker.
+Whether a draft may keep the consuming repository's internal names
+depends on who can read that tracker: on a public one, leave them out.
+An artifact without a `repository` gets its draft in
+the report with `Tracker: unknown`, filed nowhere.
+
 **Size.** small = ≤ 10 changed lines in one file; else large.
 
 **Cap.** At most `proposal-cap` proposals are applied, asked or routed
@@ -244,7 +255,7 @@ fields, routed `deferred`. § Prunes considered is always present.
 | local, any target outside the allow-list | one structured question (below) | `candidate` + Deferred, whatever its size |
 | local, allow-listed, small | one structured question | `applied`, unasked |
 | local, allow-listed, large | one structured question | `in-loop` when inside the goal's Definition of done scope **and** big; else `deferred` |
-| upstream | `upstream-draft` in the report | `upstream-draft`, filed only under the loop's grants |
+| upstream | `upstream-draft` in the report | `upstream-draft`, filed on its [upstream tracker](#routing-and-gate) only under the loop's grants |
 
 **Interactive gate:** one structured question listing the local proposals,
 each with its `Target:` and `Size:` — all, none, or pick. Chosen ones are

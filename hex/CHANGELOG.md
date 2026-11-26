@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **`/hex-retro` names the tracker of every upstream draft.** A draft goes to the issue tracker of the project its artifact names as `repository`, filed with that forge's CLI ([`SKILL.md` § Routing and gate](hex-retro/SKILL.md#routing-and-gate)); before, the target was left implicit. The report's § Upstream drafts gains a `Tracker:` line per draft; an artifact without a `repository` gets `Tracker: unknown` and is filed nowhere.
+
 ## [0.5.1] - 2026-10-04
 
 ### Changed
