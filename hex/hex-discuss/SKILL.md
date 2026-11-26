@@ -288,7 +288,14 @@ Five drain targets, adding zero new write paths. After the yes:
   **never writes a spec and never invokes a fold**, so
   [`archive.md`](../hex-core/references/archive.md#safety-envelope)'s envelope
   stays the only fold path.
-- **→ loop** — `Next: /hex-loop <artifact path>`. The drain sets
+- **→ loop** — `Next: /hex-loop <artifact path>`, **alone**: no extras, no
+  grants, no placeholder on the line. A pre-filled extras string pastes as
+  plain text and does not invoke the skill, and every grant must be the
+  human's own words — so the handoff says, in a separate sentence, that
+  grants are appended as extras when the human runs it. The restate names
+  the run's branch as `hex/<slug>`, the goal file's slug as `/hex-loop`
+  derives it ([`/hex-loop` § The prompt](../hex-loop/SKILL.md#the-prompt)),
+  never the checked-out branch. The drain sets
   `State: handed-off → loop` and writes `Ratified: <date> → loop`. The
   artifact is **always kept** — it is `/hex-loop`'s source, so this target
   **never drains inline**: a discussion that would otherwise drain inline
