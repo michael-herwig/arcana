@@ -43,7 +43,7 @@ the merge, which stays yours.
 fresh **steps** in its own worktree, cut along contracts committed first in
 one contract wave. A step runs only the tests it touched; the full gate runs
 **twice per run** (integration, then `/hex-finalize`), and a run makes at most
-three review calls. Workers never wait on a lock, a gate or a poll.
+three review calls, plus its fix re-checks and one exit call. Workers never wait on a lock, a gate or a poll.
 
 ## Members
 

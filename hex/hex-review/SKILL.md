@@ -49,8 +49,11 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
     working tree is clean, fall back to the current branch's diff against the
     resolved baseline and say so in the announce block.
   - a **branch name** — diffed against the resolved baseline.
-  - `<N>` / `#<N>` / `PR <N>` / `pull/<N>` / a full GitHub PR URL — an
-    explicit pull request.
+  - a **PR reference** on GitHub or GitLab — `<N>`, `#<N>` (GitHub only),
+    `!<N>`, `PR <N>`, `MR <N>`, or a full PR/MR URL; the forms are in
+    [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
+    A reference that resolves to an issue is not a review target: say so
+    and stop.
   - a path to a **markdown plan, ADR, or spec artifact** — review the file
     directly, not a code diff. Diff metrics do not apply; see
     [`classify.md`](classify.md#plan-and-artifact-targets).
@@ -65,6 +68,13 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
     off.
   - `--dry-run` — make the meta-plan gate block for explicit approval and
     stop there (preview only, no workers launched).
+  - `--round` — loop mode, from `/hex-execute`: round 1 or a fix
+    re-check. It records its verdict but never writes the terminal review
+    state, because the integration gate may still be red.
+  - `--exit` — loop mode, from `/hex-execute`: the run's exit call, made
+    once the integration gate is green; its Approve writes the terminal
+    review state
+    ([`loop.md` § The loop](../hex-core/references/loop.md#the-loop)).
 
 ## Dispatch
 
@@ -93,14 +103,11 @@ If the resolved `hex.md` carries a `Federation lead:` bullet, **halt** per
 
 ### 2. Resolve the target and baseline
 
-Detect the target (order above). For a GitHub reference, fetch title, body,
-labels, base ref, and file list in this order of preference:
-
-1. the client's **GitHub MCP tools** (PR read) when it exposes them;
-2. the **`gh` CLI** (`gh pr view --json baseRefName,title,body,labels,files`)
-   as fallback;
-3. neither available — treat the input as a branch name or free text and
-   continue.
+Detect the target (order above). For a PR reference, fetch title, body,
+labels, base ref, and file list by
+[`forge.md` § Fetch ladder](../hex-core/references/forge.md#fetch-ladder),
+GitHub and GitLab alike; when no rung fetches, treat the input as a branch
+name or free text and continue.
 
 Resolve the baseline: user `--base=<ref>` wins; else, where the traced plan
 carries a valid `Reviewed:` anchor and the invocation is a review round
@@ -112,7 +119,11 @@ baseline doesn't resolve (`git rev-parse --verify <base>` fails) — print
 remediation and stop. An empty baseline-to-HEAD diff reports
 "nothing to review" and exits clean where no converged pass is outstanding;
 an empty `anchor..HEAD` delta proceeds to that pass instead
-([`loop.md`](../hex-core/references/loop.md#delta-round-scope)).
+([`loop.md`](../hex-core/references/loop.md#delta-round-scope)). An
+`--exit` call with an empty delta runs no diff panel but always runs the
+convergence check (Stage 1's `reviewer`, focus `spec`, against the plan);
+it approves when the call names no open actionable finding and the check
+reports Converged, whatever `State` reads.
 A markdown-artifact target skips baseline resolution entirely.
 
 **Federation refusal (C-323).** A run is federated only if its own resolved
@@ -317,9 +328,15 @@ terminal review state — `done`, or `landing` for a plan carrying a `Repo`
 column — where the run ended with a non-empty stranded set
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 This skill runs when invoked, by the user or in loop mode, and remains the
-sole writer of the terminal review state.
+sole writer of the terminal review state. **A `--round` call never writes
+it**: its Approve sets `State: review` and leaves `Next` alone, because the
+integration gate may still be red. An `--exit` call, and a call with
+neither flag — a human's, or `/hex-loop`'s closing review — write it on
+Approve.
 Writing the `Reviewed:` anchor is a Status-block write, the class of write
-`hex-review` already performs — a branch-scope pass only
+`hex-review` already performs — a branch-scope pass only, plus the loop's
+exit call: an `--exit` call that approves writes `Reviewed: <head>` with
+the terminal review state
 ([`loop.md`](../hex-core/references/loop.md#the-last-reviewed-anchor)).
 
 **Federated diff scope (C-309).** When the target traces to a plan carrying a

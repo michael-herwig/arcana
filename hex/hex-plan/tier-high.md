@@ -34,10 +34,11 @@ scoped to a satellite's area reads **that repo's** rules by explicit
 load a satellite's `CLAUDE.md` (C-306, C-318). Absent `Federation:`
 bullets, this step is unchanged.
 
-GitHub: when the target resolved to a PR/issue, use its fetched context in
+Forge: when the target resolved to a PR/issue, use its fetched context in
 place of a broad scan; a PR's file list is the explicit scope for the
-`architecture-explorer`. Fall back to the client's GitHub MCP list tools or
-`gh` only when the target is free text.
+`architecture-explorer`. Fall back to the forge's MCP tools or CLI
+([`forge.md`](../hex-core/references/forge.md#which-forge)) only when the
+target is free text.
 
 **Gate** — worker reports are in; the architecture is mapped, reusable
 components are identified, prior artifacts are checked for overlap.

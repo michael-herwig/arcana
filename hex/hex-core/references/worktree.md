@@ -49,7 +49,15 @@ on its own branch in its own worktree:
   the collision semantically (a real design conflict versus a textual
   overlap) and applies at most **one** fix pass on the feature branch. Never
   loop past the one pass, never force-push, never rebase a published
-  pipeline branch. A failing integration gate follows
+  pipeline branch. A resolution stages only the resolved paths, by name
+  ([universal rule 5](workers.md#universal-worker-protocol)), and before
+  committing checks that the merge adds no file absent from both parents —
+  in `bash`, since `sh` fails on the process substitution and prints
+  nothing, which would read as a pass:
+  `comm -23 <(git diff --cached --no-renames --name-only --diff-filter=A HEAD | sort) <(git ls-tree -r --name-only MERGE_HEAD | sort)`
+  must print nothing. `--no-renames` keeps a foreign file from passing as
+  a rename. A listed file is unstaged and reported, never
+  committed. A failing integration gate follows
   [the two gates](verify.md#the-two-gates), not this playbook.
 - **Delete the pipeline branch and remove its worktree after it merges.**
   **Removing a worktree removes its build outputs** — target directories and

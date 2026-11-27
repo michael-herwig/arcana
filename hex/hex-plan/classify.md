@@ -2,7 +2,7 @@
 
 Signal-to-tier map for `/hex-plan` when `tier=auto`, plus the overlay
 triggers that stack on the chosen tier. The classifier reads the free-text
-target and any GitHub context (PR/issue title, body, labels), and emits a
+target and any forge context (PR/issue title, body, labels), and emits a
 tier — **only `low`, `medium`, `high`, or `xhigh`** — with zero or more overlays.
 
 The classifier **never emits `max`** — that tier is explicit only,
@@ -65,7 +65,7 @@ Project hints in the Preferences section of `.agents/memory/hex.md`
 into these suggestions before the gate
 ([spawn-selection precedence](../hex-core/references/protocol.md#spawn-selection-precedence)).
 
-## GitHub context as a classification input
+## Forge context as a classification input
 
 When `/hex-plan <N>` resolves to a PR or issue, feed the fetched context into
 the signal matcher alongside the free-text prompt:

@@ -39,10 +39,10 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
   ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **target** (one of):
   - free-text prompt;
-  - `<N>` or `#<N>` — a number; probe PR first, fall back to issue;
-  - `PR <N>` / `pull/<N>` — an explicit pull request;
-  - `issue <N>` / `issues/<N>` — an explicit issue;
-  - a full GitHub URL `https://github.com/<owner>/<repo>/(pull|issues)/<N>`.
+  - a **PR or issue reference** on GitHub or GitLab — `<N>`, `#<N>`, `!<N>`,
+    `PR <N>`, `issue <N>`, or a full URL; the forms and which forge they
+    resolve on are in
+    [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
 - **flags** (before the target, by convention):
   - `--architect=inline|on` — override the Design phase (see
     [`overlays.md`](overlays.md)).
@@ -77,22 +77,18 @@ If the resolved `hex.md` carries a `Federation lead:` bullet, **halt** per
 
 ### 2. Resolve the target
 
-If the target is a GitHub reference, fetch its title, body, labels, and
-(for PRs) file list, in this order of preference:
-
-1. the client's **GitHub MCP tools** (PR/issue read) when it exposes them;
-2. the **`gh` CLI** (`gh pr view` / `gh issue view --json
-   title,body,comments,labels,files`) as fallback;
-3. neither available — treat the input as **free text** and continue.
-
-Probe order for a bare `<N>`/`#<N>` is a PR then an issue; PRs and issues are
-equal-class targets. The fetched body and labels feed classification; a PR's
-file list feeds the Discover scope, not the tier decision.
+If the target is a PR or issue reference, fetch its title, body, labels,
+comments and (for a PR) file list by
+[`forge.md` § Fetch ladder](../hex-core/references/forge.md#fetch-ladder),
+GitHub and GitLab alike; when no rung fetches, treat the input as **free
+text** and continue. PRs and issues are equal-class targets. The fetched
+body and labels feed classification; a PR's file list feeds the Discover
+scope, not the tier decision.
 
 ### 3. Classify (only when tier is `auto`)
 
 Read [`classify.md`](classify.md). Apply its tier signals and overlay
-triggers to the prompt plus any fetched GitHub context. It emits a candidate
+triggers to the prompt plus any fetched forge context. It emits a candidate
 tier (**only** `low`, `medium`, `high`, or `xhigh`), a confidence flag, and an overlay
 set. Low confidence forces the gate in step 5. Never ask a mid-flow question
 during classification — ambiguity is resolved at the single gate.
@@ -318,7 +314,11 @@ in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
   against it
   ([`protocol.md`](../hex-core/references/protocol.md#constitution-gate));
   violations need a Constitution Deviations row.
-- **Never commit and never push** — this skill plans only.
+- **Never push; commit only the plan, and only for a loop** — this skill
+  plans only. It leaves the plan uncommitted, except when a `/hex-loop`
+  sub-orchestrator brief asks for the commit: then it commits the plan
+  artifact alone on the loop's branch, because the loop commits as it goes
+  ([`memory.md` § Version control](../hex-core/references/memory.md#version-control)).
 - **Upkeep** ([`protocol.md`](../hex-core/references/protocol.md#upkeep-step)):
   as the final phase, re-point any `hex.md › Pointers` entry this run
   revealed as drifted (a changed verification command, a new artifact home)

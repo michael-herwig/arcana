@@ -37,7 +37,9 @@ Every worker, regardless of role, follows these:
    human judgment or regresses on re-attempt, stop and report it deferred
    with the specific question — do not thrash.
 5. **Commit only as briefed.** A worker commits only when its brief says
-   so (commits use `--no-verify`, rule 10); it never pushes or merges.
+   so (commits use `--no-verify`, rule 10); it never pushes or merges. It
+   stages the paths it changed or resolved by name — never `git add -A` or
+   `git add .`, which sweep stale untracked output into the commit.
 6. **Return a structured result** in the role's output contract so the
    orchestrator can synthesize across workers without re-reading your work.
 7. **Self-check before return.** Run your persona's self-check list; fix

@@ -40,8 +40,9 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 ## The run
 
 Counts are fixed ([`DESIGN.md`](../DESIGN.md)): **two** full gates (integration,
-release), **≤ 3** review calls, workers **never** wait, escalation by the
-orchestrator only.
+release), **≤ 3** review calls beside the fix re-checks and the exit call
+([`DESIGN.md` § round 26](../DESIGN.md#contract-fix-round-2026-11-26-round-26)),
+workers **never** wait, escalation by the orchestrator only.
 
 ### 1. Resolve memory and target
 
@@ -159,14 +160,22 @@ re-validation and the conflict playbook are
 
 When every pipeline has merged, **in the background and concurrently**:
 
-- **Integration gate** — the project's full documented verification on the
-  feature branch ([`verify.md`](../hex-core/references/verify.md#verification)),
+- **Integration gate** — the project's documented verification on the
+  feature branch at its
+  [gate level](../hex-core/references/verify.md#gate-level) (the full suite
+  at `full`)
+  ([`verify.md`](../hex-core/references/verify.md#verification)),
   after regenerating the hub and generated files once, minimally (no
   `cargo update`).
-- **Review call** — one autonomous `/hex-review` over `anchor..HEAD`: staged
+- **Review call** — one autonomous `/hex-review --round` over `anchor..HEAD`: staged
   panel and codex, seats split per pipeline plus one for the seams.
-  `/hex-review` owns seats, rounds and the
+  `/hex-review` owns seats, verdicts and the persisted
   [last-reviewed anchor](../hex-core/references/loop.md#the-last-reviewed-anchor).
+  `/hex-execute` starts every call: this one and a re-check on each fix
+  delta, both with `--round` (the re-check with the previous round's
+  actionable findings inline), and the exit call (`--exit`) once the gate
+  is green on `HEAD` — the only call that can mark the plan done
+  ([`loop.md` § The loop](../hex-core/references/loop.md#the-loop)).
 
 Mid-run review calls: [`loop.md` § Review calls](../hex-core/references/loop.md#review-calls).
 
@@ -177,8 +186,15 @@ residue to the user. A gate that failed on infrastructure is rerun once.
 
 ### 6. Hand off
 
-Set the plan's `State: review`, `Next: /hex-finalize`, `Updated` refreshed (a
-free-text target has no Status block — say so in the handoff). Run the
+When the plan is not at its terminal review state, set `State: review`,
+`Next: /hex-finalize` and refresh `Updated`. A plan at `done` or `landing`
+keeps its Status block exactly as the exit call's `/hex-review` wrote it —
+a `landing` plan's `Next` names its landing order (C-324)
+([`loop.md` § The loop](../hex-core/references/loop.md#the-loop)). When
+the integration gate ended red but the plan reads `done` or `landing` — a
+review call with neither flag approved it meanwhile — the handoff says so
+first, in a line of its own. A free-text target has no Status block — say
+so in the handoff. Run the
 [upkeep step](../hex-core/references/protocol.md#upkeep-step). Never push.
 Emit the handoff
 ([contract](../hex-core/references/protocol.md#handoff-contract)):
@@ -192,7 +208,7 @@ Emit the handoff
 - Review calls: <n> · anchor <sha>
 
 ### Artifacts
-- <plan path> (Status block advanced to `review`)
+- <plan path> (Status block at `State: <review | done | landing>`, as it stands)
 - <feature branch and tip>
 
 ### Deferred findings (need human judgment)

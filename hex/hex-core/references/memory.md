@@ -186,7 +186,7 @@ ownership column. Other hex files reference them as `hex.md › Pointers`,
 
 | Section | Holds | Owner |
 |---|---|---|
-| `## Pointers` | Cached locations discovered from project context, plus: where verification is documented, where the selective test command is documented, where spec/plan/ADR conventions live, doc and product-knowledge homes, key rule files, any worktree-location deviation from the default, the constitution / governing-principles location (optional), and the run-cost rows **`Build jobs:`** (one build's parallel jobs), **`Hub files:`** (lockfiles, baselines, goldens a pipeline never commits) and **`Fresh gate:`** (the no-cache switch the release gate uses) — pointers the project documents, never measured values. All of these are cache like every other entry here, never authoritative, under this row's ownership rule; [Staleness](#staleness) re-detects first and fails closed only if re-detection finds nothing. **Federation** pointers to sibling repos, when a change spans them — one bullet per satellite in the **lead** repo, fixed grammar `- Federation: <key> → <path> (<remote>); verification documented in …`: the `<key>` is the plan table's `Repo` value (the lead is `.` and is **never** listed), `<path>` is lead-relative (absolute permitted), `<remote>` is identity only (hex never clones, fetches, pulls or pushes), and the verification clause is a **pointer, never a command literal** — unlike an own-repo verification pointer it does not cache the satellite's command. Vacuous when absent. The goals home (`Goals:`, recorded by `/hex-init`) — where `/hex-loop` writes its per-run goal files. | **Skills** — a self-managed cache. Never authoritative: on conflict, project context wins; a stale pointer means re-detect and re-point (upkeep step), never wrong behavior. |
+| `## Pointers` | Cached locations discovered from project context, plus: where verification is documented, where the selective test command is documented, where spec/plan/ADR conventions live, doc and product-knowledge homes, key rule files, any worktree-location deviation from the default, the constitution / governing-principles location (optional), and the run-cost rows **`Build jobs:`** (one build's parallel jobs), **`Hub files:`** (lockfiles, baselines, goldens a pipeline never commits), **`Fresh gate:`** (the no-cache switch the release gate uses) and **`Gate level:`** (`targeted` with the CI job that proves the full suite; absent means `full`) — pointers the project documents, never measured values. All of these are cache like every other entry here, never authoritative, under this row's ownership rule; [Staleness](#staleness) re-detects first and fails closed only if re-detection finds nothing. **Federation** pointers to sibling repos, when a change spans them — one bullet per satellite in the **lead** repo, fixed grammar `- Federation: <key> → <path> (<remote>); verification documented in …`: the `<key>` is the plan table's `Repo` value (the lead is `.` and is **never** listed), `<path>` is lead-relative (absolute permitted), `<remote>` is identity only (hex never clones, fetches, pulls or pushes), and the verification clause is a **pointer, never a command literal** — unlike an own-repo verification pointer it does not cache the satellite's command. Vacuous when absent. The goals home (`Goals:`, recorded by `/hex-init`) — where `/hex-loop` writes its per-run goal files. | **Skills** — a self-managed cache. Never authoritative: on conflict, project context wins; a stale pointer means re-detect and re-point (upkeep step), never wrong behavior. |
 | `## Preferences` | The instantiated model matrix (literal names) and per-cell overrides, the cross-model adversary skill, limits (max-workers, loop rounds, adversary-timeout), always-on perspectives / research axes, and the `Goal loop:` prose hint, read only by `/hex-loop` (grammar: [its SKILL.md](../../hex-loop/SKILL.md#preferences-hint)). | **User** — written by `/hex-init` with consent; orchestrators read it, never edit it. |
 | `## Memory` | The active plan pointer, an artifact index (what lives where), and learned facts worth persisting. | **Skills** — working memory, updated during runs. |
 
@@ -266,9 +266,53 @@ preferences, not copies. Team-shared — commit it.
 - **Keep it small — pointers, not prose dumps.** If a section wants to
   grow, move the content into a file under `.agents/` (or a
   project doc home) and point at it.
-- **Team-shared: it belongs in version control.** Never gitignore
-  `.agents/` wholesale — that would drop shared memory. Gitignore
-  `.agents/worktrees/` specifically (transient checkouts).
+- **Team-shared: it belongs in version control**, like every hex
+  artifact. [§ Version control](#version-control) lists what git tracks
+  and the two paths it ignores.
+
+## Version control
+
+The single definition site for which hex paths git tracks. Every path
+hex writes is in this table; a home that project context or Pointers
+moves keeps its row, so the Git column follows the home, not the default
+path.
+
+| Path (default) | Holds | Git |
+|---|---|---|
+| `.agents/memory/hex.md` | this file: Pointers, Preferences, Memory, the artifact index | versioned |
+| plans home (`.agents/plans/`) | plans with their Status blocks — the archive, in place ([`archive.md`](archive.md#plan-archive)) | versioned |
+| spec, ADR and research homes (`.agents/specs/`, `.agents/adrs/`, `.agents/research/`) | specs (the fold target), decisions, research artifacts | versioned |
+| discussions home (`.agents/discussions/`) | `/hex-discuss` artifacts | versioned |
+| goals home (`.agents/goals/`) | `/hex-loop` goal files | versioned |
+| retro ledger and reports (`.agents/retro/ledger/`, `.agents/retro/reports/`) | consolidated findings and retro reports | versioned |
+| project configuration `/hex-init` provisions: `.agents/product.md`, the seeded templates, `.agents/workers/`, `.agents/workflows/` | product context, templates, personas, workflow forks | versioned |
+| worktree path (`.agents/worktrees/`) | `/hex-execute`'s transient pipeline checkouts | **ignored** |
+| retro inbox (`.agents/retro/inbox/`) | raw friction entries, its `consumed/` and `rejected/`, `.mine-state.json` | **ignored** |
+| per-run scratch root (Pointers `Scratch:`) | a run's transient files | outside the repo |
+
+- **Exactly the two ignored rows are hex's to ignore.** The project's
+  ignore file names the worktree path and the retro inbox (the block
+  `/hex-init` proposes:
+  [`audit.md` § hex ignore block](../../hex-init/references/audit.md#hex-ignore-block)).
+  `retro.py` also writes `<inbox>/.gitignore` with `*`, so the inbox stays
+  ignored before that line exists; a tracked inbox entry is skipped as
+  planted.
+- **Never ignore a versioned row** — not `.agents/` wholesale, not one
+  home such as `.agents/plans/`, not a pattern that matches its files.
+  Later runs and teammates read them from version control: the artifact
+  index points at plans, the fold's write lands with
+  `git add <spec-path> <plan-path>`, `/hex-loop` commits its goal file
+  first, and an in-flight discussion is shared once committed.
+- **Uncommitted is not ignored.** `/hex-review` and `/hex-retro` never
+  commit, and `/hex-plan` commits its plan only for a `/hex-loop` brief,
+  so what they write stays uncommitted until the change that lands the
+  work commits it. To keep an artifact out of a
+  change, leave it uncommitted or commit it on its own — never add an
+  ignore line for it.
+- **`/hex-init` audits both directions:**
+  [worktree path](../../hex-init/references/audit.md#worktree-path-gitignored)
+  and [retro inbox](../../hex-init/references/audit.md#retro-home-gitignored-conditional)
+  ignored, and [no versioned home ignored](../../hex-init/references/audit.md#versioned-hex-homes-not-ignored).
 
 ## Destination of knowledge
 

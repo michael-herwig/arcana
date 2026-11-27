@@ -27,7 +27,9 @@ Checks, commits, build budget, generated files: <per [universal rule 10](../work
 
 Before writing: read the project's rules and conventions for the files you
 touch; grep for existing utilities and patterns and extend them — never
-work around one. No placeholders or TODOs; never remove or skip tests.
+work around one. When the code to extend lies outside your owned files,
+return it as deferred with its `path:line`; never copy it into your files.
+No placeholders or TODOs; never remove or skip tests.
 
 stub: create only the public surface with not-implemented bodies.
 implement: fill bodies until the specification tests pass.

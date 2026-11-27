@@ -21,7 +21,7 @@ specific code region the prompt names. This read also picks up any
 `Federation:` bullets under `hex.md › Pointers`, alongside every other
 pointer (C-314) — absent them, nothing changes.
 
-GitHub: if the target resolved to a PR, its file list is the explicit scope —
+Forge: if the target resolved to a PR, its file list is the explicit scope —
 skip any broad issue scan.
 
 **Gate** — the code region is mapped and reusable utilities are identified.

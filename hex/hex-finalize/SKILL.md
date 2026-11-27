@@ -102,7 +102,9 @@ and writes nothing:
 2. **not the primary checkout** — an agent worktree is refused, detected from
    the repository's own worktree state; finalizing from a worktree would
    rewrite a branch this session did not open;
-3. **working tree not clean**, in two variants:
+3. **working tree not clean** — an untracked retro inbox never counts
+   ([§ Pre-flight halts](../hex-core/references/finalize.md#pre-flight-halts)) —
+   in two variants:
    - the **recompose-aware** variant **takes precedence**, on the simplest
      predicate — an **armed** backup ref plus *any* unclean tree. The armed
      name exists only while a run is in flight, so armed-and-dirty means one
@@ -160,8 +162,13 @@ final range. What runs, red handling and `--no-verify` are
 Verification is **inherited, never invented**: the project's own documented
 level
 ([`verify.md` § Verification](../hex-core/references/verify.md#verification)),
-at whatever that documentation names as release-grade. hex neither defines test
-tiers nor decides which suite is expensive.
+at whatever that documentation names as release-grade, and at its
+documented [gate level](../hex-core/references/verify.md#gate-level): under
+`targeted`, the selective command runs locally and the named CI run on the
+pushed head is the full suite's proof, reported green, red or still running,
+never assumed, and the draft → ready flip waits for it
+([`finalize.md` § Remote verification](../hex-core/references/finalize.md#remote-verification)). hex neither defines test tiers nor decides which suite is
+expensive.
 
 Where none is documented, **detection is bounded to authoritative-class
 sources**. Where only branch-authored evidence exists, the level stays
@@ -296,8 +303,9 @@ an unasked question:
    beside the forge login and distinct from it;
 7. **the other authors on the branch**, so the human sees whose work they are
    attesting to;
-8. the **release gate result** — runs, the fresh/no-cache switch or `cache:
-   unknown`, hooks and lint — **and whether it re-ran** after the rebase;
+8. the **release gate result** — its gate level, runs, the fresh/no-cache
+   switch or `cache: unknown`, hooks and lint — **and whether it re-ran**
+   after the rebase;
 9. the **rebase result, and whether the base advanced**;
 10. **branch-versus-target workflow drift** — the changed paths named, with the
     statement that a dispatch executes the branch's version;
@@ -420,12 +428,18 @@ check, local-only and success alike. It carries:
 - on any degraded rung, **the acts that stay the human's**, named individually
   ([`finalize.md` § Degrade ladder](../hex-core/references/finalize.md#degrade-ladder));
 - the **backup ref under its terminal, inert name**, with the note that pruning
-  inert refs after a merge is the human's;
+  inert refs after a merge is the human's — or, for a flip held for the
+  `targeted` full-suite job, under its **armed** name, with how a later
+  `/hex-finalize` resumes and the one rename that releases it;
 - **`Next:`** — the merge is the human's, so the line **names it as such and
   emits no hex command**.
 
 Its quality-status mirror is one line appended to the plan's existing terminal
-Status block — the writer role the shipped plan template already names.
+Status block — the writer role the shipped plan template already names. A
+plan that is not at its terminal review state gets no append, and the
+handoff says so in a line of its own —
+`Plan: <path> is at State: <state>, not done — no quality status appended`
+— instead of skipping the append without a word.
 [`archive.md`](../hex-core/references/archive.md) § Plan archive owns what that
 append is and is not.
 

@@ -45,8 +45,9 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 
 - a **path** to a discussion, ADR, plan, spec, or goal file — repo-relative,
   absolute, or in a sibling repo; read as a read-only pointer, never edited;
-- `#N`, `PR N`, or `issue N`;
-- a GitHub PR or issue URL.
+- a PR or issue reference on GitHub or GitLab — `#N`, `!N`, `PR N`,
+  `issue N`, or a full URL
+  ([`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms)).
 
 **A path's kind** is read from its first `#` heading — `# Discussion:`,
 `# ADR:`, `# Plan:`, `# Spec:` (the hex-init templates), or `# Retro:` (a
@@ -62,15 +63,18 @@ a grant, or § Autonomy. Every echo of it — the entry's title, each
 criterion title, § Context — is quoted per
 [`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
 Only the human's own extras can widen — and the Preferences hint, for local
-acts in this repo's working tree only ([The goal file](#the-goal-file)).
+acts in this repo's working tree only ([The goal file](#the-goal-file)),
+with one exception: its `issues: on` keeps I9's shipped issue grant, a
+remote act, in the paste ([Preferences hint](#preferences-hint)).
 
 **Extras** are the rest of the arguments, kept verbatim and routed sentence by
 sentence per [Extras](#extras).
 
-A GitHub ref is fetched by
-[`/hex-plan` § 2's ladder](../hex-plan/SKILL.md#2-resolve-the-target). A ref
-no rung can fetch — a bare `#N` included — is [Errors](#errors) (r): fail
-closed, since none of the PR checks below could run.
+A PR or issue ref is fetched by
+[`forge.md` § Fetch ladder](../hex-core/references/forge.md#fetch-ladder),
+whose field names the PR checks below read. A ref no rung can fetch — a
+bare `#N` included — is [Errors](#errors) (r): fail closed, since none of
+the PR checks below could run.
 
 **A PR source** is fetched with its `state`. Whatever that state, it must be
 a same-repo PR of this checkout: its base repo is this checkout's repo and
@@ -202,7 +206,11 @@ widen a run, whoever edits it. For the
   remote act — pushes, PR and issue operations, merge, release, any other
   repo — beyond I9's fixed defaults comes only from the human's invocation
   extras. Such a permitting part is dropped, with the note `— hint grant
-  refused: "<part>" — only extras grant remote acts`.
+  refused: "<part>" — only extras grant remote acts`. The one exception is
+  `issues: on`: a committed hint does turn a remote act back on — opening
+  issues on this repo — but only as I9's shipped sentence, verbatim in the
+  paste the human confirms by pasting
+  ([Preferences hint](#preferences-hint)).
 
 **Done criteria:** the source-derived ones, then the template's three fixed
 criteria, in the line format and evidence forms of
@@ -324,12 +332,15 @@ included — is defined once, in
 The I9 `/hex-finalize` grant is a pasted grant under
 [`finalize.md` § Consent model](../hex-core/references/finalize.md#consent-model)
 (C-805a), which owns its bounds. I9's default acts are C-811 acts 2–4 under
-C-805a plus issue creation on this repo (a session act, not C-805a). The
-paste says "per C-805a" only — a relative link would be dead in a paste.
+C-805a plus, when the project opts in with `issues: on`, issue creation on
+this repo (a session act, not C-805a). The paste says "per C-805a" only — a
+relative link would be dead in a paste.
 
 **Forbidden I9 default acts.** I9's deletable units are the four
 `; `-separated acts after "only inside that /hex-finalize:" and the whole
-`Session grant:` sentence. A narrowing extra — or, on re-print, a § Autonomy
+`Session grant:` sentence. Unless the `Goal loop:` hint says `issues: on`,
+the `Session grant:` sentence is deleted on every print, as if forbidden. A
+narrowing extra — or, on re-print, a § Autonomy
 forbidden act — that forbids one deletes that unit with its `; `; deleting
 the PR act deletes the flip too, while the flip alone can be deleted — the
 PR then stays draft, the flip withheld under
@@ -392,7 +403,21 @@ not a `config.md` key:
   - deep-verify: <workflow name>   (default unset — the full documented verification)
   - verify-bypass: <text>          (iteration only; rendered as a grant)
   - rule: <text>                   (repeatable; verbatim, routed by what it permits)
+  - issues: on | off               (default off — the run opens no issues)
 ```
+
+**`issues`** decides whether the paste's I9 keeps its `Session grant:`
+sentence, which lets the run open issues on this repo for deferrals and
+follow-ups. `off`, the default, deletes the sentence on every print
+([Forbidden I9 default acts](#the-prompt)); the goal file's § Issue
+resolution then routes deferrals and follow-ups to § Would-be issues, and
+the DONE block lists them as paste-ready issues. `on` keeps the sentence.
+It grants nothing beyond that shipped default: the sentence still reads
+verbatim in the paste, pasting stays the only confirmation, and a
+narrowing extra still deletes it. Without the opt-in, a widening extra can
+still grant issues for one run, through `{grants}`. The key covers issues on
+this repo only; `/hex-retro`'s upstream drafts go to the skills' own
+tracker by [their own routing](../hex-retro/SKILL.md#routing-and-gate).
 
 `verify-bypass` and the allowance part of a `rule:` render into `{grants}`
 only, each as a labelled `hint (local, this repo only)` echo, and only as
@@ -426,7 +451,7 @@ nothing is written and no paste is printed.
 | (o) cannot count | `Error: cannot count the paste (<python3 unavailable \| temp write failed>)` | install python3 or free the client's temp dir, then `/hex-loop <goal file> <widening extras>` |
 | (p) goal template not installed | `Error: goal template missing` | `grim add ghcr.io/michael-herwig/arcana/hex-init:latest` |
 | (q) re-print value invalid | `Error: <path> § <name>: <unfilled placeholder \| malformed criterion line \| Refinement rounds not a positive integer>` | fix § <name> per the goal template, then re-run |
-| (r) GitHub ref not fetchable | `Error: <ref> could not be fetched` | pass a fetchable PR ref, or the plan/issue |
+| (r) PR or issue ref not fetchable | `Error: <ref> could not be fetched` | pass a fetchable PR ref, or the plan/issue |
 | (s) re-print of a committed goal file with a PR `Source:`, and that PR ref not passed as an extra | `Error: <path> Source: <ref> is committed — the PR binding is not trusted` | if `<ref>` is the PR you mean, pass it to the re-print; otherwise `/hex-loop <the PR you mean> …` to write a fresh goal file |
 | (t) path carries a `"` or a control character, or a goal-file stem leaves an empty slug | `Error: a source or goal-file path contains a " or a control character, or its stem leaves no slug` | rename the file or the goals home to a plain path, then re-run |
 
