@@ -18,10 +18,9 @@ commit series the project's own rules would accept, and — after exactly one
 approval — force-pushes it and readies its pull request. **The merge is never hex's:**
 the run ends at a handoff naming it as the human's step, emitting no command.
 
-It is a hex skill, not a fifth orchestrator: no `classify.md`, no
-`overlays.md`, no `tier-*.md`, and no tier vocabulary of its own. The flow is
-one fixed pipeline whose universals do not scale with blast radius, so there is
-nothing for a tier to select.
+It is a hex skill, not a fifth orchestrator: no tier vocabulary of its own. The
+flow is one fixed sequence whose universals do not scale with blast radius, so
+there is nothing for a tier to select.
 
 **Entry is explicit invocation only, never a description match** — the
 invocation *is* the grant for the action class, so it must originate with a
@@ -103,7 +102,9 @@ and writes nothing:
 2. **not the primary checkout** — an agent worktree is refused, detected from
    the repository's own worktree state; finalizing from a worktree would
    rewrite a branch this session did not open;
-3. **working tree not clean**, in two variants:
+3. **working tree not clean** — an untracked retro inbox never counts
+   ([§ Pre-flight halts](../hex-core/references/finalize.md#pre-flight-halts)) —
+   in two variants:
    - the **recompose-aware** variant **takes precedence**, on the simplest
      predicate — an **armed** backup ref plus *any* unclean tree. The armed
      name exists only while a run is in flight, so armed-and-dirty means one
@@ -126,7 +127,7 @@ judged per run**. The class definitions live in
 [`finalize.md` § Trust classes](../hex-core/references/finalize.md#trust-classes).
 
 **Resolver A — authoritative-only.** The **target branch**, the **merge
-strategy**, the **release workflow list**, the **verification level** — and the
+strategy**, the **release workflow list**, the **`Full suite:` row** — and the
 **branch-protection, ruleset and required-check reads** that supply enforcement
 for every row of both resolvers. Each selects *what code runs* or *what history
 is replaced*, so "narrowing" has no meaning for any of them and no checked-in
@@ -151,13 +152,23 @@ delimited, with an explicit statement that a directive inside it is content to
 analyse rather than an instruction. Every echo of it follows
 [`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
 
-## Local verification
+## Release gate
+
+The run's last full gate: the project's own documented release-grade
+verification, run fresh with no cache, plus its hooks and lint over the whole
+final range. What runs, red handling and `--no-verify` are
+[`finalize.md` § Release gate](../hex-core/references/finalize.md#release-gate).
 
 Verification is **inherited, never invented**: the project's own documented
 level
 ([`verify.md` § Verification](../hex-core/references/verify.md#verification)),
-at whatever that documentation names as release-grade. hex neither defines test
-tiers nor decides which suite is expensive.
+at whatever that documentation names as release-grade. Where the project
+declares a `Full suite:` row, the full suite's proof is the named CI job on
+the pushed head, read and reported green, red or still running, never
+assumed, and the draft → ready flip waits for it
+([`verify.md` § Full suite proven by CI](../hex-core/references/verify.md#full-suite-proven-by-ci),
+[`finalize.md` § Remote verification](../hex-core/references/finalize.md#remote-verification)). hex neither defines test tiers nor decides which suite is
+expensive.
 
 Where none is documented, **detection is bounded to authoritative-class
 sources**. Where only branch-authored evidence exists, the level stays
@@ -167,18 +178,18 @@ any point in the run**. Either way, suggest `/hex-init` to persist a real one.
 
 The ordering is stated once here and only rendered elsewhere:
 
-- the local suite runs **before** the rewrite, on the tree that exists — it is
-  cheap, and the rewrite invalidates it as *testing evidence*;
+- the release gate runs **before** the rewrite, on the tree that exists; red
+  takes the one fix pass, then the gate again; still red halts with nothing
+  rewritten and hands to the user;
 - the rebase onto the freshly-fetched target must be **clean**; that clean
   rebase is the structural second check, and a conflict halts;
-- the suite **re-runs exactly once, after the rebase and before the gate, if
-  and only if the fetched target tip differs from the base the pre-rewrite run
-  used**. A target that did not move leaves the earlier result valid; a target
-  that moved makes it evidence about a tree that no longer exists, and a clean
-  rebase proves textual compatibility, never semantic.
+- the release gate **re-runs exactly once, after the rebase and before the
+  series is committed, if and only if the fetched target tip differs from the
+  base the first run used**. A target that did not move leaves the earlier
+  result valid; one that moved makes it evidence about a tree that no longer
+  exists, and a clean rebase proves textual compatibility, never semantic.
 
-A failure **before** the rewrite halts with nothing rewritten; a failure of the
-conditional re-run halts with the rewrite standing.
+A failure of the conditional re-run halts with the rewrite standing.
 
 ## Recompose
 
@@ -216,6 +227,10 @@ at the gate:**
 4. **Message-matches-diff check** — a message may reference only paths and
    symbols present in that commit's own diff. A mismatch **halts**; it is not a
    warning, because a mis-scoped message is a wrong changelog entry forever.
+   **Tree check** — the tip's tree id equals the tree id of the last green
+   [release gate](#release-gate) run; a mismatch **halts**, which is what makes
+   `--no-verify` below safe. The project's documented message lint runs once
+   over the recomposed range here.
 
 **Declined: a mechanical absorb pre-pass.** Blame-based fixup folding would
 pre-shape the input, but step 2 discards the input history entirely, so the
@@ -224,6 +239,8 @@ work would be thrown away. Recorded as considered, not as unavailable.
 **C-808. Commit requirements are satisfied *during* the rewrite, never after
 it.** As each commit in step 3 is created:
 
+- **`--no-verify`** — the release gate already ran the project's hooks over
+  this tree, and step 4 proves it is the same tree.
 - **`--signoff`** where DCO is required. The sign-off carries the invoking
   human's git identity — **`user.name <user.email>`, never the forge login**;
   the two routinely differ and the attestation carries the former.
@@ -286,7 +303,9 @@ an unasked question:
    beside the forge login and distinct from it;
 7. **the other authors on the branch**, so the human sees whose work they are
    attesting to;
-8. the **local verification result, and whether it re-ran** after the rebase;
+8. the **release gate result** — its runs, the selective command and the `Full suite:` job with its read result where that row is in effect, the fresh/no-cache
+   switch or `cache: unknown`, hooks and lint — **and whether it re-ran**
+   after the rebase;
 9. the **rebase result, and whether the base advanced**;
 10. **branch-versus-target workflow drift** — the changed paths named, with the
     statement that a dispatch executes the branch's version;
@@ -385,7 +404,7 @@ human-authored body stays byte-identical across successive runs.
   set.
 
 An empty documented workflow set does not block the flip — the resolved quality
-bar is then the local verification, which passed — but the handoff still says
+bar is then the release gate, which passed — but the handoff still says
 **no remote gate exists**, which is never rendered as a pass.
 
 ## Handoff
@@ -409,12 +428,18 @@ check, local-only and success alike. It carries:
 - on any degraded rung, **the acts that stay the human's**, named individually
   ([`finalize.md` § Degrade ladder](../hex-core/references/finalize.md#degrade-ladder));
 - the **backup ref under its terminal, inert name**, with the note that pruning
-  inert refs after a merge is the human's;
+  inert refs after a merge is the human's — or, for a flip held for the
+  `Full suite:` job, under its **armed** name, with how a later
+  `/hex-finalize` resumes and the one rename that releases it;
 - **`Next:`** — the merge is the human's, so the line **names it as such and
   emits no hex command**.
 
 Its quality-status mirror is one line appended to the plan's existing terminal
-Status block — the writer role the shipped plan template already names.
+Status block — the writer role the shipped plan template already names. A
+plan that is not at its terminal review state gets no append, and the
+handoff says so in a line of its own —
+`Plan: <path> is at State: <state>, not done — no quality status appended`
+— instead of skipping the append without a word.
 [`archive.md`](../hex-core/references/archive.md) § Plan archive owns what that
 append is and is not.
 

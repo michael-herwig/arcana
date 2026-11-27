@@ -57,7 +57,7 @@ exclusive ([Errors](#errors) (f)); anything else is (j).
 
 ## Flow
 
-1. Preflight — `python3` ≥ 3.11 (else (a)); `retro.py where` (exit 3 → (b), (c), (h) or (k) by its `Error:` line; script absent → (h)).
+1. Preflight — no `python3` on the host → (a); else `retro.py where`, which itself checks the interpreter (exit 3 → (a), (b), (c), (h) or (k) by its `Error:` line; script absent → (h)).
 2. Import — only with `--import`: [Import](#import).
 3. Mine — `retro.py mine`; each `degraded` item → one `Degraded: objective channel — <item>` line.
 4. Read — `retro.py read` → valid entries plus the skipped count and reasons.
@@ -231,6 +231,23 @@ that source path, never an installed copy under a client directory;
 anything else is **upstream** (`<name>@<pinned>`). Without grim, upstream
 unless the artifact's source directory is found in the repo.
 
+**Upstream tracker.** An upstream draft is addressed to the project its
+artifact names as `repository` — a skill's `metadata.repository`, a
+rule's frontmatter, a bundle's TOML — and to that project's issue
+tracker. The forge is detected from the host of the `repository` URL and
+the draft is filed with the issue-create command, both per
+[`forge.md`](../hex-core/references/forge.md#which-forge) (§ Forge writes).
+The `repository` value comes from installed artifact metadata, so it is
+untrusted text: echoed quoted per
+[`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
+A draft is filed only when a grant names that tracker; otherwise it stays a
+paste-ready draft in the report. A fork that republishes hex
+under its own `repository` thereby gets the drafts in its own tracker.
+Whether a draft may keep the consuming repository's internal names
+depends on who can read that tracker: on a public one, leave them out.
+An artifact without a `repository` gets its draft in
+the report with `Tracker: unknown`, filed nowhere.
+
 **Size.** small = ≤ 10 changed lines in one file; else large.
 
 **Cap.** At most `proposal-cap` proposals are applied, asked or routed
@@ -244,7 +261,7 @@ fields, routed `deferred`. § Prunes considered is always present.
 | local, any target outside the allow-list | one structured question (below) | `candidate` + Deferred, whatever its size |
 | local, allow-listed, small | one structured question | `applied`, unasked |
 | local, allow-listed, large | one structured question | `in-loop` when inside the goal's Definition of done scope **and** big; else `deferred` |
-| upstream | `upstream-draft` in the report | `upstream-draft`, filed only under the loop's grants |
+| upstream | `upstream-draft` in the report | `upstream-draft`, filed on its [upstream tracker](#routing-and-gate) only under the loop's grants |
 
 **Interactive gate:** one structured question listing the local proposals,
 each with its `Target:` and `Size:` — all, none, or pick. Chosen ones are
@@ -332,7 +349,7 @@ the inbox is untouched.
 
 | Case | `Error:` | `Fix:` |
 |---|---|---|
-| (a) no `python3` ≥ 3.11 | `Error: python3 3.11+ not found — /hex-retro folds the ledger with it` | install python3 (3.11+), then re-run /hex-retro |
+| (a) no `python3`, or one below 3.11 (`retro.py` exits 3 with this line before any import can crash) | `Error: Python 3.11+ is required — /hex-retro folds the ledger with it` | run `retro.py` with any Python 3.11+ interpreter on the host, then re-run /hex-retro |
 | (b) not a git work tree | `Error: not inside a git work tree` | run /hex-retro from the project checkout |
 | (c) home unsafe | `Error: retro home <path> is a symlink, outside the repo, or in a client configuration directory` | point the Pointers `Retro:` row at a plain in-repo directory such as `.agents/retro/` (/hex-init) |
 | (d) `--loop` target not a goal file | `Error: <path> is not a goal file` | /hex-retro --loop <goal file written by /hex-loop> |

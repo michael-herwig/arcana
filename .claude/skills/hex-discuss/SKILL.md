@@ -141,7 +141,7 @@ and (c) fire **never on an opinion**, and never on a question the repo answers, 
 instead; (b) alone may target a judgment question, user-opted and spend-confirmed.
 
 Default gear: at most 3 concurrent `researcher` spawns
-([`workers.md`](../hex-core/references/workers.md#role-index)), `fast-balanced` at every tier
+([`workers.md`](../hex-core/references/workers.md#role-index)), `standard` at every tier
 in [`models.md`](../hex-core/references/models.md#the-matrix) — no self-escalation, disclosed
 like any other ([`models.md`](../hex-core/references/models.md#rules) rule 1) — bound by
 [`protocol.md` § Worker coordination](../hex-core/references/protocol.md#worker-coordination)
@@ -249,7 +249,9 @@ deliberately is not). Name in the same message what has already been written —
 the discussion artifact and every research artifact, by path, plus any
 `hex.md › Pointers` re-point made this run — and what the drain will touch: the
 proposed-artifact list, the artifact's own header update, the two `hex.md` rows
-from [Constraints](#constraints), and, for an inline drain, the stub deletion.
+from [Constraints](#constraints), for an inline drain the stub deletion, and
+for a drain that [commits](#handoff) the commit itself — the files it stages
+and the checked-out branch it lands on — so the yes covers it.
 A resumed artifact whose `Updated:` predates this session also gets a one-line
 staleness note: recorded decisions may have drifted since, and the receiving
 claim diff is the real check. The restate scales: a short inline drain
@@ -279,7 +281,8 @@ applies in substance: every drain ends with the terminal-state report and,
 where a next command exists, the `Next:` line. Its orchestrator-only fields —
 classification, tier, overlays — do not apply.
 
-Five drain targets, adding zero new write paths. After the yes:
+Five drain targets, writing to no destination beyond the four
+[Constraints](#constraints) lists. After the yes:
 
 - **→ plan** — `Next: /hex-plan "<title>, per <artifact path>"`
 - **→ ADR** — `Next: /hex-architect <artifact path>`
@@ -288,7 +291,14 @@ Five drain targets, adding zero new write paths. After the yes:
   **never writes a spec and never invokes a fold**, so
   [`archive.md`](../hex-core/references/archive.md#safety-envelope)'s envelope
   stays the only fold path.
-- **→ loop** — `Next: /hex-loop <artifact path>`. The drain sets
+- **→ loop** — `Next: /hex-loop <artifact path>`, **alone**: no extras, no
+  grants, no placeholder on the line. Every grant must be the human's own
+  words, so the handoff says, in a separate sentence, that grants are
+  appended as extras when the human runs it. The restate names the branch
+  `/hex-loop` will use, normally `hex/<slug>`, the slug as `/hex-loop` derives
+  it ([`/hex-loop` § The prompt](../hex-loop/SKILL.md#the-prompt)) and
+  `/hex-loop` alone decides — never the checked-out branch by assumption.
+  The drain sets
   `State: handed-off → loop` and writes `Ratified: <date> → loop`. The
   artifact is **always kept** — it is `/hex-loop`'s source, so this target
   **never drains inline**: a discussion that would otherwise drain inline
@@ -304,6 +314,20 @@ Five drain targets, adding zero new write paths. After the yes:
   mechanism, which routes a *preference* to `hex.md › Preferences`; a project
   convention belongs in project context, written only by `/hex-init`. This
   skill **never writes CLAUDE.md or AGENTS.md**.
+
+**The commit.** A drain that keeps its artifact — `handed-off` with its
+`Ratified:` line, whichever target — commits it together with the research
+artifacts this discussion persisted, staged by name, on the checked-out
+branch, and never pushes
+([`memory.md` § Version control](../hex-core/references/memory.md#version-control)
+owns the rule). The yes at the restate-gate is the ask; a yes that leaves the
+commit out leaves the files uncommitted. For → loop the commit is made only
+when the checked-out branch is the trunk, because the loop branch starts from
+the trunk and a commit elsewhere does not reach it; otherwise the drain commits
+nothing, the terminal report says so, and the artifact stays uncommitted for
+the human. The restate states which case applies. An inline drain deletes its stub and
+commits nothing, and its research artifacts stay uncommitted. A parked or
+aborted discussion commits nothing.
 
 No downstream command carries a tier: this skill has none of its own, so
 the receiving orchestrator's classifier resolves it, and a tier appears only
@@ -324,7 +348,7 @@ carries **no `Next:` line**: nothing runs next. Every drain closes on:
 
 - State: `handed-off → plan | architect | loop | context | dropped`, or `parked`
 - Written: <discussion artifact>, <research artifacts>, `hex.md` Memory and
-  Pointers rows — every path this run touched
+  Pointers rows — every path this run touched, and the commit when one was made or why none was (→ loop off the trunk)
 - Next: `/hex-plan "<title>, per <path>"` · `/hex-architect <path>` ·
   `/hex-loop <path>` · `/hex-init` (→ context); no `Next:` line for `dropped` or `parked`
 ```
@@ -388,7 +412,7 @@ Post-gate, at the drain alongside the handoff:
 These are ordinary upkeep writes deferred past the gate: nothing outside the
 discussion's footprint exists before consent. This skill writes **no code,
 config, plan, ADR, or spec, and never `hex.md › Preferences`**, which is
-user-owned.
+user-owned. It commits only as [Handoff](#handoff) says, and never pushes.
 
 Undoing an abandoned pre-gate discussion means deleting the discussion file and
 the research artifacts it lists under `## Research`; the research home is

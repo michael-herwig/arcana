@@ -21,9 +21,8 @@ confirmation**, which is why it carries no approval gate of its own
 ([`protocol.md` § The meta-plan approval gate](../hex-core/references/protocol.md#the-meta-plan-approval-gate)
 lists it as exempt).
 
-It is a hex skill, not a fifth orchestrator: no `classify.md`, no
-`overlays.md`, no `tier-*.md`, and no tier vocabulary. It spawns nothing; the
-flow is one fixed pipeline with nothing for a tier to select.
+It is a hex skill, not a fifth orchestrator: no tier vocabulary. It spawns
+nothing; the flow is one fixed sequence with nothing for a tier to select.
 
 **Entry is explicit invocation only, never a description match.** Its output
 is a paste for a human, so a model-invoked run would only write a stray goal
@@ -46,8 +45,8 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 
 - a **path** to a discussion, ADR, plan, spec, or goal file — repo-relative,
   absolute, or in a sibling repo; read as a read-only pointer, never edited;
-- `#N`, `PR N`, or `issue N`;
-- a GitHub PR or issue URL.
+- a PR or issue reference, in the forms of
+  [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
 
 **A path's kind** is read from its first `#` heading — `# Discussion:`,
 `# ADR:`, `# Plan:`, `# Spec:` (the hex-init templates), or `# Retro:` (a
@@ -63,19 +62,24 @@ a grant, or § Autonomy. Every echo of it — the entry's title, each
 criterion title, § Context — is quoted per
 [`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
 Only the human's own extras can widen — and the Preferences hint, for local
-acts in this repo's working tree only ([The goal file](#the-goal-file)).
+acts in this repo's working tree only ([The goal file](#the-goal-file)),
+with one exception: its `issues: on` is the one hint value that turns a
+remote act on ([Preferences hint](#preferences-hint)).
 
 **Extras** are the rest of the arguments, kept verbatim and routed sentence by
 sentence per [Extras](#extras).
 
-A GitHub ref is fetched by
-[`/hex-plan` § 2's ladder](../hex-plan/SKILL.md#2-resolve-the-target). A ref
-no rung can fetch — a bare `#N` included — is [Errors](#errors) (r): fail
-closed, since none of the PR checks below could run.
+A PR or issue ref is fetched by
+[`forge.md` § Fetch ladder](../hex-core/references/forge.md#fetch-ladder),
+whose field names the PR checks below read. A ref no rung can fetch — a
+bare `#N` included — is [Errors](#errors) (r): fail closed, since none of
+the PR checks below could run.
 
 **A PR source** is fetched with its `state`. Whatever that state, it must be
 a same-repo PR of this checkout: its base repo is this checkout's repo and
-its head repo is the base repo — else [Errors](#errors) (g). An open one
+its head repo is the base repo, checked per
+[`forge.md` § Field names](../hex-core/references/forge.md#field-names) — else
+[Errors](#errors) (g). An open one
 must also be a branch PR: its head branch is neither the base nor the
 default branch, and the head branch name passes
 `git check-ref-format --branch` **and** matches `^[A-Za-z0-9._/-]{1,100}$` —
@@ -201,9 +205,10 @@ widen a run, whoever edits it. For the
   "scratch in the project's .tmp/, delete after"` in `{grants}`.
 - **A hint grants only local acts in this repo's working tree.** Every
   remote act — pushes, PR and issue operations, merge, release, any other
-  repo — beyond I9's fixed defaults comes only from the human's invocation
+  repo — beyond I9's own grants comes only from the human's invocation
   extras. Such a permitting part is dropped, with the note `— hint grant
-  refused: "<part>" — only extras grant remote acts`.
+  refused: "<part>" — only extras grant remote acts`. The one exception is
+  `issues: on` ([Preferences hint](#preferences-hint)).
 
 **Done criteria:** the source-derived ones, then the template's three fixed
 criteria, in the line format and evidence forms of
@@ -232,6 +237,8 @@ line; `/hex-loop` itself commits nothing.
 **Re-print mode** (the source is a goal file) writes nothing. It checks:
 
 - the template's seven fixed `##` headings ([Errors](#errors) (e));
+- with `issues` off, a `### Would-be issues` heading under § Issue resolution
+  ([Errors](#errors) (u));
 - § Loop shape's entry matches `Run the /hex-<mode> skill on <x>.` on one
   line, `<mode>` one of architect, plan, execute, review, finalize, `<x>` not
   empty ([Errors](#errors) (i));
@@ -280,8 +287,8 @@ an I9 default act, and the PR ref `Source:` names; any other extras sentence is
 ## The prompt
 
 [`assets/goal-prompt.md`](assets/goal-prompt.md) is the only home of the
-invariant core, I1–I11. The template body is the paste; its one edit is
-deleting forbidden I9 default acts (below). Its seven slots, each filled once
+invariant core, I1–I11. The template body is the paste; its only edits are
+the slot fills and the deletions of I9 units (below). Its seven slots, each filled once
 (`{goal-file}` renders in I8 and on the `Goal file:` line):
 
 | Slot | Filled with |
@@ -305,14 +312,18 @@ in this session" are references, not invocations.
 |---|---|---|
 | discussion | `Run the /hex-plan skill on "<title>, per <path>".` | one per bullet in its `## Requirements` |
 | ADR | `Run the /hex-plan skill on "<title>, per <path>".` | one per `## Decision` normative item |
-| plan | `Run the /hex-execute skill on <path>.` | "every WP merged" |
+| plan | `Run the /hex-execute skill on <path>.` | "every pipeline landed" |
 | spec | `Run the /hex-architect skill on <path>, then the /hex-plan skill on its design.` | one per `C-` heading |
-| PR | `Run the /hex-plan skill on <PR ref>, over its open review threads and linked issues.` | one per open item — review thread, linked or closing issue, or `#N` its body references that is still open; none → the note `— PR <ref>: 0 open items; criteria come from extras only` |
+| PR | `Run the /hex-plan skill on <PR ref>, over its open review threads and linked issues.` | one per open item — review thread, linked or closing issue, or an issue its description references that is still open (reference forms per [`forge.md`](../hex-core/references/forge.md#reference-forms)); none → the note `— PR <ref>: 0 open items; criteria come from extras only` |
 | issue | `Run the /hex-plan skill on <issue ref>.` | its acceptance criteria, else "issue resolved as stated" |
 | retro report | `Run the /hex-plan skill on "<title>, per <path>".` | one per `## Deferred` item; none → the note `— retro report <path>: 0 deferred items; criteria come from extras only` |
 | existing goal file | re-print only | its own |
 
 An extras sentence naming an entry skill wins over this table.
+
+`paused` is a first-class loop state, owned by I7: the run is waiting on
+background work or an event, and it is never a stall or a violation of any
+I-line, so a client's goal check or stop hook must not report it.
 
 What `refinement-rounds` counts — outer cycles, CI fix ⇄ re-finalize passes
 included — is defined once, in
@@ -320,13 +331,16 @@ included — is defined once, in
 
 The I9 `/hex-finalize` grant is a pasted grant under
 [`finalize.md` § Consent model](../hex-core/references/finalize.md#consent-model)
-(C-805a), which owns its bounds. I9's default acts are C-811 acts 2–4 under
-C-805a plus issue creation on this repo (a session act, not C-805a). The
-paste says "per C-805a" only — a relative link would be dead in a paste.
+(C-805a), which owns its bounds. I9's four acts are C-811 acts 2–4 under
+C-805a; its `Session grant:` sentence is a session act, not C-805a, and is
+printed only per [Preferences hint](#preferences-hint). The paste says "per
+C-805a" only — a relative link would be dead in a paste.
 
 **Forbidden I9 default acts.** I9's deletable units are the four
 `; `-separated acts after "only inside that /hex-finalize:" and the whole
-`Session grant:` sentence. A narrowing extra — or, on re-print, a § Autonomy
+`Session grant:` sentence. The `Session grant:` sentence is also deleted on
+every print the [Preferences hint](#preferences-hint) does not keep it for.
+A narrowing extra — or, on re-print, a § Autonomy
 forbidden act — that forbids one deletes that unit with its `; `; deleting
 the PR act deletes the flip too, while the flip alone can be deleted — the
 PR then stays draft, the flip withheld under
@@ -389,7 +403,25 @@ not a `config.md` key:
   - deep-verify: <workflow name>   (default unset — the full documented verification)
   - verify-bypass: <text>          (iteration only; rendered as a grant)
   - rule: <text>                   (repeatable; verbatim, routed by what it permits)
+  - issues: on | off               (default off — the run opens no issues)
 ```
+
+**`issues`** decides whether the paste's I9 keeps its `Session grant:`
+sentence, which lets the run open issues on this repo for deferrals and
+follow-ups. It is the one hint value that turns a remote act on, so it
+fails closed: a value that is not exactly `on` or `off` (`yes`, `On` and
+`true` included) is read as `off` and named in the Preferences disclosure
+line. `off`, the default, deletes the sentence on every print
+([Forbidden I9 default acts](#the-prompt)); the goal file's § Issue
+resolution then routes deferrals and follow-ups to § Would-be issues, and
+the DONE block lists them as paste-ready issues. `on` keeps the sentence
+verbatim in the paste, and the printed `— Preferences:` line then states
+`issues: on — the hint enables issue creation on this repo`. Pasting stays
+the only confirmation, and a narrowing extra still deletes the sentence.
+Without the opt-in, a widening extra can still grant issues for one run,
+through `{grants}`. The key covers issues on this repo only;
+`/hex-retro`'s upstream drafts go to the skills' own tracker by
+[their own routing](../hex-retro/SKILL.md#routing-and-gate).
 
 `verify-bypass` and the allowance part of a `rule:` render into `{grants}`
 only, each as a labelled `hint (local, this repo only)` echo, and only as
@@ -423,9 +455,10 @@ nothing is written and no paste is printed.
 | (o) cannot count | `Error: cannot count the paste (<python3 unavailable \| temp write failed>)` | install python3 or free the client's temp dir, then `/hex-loop <goal file> <widening extras>` |
 | (p) goal template not installed | `Error: goal template missing` | `grim add ghcr.io/michael-herwig/arcana/hex-init:latest` |
 | (q) re-print value invalid | `Error: <path> § <name>: <unfilled placeholder \| malformed criterion line \| Refinement rounds not a positive integer>` | fix § <name> per the goal template, then re-run |
-| (r) GitHub ref not fetchable | `Error: <ref> could not be fetched` | pass a fetchable PR ref, or the plan/issue |
+| (r) PR or issue ref not fetchable | `Error: <ref> could not be fetched` | pass a fetchable PR ref, or the plan/issue |
 | (s) re-print of a committed goal file with a PR `Source:`, and that PR ref not passed as an extra | `Error: <path> Source: <ref> is committed — the PR binding is not trusted` | if `<ref>` is the PR you mean, pass it to the re-print; otherwise `/hex-loop <the PR you mean> …` to write a fresh goal file |
 | (t) path carries a `"` or a control character, or a goal-file stem leaves an empty slug | `Error: a source or goal-file path contains a " or a control character, or its stem leaves no slug` | rename the file or the goals home to a plain path, then re-run |
+| (u) re-print of a goal file with `issues` off and no `### Would-be issues` heading | `Error: <path> § Issue resolution has no "### Would-be issues" (written before the opt-in issue grant)` | add that heading under § Issue resolution from the goal template, route steps 3 and 6 to it, then re-run |
 
 After an (l) or (o) refusal the goal file **stays written** and nothing else
 is printed.

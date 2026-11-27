@@ -41,7 +41,114 @@ vague impression that "it's probably in there somewhere."
   found command is proposed for **adoption via pointer**, never invented;
   only what the user consents to record in project context is what hex
   runs — see
-  [`verify.md` § Verification › Scoped check](../../hex-core/references/verify.md#scoped-check).
+  [`verify.md`](../../hex-core/references/verify.md).
+
+### Single-build job count recorded?
+
+- **Look for:** one build's parallel-job setting — the budget live
+  pipelines share (live pipelines × jobs per pipeline ≤ this number).
+- **Where:** build configs (`.cargo/config.toml` `jobs`, `make -j` in a
+  Makefile or task, `bazel --jobs`, `ninja -j`, `pytest -n`), and
+  `hex.md › Pointers`.
+- **Documented looks like:** a `Build jobs: <n>` row, or a number the
+  project documents. Where nothing is configured, record `unset` and
+  propose a number only with consent — never fabricate one.
+- **De facto discovery:** read the configs above; the tool's own default
+  (all cores) counts as the number only when the user confirms it.
+
+### No worker-side build locks?
+
+- **Look for:** an instruction or script that makes a worker wait — a
+  build lock, a semaphore, a "take the heavy slot" step, a serialized
+  wrapper around the build or test command.
+- **Where:** project lessons (`hex.md › Memory`, `.agents/` lessons and
+  worker briefs such as a shared brief file), project scripts and task
+  wrappers (`flock`, lock-directory loops, `*lock*` tasks).
+- **Clean looks like:** none, or the exclusive tool runs at the
+  orchestrator's gates only. Workers never wait: a step that needs an
+  exclusive check hands it to the orchestrator and returns.
+- **Fix:** propose the exact reword or removal as a diff; write it only with
+  consent.
+
+### Verify-before-commit lines carry a hex-run carve-out?
+
+- **Look for:** always-on lines in project context that tell every agent
+  to run the full verification before committing.
+- **Where:** the project-context file(s); also commit hooks (hex commits
+  with `--no-verify`).
+- **Documented looks like:** each such line states that a hex run is the
+  exception — the run's integration and release gates satisfy it. Without
+  that, the line is injected into every subagent and puts the full gate
+  back on every step.
+- **Fix:** propose the one carve-out sentence as a diff; consent-gated.
+
+### Scoped commands that escalate to full?
+
+- **Look for:** a selective or "affected" test command, task or script that
+  falls through to the full suite on some input — a shared crate, a
+  lockfile, a config touched.
+- **Where:** task runners and scripts behind the selective command found
+  above.
+- **Clean looks like:** the narrow command a step may use (package-level
+  test, one test file) never escalates; any escalation is confined to the
+  gates.
+- **Fix:** report it and propose naming the plain narrow command in project
+  context; consent-gated.
+
+### Hub / generated file list documented?
+
+- **Look for:** files pipelines must never commit — lockfiles, baselines,
+  goldens, generated schemas, snapshots — and the minimal command that
+  regenerates each (no dependency upgrade).
+- **Where:** project context; the repo root and test trees.
+- **Documented looks like:** a `Hub files: <location>` row pointing at a
+  list with the regeneration command per entry.
+- **De facto discovery:** lockfiles (`Cargo.lock`, `uv.lock`,
+  `package-lock.json`), `*.snap`, `golden/` or `baselines/` trees, files
+  headed "generated" or "do not edit". Proposed for **adoption via
+  pointer**.
+
+### Release gate no-cache switch documented?
+
+- **Look for:** the project's way to run the full verification fresh, with
+  no cache — the release gate (`/hex-finalize`) runs it that way.
+- **Where:** project context, CI config, task runners.
+- **Documented looks like:** a runnable switch or command — a clean target,
+  `--no-cache`, an env var — recorded as a `Fresh gate:` row; or an explicit
+  "no cache in this project".
+
+### Full suite proven by CI documented? (conditional)
+
+Asked only when project context, CI config or the run history shows that
+the full suite cannot run locally — CI-only toolchains, a documented suite
+too long for a gate, failures by design outside CI.
+
+- **Look for:** the CI workflow or job that runs the full suite on the
+  pushed head, and a documented selective command
+  ([above](#selective-test-command-documented)) to run locally in its place
+  ([`verify.md` § Full suite proven by CI](../../hex-core/references/verify.md#full-suite-proven-by-ci)).
+- **Where:** project context, and `hex.md › Pointers` for a `Full suite:`
+  row.
+- **Documented looks like:** a `Full suite: <CI workflow or job>` row, with
+  the selective command documented beside it. Absent is the default and
+  silent: both gates run the full verification locally. Proposed in project
+  context plus the row, with consent; never inferred from one slow run.
+
+### Forge declared? (conditional)
+
+Asked only when detection is ambiguous: the `origin` host is neither
+`github.com` nor `gitlab.com` and neither CLI is signed in for it, or the
+project hosts on another forge or a self-hosted instance the CLIs cannot
+identify.
+
+- **Look for:** which forge the project uses and, for a self-hosted
+  instance, its host
+  ([`forge.md` § Which forge](../../hex-core/references/forge.md#which-forge)).
+- **Where:** project context, `git remote get-url origin`, and
+  `hex.md › Pointers` for a `Forge:` row.
+- **Documented looks like:** a `Forge:` row — `github`, `gitlab` or `none`,
+  with an optional host. Proposed with consent; never guessed from a URL
+  path.
 
 ### Commit and landing requirements documented?
 
@@ -183,6 +290,9 @@ asked nothing, and hex never raises the question on its own.
   `Goal loop:` sub-item for adoption as `hex.md › Preferences` prose, with
   consent. It is prose, never a config key: `config.md`'s vocabulary gains
   nothing here.
+- **Issues are opt-in.** Propose the `issues:` sub-item only when the user
+  asks for hex-loop runs to open issues on this repo
+  ([`hex-loop/SKILL.md`](../../hex-loop/SKILL.md#preferences-hint)).
 - **Optional** — no candidates and no hint means the shipped defaults
   apply and the item stays silent.
 
@@ -229,15 +339,13 @@ asked nothing, and hex never raises the question on its own.
 
 ### Worktree path gitignored?
 
-- **Look for:** whether the path `/hex-execute` uses for parallel work
-  packages (`.agents/worktrees/` by default, or a project-declared
+- **Look for:** whether the path `/hex-execute` uses for parallel pipelines (`.agents/worktrees/` by default, or a project-declared
   alternative) is excluded from version control.
 - **Where:** the ignore file (`.gitignore` or equivalent), and
   `hex.md › Pointers` for a declared alternative path.
 - **Resolved looks like:** the exact path (with trailing slash) present in
-  the ignore file. Flag it if `.agents/` is ignored wholesale — that drops
-  the team-shared `.agents/memory/hex.md` from version control and
-  must be narrowed to `.agents/worktrees/` specifically.
+  the ignore file. Whether the rule reaches further is the
+  [versioned-homes item](#versioned-hex-homes-not-ignored)'s check.
 
 ### Retro home gitignored? (conditional)
 
@@ -245,8 +353,51 @@ Asked only when a retro home exists (`.agents/retro/`, or the Pointers `Retro:` 
 
 - **Look for:** the retro inbox (`<home>/inbox/`) excluded from version control.
 - **Where:** the ignore file, and `hex.md › Pointers` for a declared home.
-- **Resolved looks like:** the exact path `<home>/inbox/` (trailing slash) in the ignore file, with `<home>/ledger/` and `<home>/reports/` **not** ignored. Flag `.agents/` or `<home>/` ignored wholesale — that drops the committed ledger and reports.
-- **Recorded as:** one `hex.md › Pointers` row — ``- Retro: `<home>` — inbox (gitignored), ledger + reports (committed); owner /hex-retro.`` `/hex-retro` reads this row, never writes it.
+- **Resolved looks like:** the exact path `<home>/inbox/` (trailing slash) in the ignore file. That `<home>/ledger/` and `<home>/reports/` stay versioned is the [versioned-homes item](#versioned-hex-homes-not-ignored)'s check.
+- **Recorded as:** one `hex.md › Pointers` row — ``- Retro: `<home>`; owner /hex-retro.`` `/hex-retro` reads this row, never writes it. Which parts of the home git tracks is [`memory.md` § Version control](../../hex-core/references/memory.md#version-control)'s.
+
+### Versioned hex homes not ignored?
+
+Unconditional — the converse of the two items above, which prove the
+local paths are ignored but pass a rule that hides more. The usual source
+is a change that silences an uncommitted plan or goal file with an ignore
+line (`.agents/plans/`) instead of leaving it uncommitted; a wholesale
+`.agents/` line is the same defect, only broader.
+
+- **Look for:** an ignore rule matching any row that
+  [`memory.md` § Version control](../../hex-core/references/memory.md#version-control)
+  marks versioned — `hex.md`'s directory, every artifact home, and the
+  project configuration paths (`.agents/workers/`, `.agents/workflows/`,
+  the seeded templates) — resolved from project context and
+  `hex.md › Pointers`, the `.agents/` default otherwise. Probe every path
+  the resolution names, not only the ones that exist yet: a rule added
+  before the first plan hides it silently.
+- **Where:** git itself, never a read of one ignore file — a rule can sit
+  in any `.gitignore` on the path, in `.git/info/exclude`, or in the
+  user's `core.excludesFile`. One probe per home, named like the home's
+  own artifacts (`hex-probe.json` in the retro ledger). `-q` decides;
+  `-v` only names the source of a real hit:
+
+  ```sh
+  git check-ignore -q <home>/hex-probe.md && git check-ignore -v <home>/hex-probe.md
+  ```
+
+  Never decide on `-v`'s exit code: it exits 0 as well when the last
+  matching line is an un-ignore (`!…`) that re-includes the path, which
+  is a pass.
+  The probe path must not exist, and it is never created: git never
+  reports a tracked file as ignored, so checking a plan that is already
+  committed passes even with the rule in place. Its artifact-shaped name
+  makes a pattern that hides only real artifacts (`*.md`) count too.
+- **Resolved looks like:** `-q` exits 1 for every home. Exit 0 is a
+  finding: paste the `<source>:<line>:<pattern>` that `-v` prints —
+  evidence, never narration. Exit 128 is a git error, reported, never read
+  as a pass.
+- **Fix offered:** delete the matching ignore line, or narrow it to the two
+  local paths, with a diff first and consent — never an un-ignore (`!…`)
+  line, which keeps a path versioned. A hit in `.git/info/exclude`
+  or `core.excludesFile` lives outside the repository: report it with its
+  source and leave the file alone.
 
 ### Cross-model adversary skill installed?
 
@@ -279,7 +430,7 @@ Asked only when a retro home exists (`.agents/retro/`, or the Pointers `Retro:` 
 
 - **Look for:** whether `hex.md › Preferences` carries a `review:` block
   ([`config.md`](../../hex-core/references/config.md#key-vocabulary)
-  `review.<level>.*`), and whether `hex.md › Memory` records a review-config
+  `review.*`), and whether `hex.md › Memory` records a review-config
   or checklist candidate a prior run surfaced under the
   [upkeep step](../../hex-core/references/protocol.md#upkeep-step).
 - **Where:** `.agents/memory/hex.md` only. No network read; executes
@@ -289,39 +440,15 @@ Asked only when a retro home exists (`.agents/retro/`, or the Pointers `Retro:` 
   defaults are accepted.
 - **De facto discovery:** a Memory entry naming a budget expiry, a residue
   line, a round count, or a finding class that recurred — each proposes the
-  matching `review.<level>.*` key, or a project-rule line the
+  matching `review.*` key, or a project-rule line the
   [checklist](../../hex-core/references/checklist.md#composition) will pick
   up, for adoption, folded into Step 4½'s single consent-gated diff.
 - **Optional** — no candidates and no block means the shipped defaults
   apply and the item stays silent.
 
-### Resource profile measured?
-
-- **Look for:** whether `hex.md › Pointers` carries a `Resource profile:`
-  entry — the peak RSS, wall time, and `light`/`heavy` class this
-  project's own documented verification gate measured, plus the
-  heavy-command ceiling derived from them.
-- **Where:** `.agents/memory/hex.md › Pointers`.
-- **Documented looks like:** the four values
-  [`resources.md` § 2](../../hex-core/references/resources.md#2-the-measured-resource-profile)
-  defines, recorded from an actual run on **this host** — never a number
-  picked because it looks right for the ecosystem or the project's size.
-  A project classed `light` (parse-only verification) is no exception;
-  what its ceiling is for is that section's, not restated here.
-- **De facto discovery:** where no `Resource profile:` entry exists,
-  measure it — run the project's own documented verification gate once
-  under the portable peak-RSS ladder and derive the ceiling from what
-  this host measured; see
-  [`resources.md` § The measured resource profile](../../hex-core/references/resources.md#2-the-measured-resource-profile).
-  Where no rung on this host can measure it, record the profile
-  **absent** and announce the degrade — never fabricate a number for a
-  host that could not be measured; the heavy-command ceiling then falls
-  back to its documented floor rather than a guess.
-
 ### Agent worktrees excluded from watchers and indexers?
 
-- **Look for:** whether the path `/hex-execute` uses for parallel work
-  packages (`.agents/worktrees/` by default, or a project-declared
+- **Look for:** whether the path `/hex-execute` uses for parallel pipelines (`.agents/worktrees/` by default, or a project-declared
   alternative) is excluded from IDE file watchers, project-wide search
   indexes, and other background indexing tools — a concern distinct
   from version control: an untracked worktree can still be watched,
@@ -459,18 +586,27 @@ Selective tests: run `<template, e.g. nx affected -t test --base={base}>`
 for the tests a change affects; `<command>` still runs the full suite.
 ```
 
-Two `hex.md › Pointers` rows record where each is documented, in this
-grammar:
+A `hex.md › Pointers` row records where it is documented, in this grammar:
 
 ``- Selective tests: `<location>` — where the selective test command is documented.``
-``- Sensitive paths: `<location>` — where the project's security-sensitive / hot-path convention is documented.``
 
-The second row is the named source the high-risk merge trigger reads —
-distinct from the `Key rules` pointer, which names the rule files
-themselves. It records **where the convention is documented**, never a
-path list and never a judgment, and it is proposed off the [rules
-item](#rules-carry-architectural-context) whether or not a selective
-command was found.
+### Run-cost rows
+
+Four more `hex.md › Pointers` rows, proposed from the run-cost items above
+and written only with consent:
+
+``- Build jobs: `<n>` — one build's parallel jobs; live pipelines × jobs per pipeline stay within it.``
+``- Hub files: `<location>` — lockfiles, baselines, goldens, with regeneration commands; pipelines never commit them.``
+``- Fresh gate: `<command or switch>` — the no-cache full verification the release gate runs.``
+``- Full suite: `<CI workflow or job>` — proves the full suite on the pushed head; the gates run the selective command locally.`` (only when the full suite cannot run locally)
+
+When a verify-before-commit line has no carve-out, the proposed sentence
+for project context is:
+
+```markdown
+In a hex run (a /hex-execute pipeline or step), the run's integration and
+release gates satisfy "verify before commit"; commits use `--no-verify`.
+```
 
 ### Spec / plan / ADR conventions block
 
@@ -518,15 +654,23 @@ Short facts may instead live directly as a `## Product` section in the
 context file when there is too little to warrant a separate doc
 ([`memory.md`](../../hex-core/references/memory.md#destination-of-knowledge)).
 
-### Worktree gitignore line
+### hex ignore block
 
 ```gitignore
+# hex: only these two paths stay local (the defaults; a moved worktree path
+# or retro home changes the lines). Everything else hex writes is versioned.
+# Never add a line here to keep an artifact out of a change: leave it
+# uncommitted.
 .agents/worktrees/
+.agents/retro/inbox/
 ```
 
-Never `.agents/` wholesale — `.agents/memory/hex.md` is team-shared
-memory and belongs in version control; only the transient worktree
-checkouts are ignored.
+Proposed by the worktree and retro items above; with a declared worktree
+path or retro home, the lines name those. Never `.agents/` wholesale and
+never one artifact home —
+[`memory.md` § Version control](../../hex-core/references/memory.md#version-control)
+is the full table. The comment ships with the lines because it sits where
+the next edit happens: an agent extending this block reads it first.
 
 ### Discovery note block
 
