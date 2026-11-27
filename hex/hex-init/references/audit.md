@@ -117,23 +117,22 @@ vague impression that "it's probably in there somewhere."
   `--no-cache`, an env var — recorded as a `Fresh gate:` row; or an explicit
   "no cache in this project".
 
-### Gate level documented? (conditional)
+### Full suite proven by CI documented? (conditional)
 
 Asked only when project context, CI config or the run history shows that
 the full suite cannot run locally — CI-only toolchains, a documented suite
 too long for a gate, failures by design outside CI.
 
-- **Look for:** whether the project runs the gates `targeted` — the
-  selective command locally, the full suite proven by CI
-  ([`verify.md` § Gate level](../../hex-core/references/verify.md#gate-level)).
-- **Where:** project context, and `hex.md › Pointers` for a `Gate level:`
+- **Look for:** the CI workflow or job that runs the full suite on the
+  pushed head, and a documented selective command
+  ([above](#selective-test-command-documented)) to run locally in its place
+  ([`verify.md` § Full suite proven by CI](../../hex-core/references/verify.md#full-suite-proven-by-ci)).
+- **Where:** project context, and `hex.md › Pointers` for a `Full suite:`
   row.
-- **Documented looks like:** `full` (the default, silent), or `targeted`
-  with both a documented selective command
-  ([above](#selective-test-command-documented)) and the CI workflow or job
-  that runs the full suite on the pushed head. Proposed in project context
-  plus the `Gate level:` row, with consent; never inferred from one slow
-  run.
+- **Documented looks like:** a `Full suite: <CI workflow or job>` row, with
+  the selective command documented beside it. Absent is the default and
+  silent: both gates run the full verification locally. Proposed in project
+  context plus the row, with consent; never inferred from one slow run.
 
 ### Forge declared? (conditional)
 
@@ -599,7 +598,7 @@ and written only with consent:
 ``- Build jobs: `<n>` — one build's parallel jobs; live pipelines × jobs per pipeline stay within it.``
 ``- Hub files: `<location>` — lockfiles, baselines, goldens, with regeneration commands; pipelines never commit them.``
 ``- Fresh gate: `<command or switch>` — the no-cache full verification the release gate runs.``
-``- Gate level: `targeted` — full suite: `<CI workflow or job>` on the pushed head; locally the selective command.`` (only when not `full`)
+``- Full suite: `<CI workflow or job>` — proves the full suite on the pushed head; the gates run the selective command locally.`` (only when the full suite cannot run locally)
 
 When a verify-before-commit line has no carve-out, the proposed sentence
 for project context is:

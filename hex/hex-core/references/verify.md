@@ -76,14 +76,14 @@ skip it.
 **Exactly two full gates per run, fixed by count; no flag, risk or tier
 upgrades anything to one, and nothing adds a third.**
 
-1. **Integration** — the project's documented verification at its
-   [gate level](#gate-level) (the full suite at `full`), on the feature
+1. **Integration** — the project's documented verification, run locally unless a
+   [`Full suite:` row](#full-suite-proven-by-ci) moves the full suite to CI, on the feature
    branch, once every pipeline has landed and the hub and generated
    files are regenerated ([worktree](worktree.md#pipeline-worktree-mechanics)).
    It runs **concurrently with** the review call, and one fix pass serves
    both ([the run loop](loop.md#the-review-fix-loop)).
-2. **Release** — `/hex-finalize`: the documented verification at its
-   [gate level](#gate-level) (the full suite at `full`), **fresh, with no
+2. **Release** — `/hex-finalize`: the documented verification, run locally unless a
+   [`Full suite:` row](#full-suite-proven-by-ci) moves the full suite to CI, **fresh, with no
    cache** (`/hex-init`
    records the project's switch), plus the project's hooks and lint over the
    final range.
@@ -95,34 +95,41 @@ then stop and hand the outstanding failure to the user.** A re-run is not a
 further gate. Heavy and exclusive tools run here, at a gate, and nowhere
 else.
 
-### Gate level
+### Full suite proven by CI
 
-**Both gates run at the level project context documents — `full` or
-`targeted` — cached as the `hex.md › Pointers` row `Gate level:`; absent
-means `full`.** hex never picks the level itself.
+**A project whose full suite cannot run locally — CI-only toolchains, or a
+suite too long for a gate — declares the CI workflow or job that proves it
+in the `hex.md › Pointers` row `Full suite:`.** The row means: that job,
+green on the pushed head, is the full suite's proof. Absent, both gates run
+the project's full documented verification locally, as above. hex never adds
+the row itself.
 
-- **`full`** — the full documented verification, locally, as above.
-- **`targeted`** — for a project whose full suite cannot run locally:
-  CI-only toolchains, or a suite too long for a gate. Locally, a gate runs
-  the project's documented selective test command over the files the whole
+The row takes effect only when all three hold: a documented selective test
+command
+([`/hex-init` § Selective test command](../../hex-init/references/audit.md#selective-test-command-documented)),
+the named CI job, and a forge that resolves
+([`forge.md` § Which forge](forge.md#which-forge)) with a CLI or MCP read
+that can reach the run. If any is missing, both gates run the full suite
+locally, and the gate rows say so.
+
+With the row in effect:
+
+- **Locally**, a gate runs the selective command over the files the whole
   feature branch touches — the integration gate
   `<merge-base with the target>..HEAD`, contract wave included, the release
   gate `<fetched target>..<branch>` — and the release gate adds the hooks
   and lint as above. *Fresh* then means no reused build or test results;
   the selection state the command reads (a testmon database, an
-  affected-graph cache) stays, or it would select everything. **The full
-  suite's proof is the CI run on the pushed head**: the workflow or GitLab
-  job the `Gate level:` row names, read — never dispatched — by
-  `/hex-finalize`, which holds the draft → ready flip until that run is
-  green ([`finalize.md` § Remote verification](finalize.md#remote-verification)).
-  A targeted run is never reported as the full suite: its row reads
-  `targeted (<command>)`, and the full suite counts as proven only once that
-  CI run is green — red names the failing job, and a run still going is
-  never a pass.
-
-`targeted` needs a documented selective command
-([`/hex-init` § Selective test command](../../hex-init/references/audit.md#selective-test-command-documented))
-and a named CI job; without both, the gates run `full`.
+  affected-graph cache) stays, or it would select everything.
+- **The full suite's proof** is the named CI job on the pushed head. It is
+  read, never dispatched, by `/hex-finalize`, which holds the draft → ready
+  flip until that run is green
+  ([`finalize.md` § Remote verification](finalize.md#remote-verification)).
+- **Reporting.** A selective run is never reported as the full suite. The
+  gate row names the selective command and the CI job with its read result:
+  `selective (<command>); full suite: <job> — green | red | running | no
+  run | unread`. The full suite counts as proven only on `green`; red names
+  the failing job, and a run still going is never a pass.
 
 ### Commits and hooks
 

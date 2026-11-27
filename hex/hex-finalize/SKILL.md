@@ -127,7 +127,7 @@ judged per run**. The class definitions live in
 [`finalize.md` § Trust classes](../hex-core/references/finalize.md#trust-classes).
 
 **Resolver A — authoritative-only.** The **target branch**, the **merge
-strategy**, the **release workflow list**, the **verification level** — and the
+strategy**, the **release workflow list**, the **`Full suite:` row** — and the
 **branch-protection, ruleset and required-check reads** that supply enforcement
 for every row of both resolvers. Each selects *what code runs* or *what history
 is replaced*, so "narrowing" has no meaning for any of them and no checked-in
@@ -162,12 +162,12 @@ final range. What runs, red handling and `--no-verify` are
 Verification is **inherited, never invented**: the project's own documented
 level
 ([`verify.md` § Verification](../hex-core/references/verify.md#verification)),
-at whatever that documentation names as release-grade, and at its
-documented [gate level](../hex-core/references/verify.md#gate-level): under
-`targeted`, the selective command runs locally and the named CI run on the
-pushed head is the full suite's proof, reported green, red or still running,
-never assumed, and the draft → ready flip waits for it
-([`finalize.md` § Remote verification](../hex-core/references/finalize.md#remote-verification)). hex neither defines test tiers nor decides which suite is
+at whatever that documentation names as release-grade. Where the project
+declares a `Full suite:` row, the full suite's proof is the named CI job on
+the pushed head, read and reported green, red or still running, never
+assumed, and the draft → ready flip waits for it
+([`verify.md` § Full suite proven by CI](../hex-core/references/verify.md#full-suite-proven-by-ci),
+[`finalize.md` § Remote verification](../hex-core/references/finalize.md#remote-verification)). hex neither defines test tiers nor decides which suite is
 expensive.
 
 Where none is documented, **detection is bounded to authoritative-class
@@ -303,7 +303,7 @@ an unasked question:
    beside the forge login and distinct from it;
 7. **the other authors on the branch**, so the human sees whose work they are
    attesting to;
-8. the **release gate result** — its gate level, runs, the fresh/no-cache
+8. the **release gate result** — its runs, the selective command and the `Full suite:` job with its read result where that row is in effect, the fresh/no-cache
    switch or `cache: unknown`, hooks and lint — **and whether it re-ran**
    after the rebase;
 9. the **rebase result, and whether the base advanced**;
@@ -429,7 +429,7 @@ check, local-only and success alike. It carries:
   ([`finalize.md` § Degrade ladder](../hex-core/references/finalize.md#degrade-ladder));
 - the **backup ref under its terminal, inert name**, with the note that pruning
   inert refs after a merge is the human's — or, for a flip held for the
-  `targeted` full-suite job, under its **armed** name, with how a later
+  `Full suite:` job, under its **armed** name, with how a later
   `/hex-finalize` resumes and the one rename that releases it;
 - **`Next:`** — the merge is the human's, so the line **names it as such and
   emits no hex command**.

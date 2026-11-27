@@ -156,6 +156,11 @@ reported, never silently skipped.
 | Dispatch a workflow | `gh workflow run <file> --ref <branch>` | `glab ci run --branch <branch>` | See the units below |
 | Watch a run | `gh run watch <id>` | `glab ci status --branch <branch>` | `glab` is scoped to a branch's pipeline, not a run id |
 | Rerun failed jobs | `gh run rerun <id> --failed` | `glab ci retry` | |
+| Read the full-suite run (a read, never a dispatch) | `gh run list --commit <pushed-sha> --workflow <workflow> --json databaseId,event,status,conclusion,url`, taking the run whose `event` is `push` or `pull_request`; `gh run view <id> --json jobs` when the row names a job | `glab ci get --branch <branch> --output json`, taking the pipeline whose `sha` is the pushed SHA and the named job in its `jobs` | The run the forge started on the push, not one finalize started. GitHub: `status` not `completed` is running, `conclusion` `success` is green, no matching run is no run. GitLab: the job's `status` (`success`, `running`, `failed`) |
+
+The full-suite run row is a read, listed here beside the dispatch and watch
+rows it is used with; [`finalize.md` § Remote verification](finalize.md#remote-verification)
+says when it is read and what each result decides.
 
 **Dispatch units differ; this is a mapping, not a degrade.** GitHub
 dispatches once per workflow file, against the pushed final SHA, and the

@@ -160,10 +160,11 @@ re-validation and the conflict playbook are
 When every pipeline has merged, **in the background and concurrently**:
 
 - **Integration gate** — the project's documented verification on the
-  feature branch at its
-  [gate level](../hex-core/references/verify.md#gate-level) (the full suite
-  at `full`)
-  ([`verify.md`](../hex-core/references/verify.md#verification)),
+  feature branch
+  ([`verify.md`](../hex-core/references/verify.md#verification); with a
+  `Full suite:` row in effect, the selective command locally and the full
+  suite proven by CI, per
+  [`verify.md` § Full suite proven by CI](../hex-core/references/verify.md#full-suite-proven-by-ci)),
   after regenerating the hub and generated files once, minimally (no
   `cargo update`).
 - **Review call** — one autonomous `/hex-review` over `anchor..HEAD`: staged

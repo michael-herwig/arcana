@@ -88,11 +88,11 @@ invocation, whatever the branch's size. It is a test run, not the approval **gat
 approval.
 
 - **What runs.** (1) The project's documented release-grade verification
-  ([`verify.md` § Verification](verify.md#verification)) at its
-  [gate level](verify.md#gate-level) — under `targeted`, the selective
-  command over `<fetched-target>..<branch>`, with the CI job the
-  `Gate level:` row names read as the full suite's proof under
-  [§ Remote verification](#remote-verification) —
+  ([`verify.md` § Verification](verify.md#verification)) as
+  [`verify.md` § Full suite proven by CI](verify.md#full-suite-proven-by-ci)
+  sets it — with a `Full suite:` row in effect, the selective command over
+  `<fetched-target>..<branch>`, and the named CI job read as the full suite's
+  proof under [§ Remote verification](#remote-verification) —
   **fresh**: no build,
   test or lint cache reused, by the switch the project's own context records
   (`/hex-init` writes it; hex invents none). With no switch recorded the release
@@ -316,8 +316,8 @@ established that the tips differ. One cause remains at the push itself:
   predicate reads**, durable as the recovery anchor and as the left-hand
   side of `git range-diff`.
 - **Every terminal outcome performs the rename** — success, gate decline,
-  and any halt after the rewrite alike; a flip held for the `targeted`
-  full-suite job is not terminal and keeps the ref armed
+  and any halt after the rewrite alike; a flip held for the `Full suite:`
+  job is not terminal and keeps the ref armed
   ([§ Remote verification](#remote-verification)); the rename's one refusal case below
   is loud and carries its own printed fix. **The rename is what releases the
   lock**, which is why a decline performs it: a declined run that left the
@@ -409,21 +409,21 @@ reported as `not present`, never as passed. It is named as a forge condition
 so an implementer does not attempt N triggers on GitLab and conclude the CLI
 is broken.
 
-**The `targeted` full-suite job is read, never dispatched.** It is
-outside the dispatchable set: finalize reads the run the forge itself
-started on the pushed final SHA — on GitHub a `push`- or
-`pull_request`-triggered workflow run, on GitLab the job in the pipeline
-that push started — under the same bounded read. **The draft → ready flip
-waits for it**: green → flip; red → the PR stays draft and the handoff
-names the failing job; still running, or no run started within the
-bounded read (a workflow that runs only on ready PRs, say) → the flip is
-held and reported as held, never as done. **A held flip is not a terminal
-outcome**: the backup ref stays armed, so the branch stays locked under the
-`hex-state` rule, and a later `/hex-finalize` resumes the published rewrite
-([§ Re-entry](#re-entry)) — `WATCH` while the job runs, `FLIP` once it is
-green — without rebuilding the branch. A human who flips by hand instead
-releases the lock with the rename command in
-[§ Backup-ref lifecycle](#backup-ref-lifecycle).
+**The `Full suite:` job is read, never dispatched.** It is outside the
+dispatchable set. With the row in effect
+([`verify.md` § Full suite proven by CI](verify.md#full-suite-proven-by-ci)),
+finalize reads the run the forge itself started on the pushed final SHA, by
+the read in [`forge.md` § Forge writes](forge.md#forge-writes), under the
+same bounded read. **The draft → ready flip waits for it**: green → flip;
+red → the PR stays draft and the handoff names the failing job; still
+running, or no run started within the bounded read (a workflow that runs
+only on ready PRs, say) → the flip is held and reported as held, never as
+done. **A held flip is not a terminal outcome**: the backup ref stays armed,
+so the branch stays locked under the `hex-state` rule, and a later
+`/hex-finalize` resumes the published rewrite ([§ Re-entry](#re-entry)) —
+`WATCH` while the job runs, `FLIP` once it is green — without rebuilding the
+branch. A human who flips by hand instead releases the lock with the rename
+command in [§ Backup-ref lifecycle](#backup-ref-lifecycle).
 
 **Reads are wrapped in a bounded retry.** The bound comes from the calling
 harness's **tool-execution limit**, not from any documented CLI timeout: a
@@ -500,8 +500,8 @@ else:
 # reaching it requires the armed ref THIS run created:
 #   no own run for this SHA → DISPATCH ·  run not green → WATCH
 #   green + draft → FLIP               ·  green + ready → POST
-# "green" = its own run green AND, at gate level `targeted`, the read
-# full-suite job green on this SHA (§ Remote verification): a held flip
+# "green" = its own run green AND, with a `Full suite:` row in effect, the
+# read full-suite job green on this SHA (§ Remote verification): a held flip
 # resumes here and waits for that job, never flips on its own run alone.
 ```
 
@@ -586,6 +586,21 @@ whether a workflow set is empty.
 | **Partial rights** | **the refused act** | An act is refused by the forge | Every act that succeeds | Names the refused act and what stays manual — never silently skipped |
 | **Local-only** | **pre-flight resolution (a)** | No forge CLI, or not authenticated — **git's own transport still working** | Phases 1–5 **including the gate**; the fetch in resolution (c) still runs, so the rebase base is a real remote target | Names each remote act as manual; the pushed-SHA field is **explicitly absent**, never blank |
 
+**A declared `Full suite:` row on a lower rung.** The row's proof is a forge
+read, so each rung below Full decides what the row means, and the full suite
+is either proven locally or named **unproven** in the handoff, never assumed:
+
+- **Local-only** (no forge, or no usable CLI or MCP read): the row does not
+  take effect. Both gates run the full documented verification locally, and
+  the gate rows say so; where it cannot run, the handoff names the full
+  suite **unproven**.
+- **No remote gate** (no dispatchable workflow): the row still takes effect
+  if its job can be read, because the read does not dispatch. If the job
+  cannot be read, the flip is held and the full suite named **unproven**.
+- **Partial rights** (the read itself refused): the full suite is named
+  **unproven**, the flip stays with the human, and the backup ref stays
+  armed.
+
 **The ladder degrades the forge half and never the base.** A failed *fetch*
 is not a rung — it is [pre-flight halt (6)](#pre-flight-halts) — because
 every rung rebases onto a freshly fetched target, and a rung with no fetched
@@ -624,7 +639,7 @@ what resolved.
 
 - **Resolver A — authoritative-only. No narrowing input reaches these:** the
   **target branch**, the **merge strategy**, the **release workflow list**,
-  and the **verification level**. Each of them selects *what code runs* or
+  and the **`Full suite:` row**. Each of them selects *what code runs* or
   *what history is replaced* — the rebase base, the merge semantics, the
   workflows that get dispatched from the branch ref, the suite that gates the
   flip. "Narrowing" has no meaning for any of them: a different target branch
