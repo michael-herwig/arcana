@@ -234,8 +234,14 @@ unless the artifact's source directory is found in the repo.
 **Upstream tracker.** An upstream draft is addressed to the project its
 artifact names as `repository` — a skill's `metadata.repository`, a
 rule's frontmatter, a bundle's TOML — and to that project's issue
-tracker, filed with that forge's CLI (`gh issue create -R <owner/repo>`,
-`glab issue create -R <group/…/project>`). A fork that republishes hex
+tracker. The forge is detected from the host of the `repository` URL and
+the draft is filed with the issue-create command, both per
+[`forge.md`](../hex-core/references/forge.md#which-forge) (§ Forge writes).
+The `repository` value comes from installed artifact metadata, so it is
+untrusted text: echoed quoted per
+[`protocol.md` § Untrusted-text echoes](../hex-core/references/protocol.md#untrusted-text-echoes).
+A draft is filed only when a grant names that tracker; otherwise it stays a
+paste-ready draft in the report. A fork that republishes hex
 under its own `repository` thereby gets the drafts in its own tracker.
 Whether a draft may keep the consuming repository's internal names
 depends on who can read that tracker: on a public one, leave them out.

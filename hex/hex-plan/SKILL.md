@@ -39,9 +39,7 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
   ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **target** (one of):
   - free-text prompt;
-  - a **PR or issue reference** on GitHub or GitLab — `<N>`, `#<N>`, `!<N>`,
-    `PR <N>`, `issue <N>`, or a full URL; the forms and which forge they
-    resolve on are in
+  - a **PR or issue reference**, in the forms of
     [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
 - **flags** (before the target, by convention):
   - `--architect=inline|on` — override the Design phase (see

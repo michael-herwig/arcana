@@ -135,6 +135,22 @@ too long for a gate, failures by design outside CI.
   plus the `Gate level:` row, with consent; never inferred from one slow
   run.
 
+### Forge declared? (conditional)
+
+Asked only when detection is ambiguous: the `origin` host is neither
+`github.com` nor `gitlab.com` and neither CLI is signed in for it, or the
+project hosts on another forge or a self-hosted instance the CLIs cannot
+identify.
+
+- **Look for:** which forge the project uses and, for a self-hosted
+  instance, its host
+  ([`forge.md` § Which forge](../../hex-core/references/forge.md#which-forge)).
+- **Where:** project context, `git remote get-url origin`, and
+  `hex.md › Pointers` for a `Forge:` row.
+- **Documented looks like:** a `Forge:` row — `github`, `gitlab` or `none`,
+  with an optional host. Proposed with consent; never guessed from a URL
+  path.
+
 ### Commit and landing requirements documented?
 
 - **Look for:** whether the project requires DCO sign-off, signed commits,

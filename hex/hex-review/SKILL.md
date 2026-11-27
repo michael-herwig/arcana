@@ -49,8 +49,7 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
     working tree is clean, fall back to the current branch's diff against the
     resolved baseline and say so in the announce block.
   - a **branch name** — diffed against the resolved baseline.
-  - a **PR reference** on GitHub or GitLab — `<N>`, `#<N>` (GitHub only),
-    `!<N>`, `PR <N>`, `MR <N>`, or a full PR/MR URL; the forms are in
+  - a **PR reference**, in the forms of
     [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
     A reference that resolves to an issue is not a review target: say so
     and stop.

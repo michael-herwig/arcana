@@ -45,9 +45,8 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
 
 - a **path** to a discussion, ADR, plan, spec, or goal file — repo-relative,
   absolute, or in a sibling repo; read as a read-only pointer, never edited;
-- a PR or issue reference on GitHub or GitLab — `#N`, `!N`, `PR N`,
-  `issue N`, or a full URL
-  ([`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms)).
+- a PR or issue reference, in the forms of
+  [`forge.md` § Reference forms](../hex-core/references/forge.md#reference-forms).
 
 **A path's kind** is read from its first `#` heading — `# Discussion:`,
 `# ADR:`, `# Plan:`, `# Spec:` (the hex-init templates), or `# Retro:` (a
@@ -78,7 +77,9 @@ the PR checks below could run.
 
 **A PR source** is fetched with its `state`. Whatever that state, it must be
 a same-repo PR of this checkout: its base repo is this checkout's repo and
-its head repo is the base repo — else [Errors](#errors) (g). An open one
+its head repo is the base repo, checked per
+[`forge.md` § Field names](../hex-core/references/forge.md#field-names) — else
+[Errors](#errors) (g). An open one
 must also be a branch PR: its head branch is neither the base nor the
 default branch, and the head branch name passes
 `git check-ref-format --branch` **and** matches `^[A-Za-z0-9._/-]{1,100}$` —
@@ -314,7 +315,7 @@ in this session" are references, not invocations.
 | ADR | `Run the /hex-plan skill on "<title>, per <path>".` | one per `## Decision` normative item |
 | plan | `Run the /hex-execute skill on <path>.` | "every pipeline landed" |
 | spec | `Run the /hex-architect skill on <path>, then the /hex-plan skill on its design.` | one per `C-` heading |
-| PR | `Run the /hex-plan skill on <PR ref>, over its open review threads and linked issues.` | one per open item — review thread, linked or closing issue, or `#N` its body references that is still open; none → the note `— PR <ref>: 0 open items; criteria come from extras only` |
+| PR | `Run the /hex-plan skill on <PR ref>, over its open review threads and linked issues.` | one per open item — review thread, linked or closing issue, or an issue its description references that is still open (reference forms per [`forge.md`](../hex-core/references/forge.md#reference-forms)); none → the note `— PR <ref>: 0 open items; criteria come from extras only` |
 | issue | `Run the /hex-plan skill on <issue ref>.` | its acceptance criteria, else "issue resolved as stated" |
 | retro report | `Run the /hex-plan skill on "<title>, per <path>".` | one per `## Deferred` item; none → the note `— retro report <path>: 0 deferred items; criteria come from extras only` |
 | existing goal file | re-print only | its own |

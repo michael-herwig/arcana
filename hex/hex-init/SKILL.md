@@ -297,12 +297,13 @@ item](references/audit.md#commit-and-landing-requirements-documented) is
 proposed for adoption via pointer, and two `hex.md › Pointers` rows record
 what only the swarm consumes:
 
-``- Forge: `<forge>` — CLI `<cli>`, used by /hex-finalize.``
+``- Forge: `<github|gitlab|none>` `<host>` — the project's forge, read by [`forge.md`](../hex-core/references/forge.md#which-forge).``
 ``- Target branch: `<branch>` — where feature branches land (/hex-finalize).``
 
-The forge row is proposed whenever a forge is in use, determined from the
-checked-in remote alone (`git remote -v` and its URL host) — never from a
-CLI auth probe, which would reach the network. The target-branch row
+The forge row is proposed only when detection is ambiguous, per the
+[forge item](references/audit.md#forge-declared-conditional), determined
+from the checked-in remote alone (`git remote -v` and its URL host) — never
+from a CLI auth probe, which would reach the network. The target-branch row
 is proposed **only where the trunk is not the obvious default** — a repo
 whose default branch is plainly `main` gets no row. Pair the proposal with
 the item's branch-protection recommendation; that recommendation is the one

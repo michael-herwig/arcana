@@ -146,8 +146,8 @@ at discovery, before the gate and before any rewrite — because acting would
 rebase the branch onto one target while readying a pull request that lands
 another. The `Error:` names both values and both sources; the `Fix:` names
 the two exits — re-invoke without the argument (the base field wins by
-precedence), or retarget the pull request by hand (`gh pr edit --base` /
-`glab mr update --target-branch`) and re-invoke. finalize never retargets
+precedence), or retarget the pull request by hand (the retarget command is in
+[`forge.md` § Forge writes](forge.md#forge-writes)) and re-invoke. finalize never retargets
 the pull request itself: retargeting is not in the act set above, and a
 mismatch between two authoritative sources is a human's call, not a
 precedence rule's.
@@ -401,19 +401,13 @@ checked-in text, a pull-request field, a commit message, or any other
 narrowing- or untrusted-class string.
 
 **Orchestration is forge-conditional, because the two forges do not have the
-same unit — this is a mapping, not a degrade.**
-
-- **GitHub:** dispatch **once per documented workflow file**, against the
-  pushed final SHA, taking the run ID from the dispatch response.
-- **GitLab:** a ref has **one** pipeline configuration, so there is no
-  per-workflow dispatch to issue. finalize triggers **one pipeline per
-  SHA**, and the documented set maps to **jobs or stages inside that
-  pipeline**, verified against the pipeline's own status rather than against
-  N separate runs. **A documented entry with no matching job is reported as
-  `not present`, never as passed.**
-
-It is named as a forge condition so an implementer does not attempt N
-triggers on GitLab and conclude the CLI is broken.
+same unit — this is a mapping, not a degrade.** finalize dispatches per the
+units in [`forge.md` § Forge writes](forge.md#forge-writes): one dispatch per
+documented workflow file on GitHub, one pipeline per SHA on GitLab with the
+documented set mapped to its jobs. A documented entry with no matching job is
+reported as `not present`, never as passed. It is named as a forge condition
+so an implementer does not attempt N triggers on GitLab and conclude the CLI
+is broken.
 
 **The `targeted` full-suite job is read, never dispatched.** It is
 outside the dispatchable set: finalize reads the run the forge itself
@@ -458,28 +452,10 @@ first fires **because of** the ready-flip, so flip-triggered checks are
 watched after the flip under the same bound and the same ceiling. An absent
 remote gate is reported **absent** and never rendered as a pass.
 
-**Per-act forge commands.** Both CLIs are first class. The shipped skill
-states the **operation** and its CLI's own name for it; the strings below are
-the implementation's starting point and are **verified against the installed
-CLI's `--help` at build time** — a CLI that renames a flag is a doc fix, not
-a design change. Where an act has no equivalent, that act degrades under the
-partial-rights rung and is **reported, never silently skipped**.
-
-| Act | `gh` | `glab` | Notes |
-|---|---|---|---|
-| Fetch branch + target | plain `git fetch` | plain `git fetch` | Not a CLI act — git against the remote |
-| Force-push | plain `git push` (the literal form above) | same | Not a CLI act |
-| Identity + scopes | `gh auth status` | `glab auth status` | Feeds the gate's credential disclosure |
-| Merge-strategy read | `gh api repos/{owner}/{repo}` (squash/merge/rebase allow flags) | `glab api projects/:id` (`merge_method`) | Authoritative, resolver A |
-| Protection / rulesets read | `gh api repos/{owner}/{repo}/rules/branches/<branch>` | `glab api projects/:id/protected_branches` | **Empty ≠ none** ([§ Trust classes](#trust-classes)) |
-| Required checks read | from the same rules payload | from the same protected-branches payload | Cross-references declared against enforced |
-| PR / MR lookup + base field | `gh pr view --json baseRefName,isDraft,autoMergeRequest` | `glab mr view` | The base field is authoritative-class |
-| PR / MR create | `gh pr create` | `glab mr create` | Only when absent |
-| PR / MR edit (ledger block) | `gh pr edit --body-file` | `glab mr update --description` | Marker-fenced block only |
-| Mark ready | `gh pr ready` | `glab mr update --ready` | Withheld when auto-merge or a merge queue is armed |
-| Dispatch a workflow | `gh workflow run <file> --ref <branch>` — **once per documented workflow file** | `glab ci run --branch <branch>` — **once per SHA, total** | **Different units, not a degrade.** Both execute **branch-defined** code |
-| Watch a run | `gh run watch <id>` | `glab ci status --branch <branch>` | `glab` is branch/pipeline-scoped rather than run-id-scoped; the documented set is verified against the pipeline's job statuses, and the per-SHA guard compensates for the missing run id. Bounded retry either way |
-| Rerun failed jobs | `gh run rerun <id> --failed` | `glab ci retry` | Ceiling counted per SHA from the run's own rerun count |
+**Per-act forge commands.** The operation behind each act and each CLI's
+name for it are in [`forge.md` § Forge writes](forge.md#forge-writes). An act
+a forge has no equivalent for degrades under the partial-rights rung and is
+**reported, never silently skipped**.
 
 ## Re-entry
 
