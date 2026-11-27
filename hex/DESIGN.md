@@ -700,6 +700,8 @@ prose; a future member's ADR budgets both.
 
 ## Finalize round (2026-08-29, round 10)
 
+**Erratum pointer (2026-11-27):** the "`hex never commits` outside execution" clause, which this round amended with the push and every later round restates unchanged, is narrowed by round 26: `/hex-plan`, `/hex-architect` and `/hex-discuss` commit exactly their own artifacts on an explicit ask, and `/hex-execute` commits the plan's later writes on that same ask; the rule is owned by [`memory.md` § Version control](hex-core/references/memory.md#version-control). Round 7's fold consent (`adr_0005`) and this round's "finalize never commits a fold" still hold for a run with no ask; on an asked loop run `/hex-execute`'s commit takes the `git add` step. Every restatement of the clause in this file is text as written and is not edited.
+
 `adr_0009` (the finalize phase — the `/hex-finalize` command, the scoped
 remote-rights amendment, and the convention-discovery contract) amends
 **two resolved positions**. Full adjudication and the scored A/B/C/D
@@ -2348,6 +2350,8 @@ else sits in the batch. **Load only what runs** — `simulator` opens
 
 ## Goal-loop round (2026-09-23, round 23)
 
+**Erratum pointer (2026-11-27):** "a `Goal loop:` hint grants only local acts" has one exception, `issues: on`, the single hint value that turns a remote act on and defaults to off (round 26, `adr_0021`); `adr_0018`'s I9 issue grant is no longer a shipped default.
+
 `adr_0018` (goal loop — the `hex-loop` skill, the goals artifact class,
 and the `C-805a` autonomous-run clause) **adds a bundle member that is not
 an orchestrator and amends four resolved positions, each in the open.**
@@ -2616,9 +2620,11 @@ raises it a few counted times per run. Design: `adr_0020` § Decision Outcome.
 run: **<= 3**. Workers wait: **never**. Escalation: **orchestrator only, on
 repeated failure**. Changing one takes an ADR backed by a measured run.
 
-**Amendment pointer (2026-11-26):** round 26 keeps all four numbers but
-narrows what two of them count — see
-[§ Contract-fix round](#contract-fix-round-2026-11-26-round-26).
+**Amendment pointer (2026-11-27):** round 26 keeps all four numbers and
+amends one wording: a gate's "full" may be the selective command run locally
+plus a project-declared CI job that proves the full suite (`adr_0021`) — see
+[§ Contract-fix round](#contract-fix-round-2026-11-27-round-26). The review
+call count and its accounting are unchanged.
 
 **Removed.** Per-WP effective tier and risk flags, `L0`-`L2` join reviews,
 per-merge and checkpoint verify gates, the heavy semaphore, Verify-Architecture
@@ -2637,57 +2643,99 @@ the exit gates standing in.
 contracts (one definition per rule, linked); capability classes, never literal
 model names in shipped files.
 
-## Contract-fix round (2026-11-26, round 26)
+## Contract-fix round (2026-11-27, round 26)
 
-This round amends four decisions above, from issues
+`adr_0021` (a CI job that proves the full suite, the one hint value that
+grants a remote act, and artifact modes that commit their own artifacts)
+records the three decisions below. They come from issues
 [#16](https://github.com/michael-herwig/arcana/issues/16) and
 [#17](https://github.com/michael-herwig/arcana/issues/17) and from running
-hex on GitLab-hosted repositories. Two of them change what round 25's
-constitution numbers count. Round 25 says that takes an ADR backed by a
-measured run; none exists yet, so this round records the proposal and
-leaves the ADRs to the maintainer. Each change rests on the issue or
-review it names.
+hex on GitLab-hosted repositories. Round 25 says that changing a
+constitution number takes an ADR backed by a measured run. The evidence
+here is the reporter's run in #16, a field report from a consuming project,
+not a measured hex run; the maintainer accepted the change on that evidence
+on 2026-11-27, and a measured run is a recorded follow-up (`adr_0021`
+§ Validation). All four constitution numbers keep their value.
 
 **Amendments to earlier rounds.**
 
-1. **Review calls per run (round 25, constitution: <= 3).** Fix-round
-   re-checks and the exit call are separate `/hex-review` calls that
-   `/hex-execute` starts. The three counts branch-scope review calls only —
-   round 1 and the mid-run calls; a re-check counts toward the 2-round fix
-   cap, and so does an exit call that does not approve. Ground: #17 —
-   the execute → finalize path never marked a plan done, because fix-round
-   re-checks recorded no verdict. Of `/hex-execute`'s calls only the exit
-   call, made once the integration gate is green, writes the terminal
-   review state, so `/hex-execute` never ends a red gate at `done`. A call
-   with neither flag — a human's, or `/hex-loop`'s closing review — still
-   writes it on Approve, and `/hex-execute`'s handoff flags a plan done
-   while its gate ended red (`hex-core/references/loop.md` § The loop).
-2. **Full gates per run (round 25, constitution: 2).** Still two, fixed by
-   count, but a project may run both at gate level `targeted`: the
-   selective command locally over the whole branch, the full suite proven
-   by a named CI job on the pushed head, which `/hex-finalize` reads and
-   never dispatches, and for which it holds the draft → ready flip. Ground:
-   #16 P-1 — a CI-only suite run locally (about 1,500 tests,
-   30 minutes, some 360 failures by design). `full` stays the default
-   (`hex-core/references/verify.md` § Gate level).
-3. **"A `Goal loop:` hint grants only local acts" (round 23).** I9's
-   issue grant is no longer a shipped default: it is printed only when the
-   hint says `issues: on`, the one hint value that turns a remote act on,
-   and only as I9's verbatim sentence in the paste. By default deferrals
-   and follow-ups become would-be issues in the goal file. Ground:
-   unattended runs filed issues nobody asked for
-   (`hex-loop/SKILL.md` § Preferences hint).
-4. **"`hex never commits` outside execution" (rounds 10–23).** `/hex-plan`
-   commits its plan artifact, and nothing else, when a `/hex-loop`
-   sub-orchestrator brief asks for it; it still never pushes. Ground:
-   #16 P-6.
+1. **Full gates per run (round 25, constitution: 2).** Still two, fixed by
+   count. What changes is what "full" means for a gate: a project may
+   declare, in the `hex.md › Pointers` row `Full suite:`, the CI workflow or
+   job that proves its full suite. The gate then is the documented selective
+   test command run locally over the whole branch, and the full suite's proof
+   is that job, green on the pushed head, which `/hex-finalize` reads and
+   never dispatches and for which it holds the draft → ready flip. The row
+   takes effect only with a selective test command, the named job and a forge
+   whose run can be read; otherwise both gates run the full documented
+   verification locally, as round 25 wrote it, and the degrade ladder names
+   the full suite unproven where it cannot be proven
+   ([`verify.md` § Full suite proven by CI](hex-core/references/verify.md#full-suite-proven-by-ci)).
+   This is the one amendment to round 25's wording. Ground: #16 — the
+   release gate ran a CI-only suite locally, about 1,500 tests taking 30
+   minutes with some 360 failures by design. A level axis (`full` or
+   `targeted`) was the first form; it is not shipped: hex already carries
+   tiers, join levels and budgets, and the parked discussion
+   `.agents/discussions/verification-levels.md` declined a hex-owned level
+   vocabulary. A Pointers row names the proof and adds no vocabulary.
+2. **"A `Goal loop:` hint grants only local acts" (round 23,
+   `adr_0018`).** The paste's issue grant is no longer a shipped default.
+   `issues: on` under `Goal loop:` is the one hint value that turns a remote
+   act on; it defaults to off, and a value other than exactly `on` or `off`
+   reads as off and is disclosed. With the hint off, deferrals and
+   follow-ups become would-be issues in the goal file, and re-print flags a
+   goal file written without that section. Ground: unattended runs filed
+   issues nobody asked for
+   ([`hex-loop/SKILL.md` § Preferences hint](hex-loop/SKILL.md#preferences-hint)).
+3. **"`hex never commits` outside execution" (rounds 10–23).** Narrowed by
+   one rule, owned by
+   [`memory.md` § Version control](hex-core/references/memory.md#version-control):
+   `/hex-plan`, `/hex-architect` and `/hex-discuss` commit exactly the
+   artifacts they wrote, staged by name, never push, and only on an
+   explicit ask. The ask is a line in a `/hex-loop` architecture, planning
+   or execution brief, the human's own words, or the yes at
+   `/hex-discuss`'s restate-gate. On the same ask `/hex-execute` commits the
+   plan's later Status and fold writes before it hands off, so
+   `/hex-finalize` starts on a clean tree; `/hex-review` and `/hex-retro`
+   still never commit. A drain to `/hex-loop` commits only on the trunk,
+   because the loop branch starts there. Without an ask nothing is committed,
+   as before. `adr_0005`'s fold consent — the fold lands unstaged so that
+   approval is exercised at `git add` — and round 10's "finalize never
+   commits a fold" still hold for a run with no ask; on an asked loop run,
+   `/hex-execute`'s commit takes the place of that `git add` step. Ground:
+   #16 — a loop branch kept a dirty tree because no skill committed its
+   artifacts.
 
-**Additions with no earlier decision to depart from.** Forge-neutral reads
-of PR and issue references (`hex-core/references/forge.md`); one table of
-which hex paths git tracks (`hex-core/references/memory.md` § Version
-control) and the audit probe for it; `/hex-retro` drafts addressed to the
-artifact's own tracker; the `hex-state` retro clause scoped to hex
-projects; builder deferral instead of copying; cleanup without `rm -rf` or
-`--force`; by-name staging and the foreign-file merge check;
-`retro.py`'s version guard; the plain `Next:` line of the discuss → loop
-drain. `CHANGELOG.md` § Unreleased lists each with its ground.
+**Not an amendment.** **Review calls per run (round 25, constitution:
+<= 3)** keeps its count and its accounting. The fix for #17 — the
+execute → finalize path never marked a plan done, because fix-round
+re-checks recorded no verdict — lives inside a call: a review call is round
+1 plus its fix rounds, `/hex-review` runs every round and records its
+verdict, and a re-check is `/hex-review --fix-round --base=<sha>`, which
+belongs to its call. The round that leaves no actionable finding, with the
+gate green and the convergence check Converged, is the exit round, and its
+Approve writes the terminal review state, so `/hex-execute` never ends a red
+gate at `done`; a clean round 1 is that round in one invocation
+([`loop.md` § The review-fix loop](hex-core/references/loop.md#the-loop)).
+Counting re-checks and an exit call as separate calls beside the three was
+the first form; it is not shipped, because a run could then make six
+(`adr_0021` § Not an amendment).
+
+**Additions with no earlier decision to depart from.** One owner for every
+forge fact: [`forge.md`](hex-core/references/forge.md) holds detection,
+reads, field names and the per-act write table, including issue creation.
+A `Forge:` Pointers row (`github`, `gitlab` or `none`, with an optional
+host) wins, then the host decides, else no forge applies; the shape of a URL
+path never decides. GitHub and GitLab are the only shipped profiles, and
+GitLab merge requests and issues are read as GitHub pull requests and issues
+are. Also: one table of which hex paths git tracks
+([`memory.md` § Version control](hex-core/references/memory.md#version-control))
+and the audit probe for it; the retro inbox ignoring itself from its first
+entry; `/hex-retro` drafts addressed to the tracker of the artifact they
+name; the `hex-state` retro clause scoped to hex projects; builder deferral
+instead of copying; worktree cleanup without recursive deletion, which
+verifies the tree clean and forces removal only for a clean tree that git
+refuses, such as one holding a submodule; by-name staging and a fail-closed
+foreign-file check on merges; `retro.py`'s version guard; the plain `Next:`
+line of the discuss → loop drain. `CHANGELOG.md` § Unreleased lists each
+with its ground.
