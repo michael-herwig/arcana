@@ -48,10 +48,10 @@ git -C <path> check-ignore -q .agents/worktrees/                 # (vi)  worktre
   Whatever (1) or (2) yields must exist as a local ref
   (`git -C <path> rev-parse --verify refs/heads/<trunk>`) or the same halt fires.
 - **(vi)** on a miss, **halt and offer to add `.agents/worktrees/`** to that
-  repo's ignore file — never `.agents/` wholesale
-  (`.agents/memory/hex.md` is version-controlled). A satellite may never
-  have run `/hex-init` (exempt there), so nothing else guarantees the path is
-  ignored.
+  repo's ignore file, and only that line
+  ([`memory.md` § Version control](../hex-core/references/memory.md#version-control)).
+  A satellite may never have run `/hex-init` (exempt there), so nothing else
+  guarantees the path is ignored.
 - **Barrier, not a per-repo gate.** Issue the run's first
   `git -C <satellite> branch` / `worktree` / commit / back-pointer write only
   after the **last** key has cleared all six clauses — a partially accessible or

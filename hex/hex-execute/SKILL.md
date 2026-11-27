@@ -188,8 +188,11 @@ Set the plan's `Next: /hex-finalize` (a `landing` plan keeps its landing
 order there) and refresh `Updated`. Set `State: review` only when the plan
 is not at a terminal review state; never move `done` or `landing` back. A
 free-text target has no Status block — say so in the handoff. Run the
-[upkeep step](../hex-core/references/protocol.md#upkeep-step). Never push.
-Emit the handoff
+[upkeep step](../hex-core/references/protocol.md#upkeep-step). When the
+invoking brief or the human asks for the commit, commit the plan and the
+files the review's exit round wrote, by name, before the handoff
+([`memory.md` § Version control](../hex-core/references/memory.md#version-control)).
+Never push. Emit the handoff
 ([contract](../hex-core/references/protocol.md#handoff-contract)):
 
 ```markdown

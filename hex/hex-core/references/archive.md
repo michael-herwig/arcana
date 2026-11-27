@@ -478,9 +478,12 @@ its gate — see [`finalize.md`](finalize.md#scope). Therefore (C-409):
 
 - Every spec write lands **unstaged in the working tree**. `git diff` is the
   review of the fold; **`git checkout -- <spec file>`** is the complete undo,
-  exact because of the step-4 clean-destination precondition.
+  exact because of the step-4 clean-destination precondition. That holds after
+  a standalone `/hex-review`. After an asked `/hex-execute` commit
+  ([`memory.md` § Version control](memory.md#version-control)) the write is
+  committed, and the undo is `git revert` of that commit.
 - The plan's `## Spec Deltas` block and its terminal `State:` are ordinary
-  working-tree edits to a tracked file, reverted the same way.
+  edits to a tracked file, reverted the same way as the spec write.
 - **There is no hex command that undoes a fold.** Reverting is a git
   operation the human performs, and the handoff states it literally. An
   "unfold" would be a second write path into the same human-owned file with

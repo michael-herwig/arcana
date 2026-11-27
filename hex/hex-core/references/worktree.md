@@ -88,9 +88,8 @@ on its own branch in its own worktree:
 `Reviewed:` ⇒ never reviewed ⇒ a full-branch review. None is an error, and a
 plan without them is a permanently valid shape, not a migration backlog.
 
-Ignore `.agents/worktrees/` specifically (transient checkouts); never
-ignore `.agents/` wholesale — `.agents/memory/hex.md` is shared
-memory (see [`memory.md`](memory.md)).
+Which paths git ignores and which it tracks is
+[`memory.md` § Version control](memory.md#version-control)'s alone.
 
 **Federation — a plan carrying a `Repo` column.** Everything above is
 per repo; a federated plan spans the lead (`.`) and one or more satellite
@@ -126,7 +125,8 @@ clause below is inert and single-repo behaviour is byte-identical.
   - (vi) `git -C <path> check-ignore -q .agents/worktrees/` must succeed — a
     satellite may never have run `/hex-init` (exempt there), so nothing
     guarantees the path is ignored; on a miss, halt and offer to add
-    `.agents/worktrees/` (never `.agents/` wholesale).
+    `.agents/worktrees/` — and only that line
+    ([`memory.md` § Version control](memory.md#version-control)).
 
   Any failure **halts** with an `Error:`/`Fix:` pair carrying a pasteable
   `--add-dir` relaunch line — never degrade, never skip a repo. The outputs

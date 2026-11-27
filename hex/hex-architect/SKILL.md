@@ -455,7 +455,11 @@ coverage, or the trade-off matrix.
   codebases.
 - **Persist substantial research** (more than a paragraph) as a research
   artifact in the convention-resolved location.
-- **Never commit and never push** — this skill designs only.
+- **Never push; commit only when asked** — a line in the invoking brief
+  (a `/hex-loop` brief carries one) or the human's own words in the
+  invocation asks for the commit, and the run then commits exactly its own
+  artifacts, per
+  [`memory.md` § Version control](../hex-core/references/memory.md#version-control).
 - **Upkeep** ([`protocol.md`](../hex-core/references/protocol.md#upkeep-step)):
   as the final phase, re-point any `hex.md › Pointers` entry this run
   revealed as drifted (a changed ADR location), and note in

@@ -354,7 +354,7 @@ Asked only when a retro home exists (`.agents/retro/`, or the Pointers `Retro:` 
 - **Look for:** the retro inbox (`<home>/inbox/`) excluded from version control.
 - **Where:** the ignore file, and `hex.md › Pointers` for a declared home.
 - **Resolved looks like:** the exact path `<home>/inbox/` (trailing slash) in the ignore file. That `<home>/ledger/` and `<home>/reports/` stay versioned is the [versioned-homes item](#versioned-hex-homes-not-ignored)'s check.
-- **Recorded as:** one `hex.md › Pointers` row — ``- Retro: `<home>` — inbox (gitignored), ledger + reports (committed); owner /hex-retro.`` `/hex-retro` reads this row, never writes it.
+- **Recorded as:** one `hex.md › Pointers` row — ``- Retro: `<home>`; owner /hex-retro.`` `/hex-retro` reads this row, never writes it. Which parts of the home git tracks is [`memory.md` § Version control](../../hex-core/references/memory.md#version-control)'s.
 
 ### Versioned hex homes not ignored?
 
@@ -657,9 +657,10 @@ context file when there is too little to warrant a separate doc
 ### hex ignore block
 
 ```gitignore
-# hex: only these two paths stay local. hex.md, plans, goals, discussions,
-# research and the retro ledger and reports are versioned. Never add a line
-# here to keep an artifact out of a change: leave it uncommitted.
+# hex: only these two paths stay local (the defaults; a moved worktree path
+# or retro home changes the lines). Everything else hex writes is versioned.
+# Never add a line here to keep an artifact out of a change: leave it
+# uncommitted.
 .agents/worktrees/
 .agents/retro/inbox/
 ```

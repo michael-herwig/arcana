@@ -312,11 +312,11 @@ in `hex.md › Memory`; `/hex-execute` advances `State` and `Next` as it runs.
   against it
   ([`protocol.md`](../hex-core/references/protocol.md#constitution-gate));
   violations need a Constitution Deviations row.
-- **Never push; commit only the plan, and only for a loop** — this skill
-  plans only. It leaves the plan uncommitted, except when a `/hex-loop`
-  sub-orchestrator brief asks for the commit: then it commits the plan
-  artifact alone on the loop's branch, because the loop commits as it goes
-  ([`memory.md` § Version control](../hex-core/references/memory.md#version-control)).
+- **Never push; commit only when asked** — a line in the invoking brief
+  (a `/hex-loop` brief carries one) or the human's own words in the
+  invocation asks for the commit, and the run then commits exactly its own
+  artifacts, per
+  [`memory.md` § Version control](../hex-core/references/memory.md#version-control).
 - **Upkeep** ([`protocol.md`](../hex-core/references/protocol.md#upkeep-step)):
   as the final phase, re-point any `hex.md › Pointers` entry this run
   revealed as drifted (a changed verification command, a new artifact home)

@@ -217,9 +217,9 @@ preferences, not copies. Team-shared — commit it.
 - Product knowledge: `.agents/product.md` (indexed from `CLAUDE.md`).
 - Key rules: `CONTRIBUTING.md` › "Conventions"; code under `src/auth/**`
   is security-sensitive.
-- Worktrees: default `.agents/worktrees/` (gitignored).
-- Retro: `.agents/retro/` — inbox (gitignored), ledger + reports
-  (committed); owner /hex-retro.
+- Worktrees: default `.agents/worktrees/`.
+- Retro: `.agents/retro/`; owner /hex-retro. Which of these git tracks:
+  [§ Version control](#version-control).
 - Build jobs: `4` — live pipelines × jobs per pipeline stay within it.
 - Hub files: `Cargo.lock`, `tests/golden/` — regenerate at integration only.
 - Fresh gate: `make check CACHE=off`.
@@ -284,16 +284,19 @@ path.
 | spec, ADR and research homes (`.agents/specs/`, `.agents/adrs/`, `.agents/research/`) | specs (the fold target), decisions, research artifacts | versioned |
 | discussions home (`.agents/discussions/`) | `/hex-discuss` artifacts | versioned |
 | goals home (`.agents/goals/`) | `/hex-loop` goal files | versioned |
-| retro ledger and reports (`.agents/retro/ledger/`, `.agents/retro/reports/`) | consolidated findings and retro reports | versioned |
-| project configuration `/hex-init` provisions: `.agents/product.md`, the seeded templates, `.agents/workers/`, `.agents/workflows/` | product context, templates, personas, workflow forks | versioned |
-| worktree path (`.agents/worktrees/`) | `/hex-execute`'s transient pipeline checkouts | **ignored** |
-| retro inbox (`.agents/retro/inbox/`) | raw friction entries, its `consumed/` and `rejected/`, `.mine-state.json` | **ignored** |
+| `<Retro: home>/ledger/` and `<Retro: home>/reports/` (default home `.agents/retro/`) | consolidated findings and retro reports | versioned |
+| project configuration `/hex-init` provisions, at the paths project context or Pointers name (defaults `.agents/product.md`, the seeded templates, `.agents/workers/`, `.agents/workflows/`) | product context, templates, personas, workflow forks | versioned |
+| worktree path (default `.agents/worktrees/`) | `/hex-execute`'s transient pipeline checkouts | **ignored** |
+| `<Retro: home>/inbox/` (default `.agents/retro/inbox/`) | raw friction entries, its `consumed/` and `rejected/`, `.mine-state.json` | **ignored** |
 | per-run scratch root (Pointers `Scratch:`) | a run's transient files | outside the repo |
 
 - **Exactly the two ignored rows are hex's to ignore.** The project's
   ignore file names the worktree path and the retro inbox (the block
   `/hex-init` proposes:
   [`audit.md` § hex ignore block](../../hex-init/references/audit.md#hex-ignore-block)).
+  The block's two literal lines, `.agents/worktrees/` and
+  `.agents/retro/inbox/`, are the defaults: with a worktree path or retro
+  home moved through Pointers, the lines name those homes instead.
   `retro.py` also writes `<inbox>/.gitignore` with `*`, so the inbox stays
   ignored before that line exists; a tracked inbox entry is skipped as
   planted.
@@ -304,11 +307,34 @@ path.
   `git add <spec-path> <plan-path>`, `/hex-loop` commits its goal file
   first, and an in-flight discussion is shared once committed.
 - **Uncommitted is not ignored.** `/hex-review` and `/hex-retro` never
-  commit, and `/hex-plan` commits its plan only for a `/hex-loop` brief,
-  so what they write stays uncommitted until the change that lands the
-  work commits it. To keep an artifact out of a
-  change, leave it uncommitted or commit it on its own — never add an
-  ignore line for it.
+  commit, and the modes below commit only on an explicit ask, so what they
+  write stays uncommitted until the change that lands the work commits it.
+  To keep an artifact out of a change, leave it uncommitted or commit it on
+  its own — never add an ignore line for it.
+- **An artifact mode commits its own artifacts, on an explicit ask, and
+  never pushes.** `/hex-plan`, `/hex-architect` and `/hex-discuss` each
+  commit exactly the artifacts they wrote in this run, staged by name and
+  nothing else: for `/hex-plan` the plan and any ADR or spec file it wrote,
+  for `/hex-architect` the ADR or system design, for `/hex-discuss` the
+  discussion artifact it kept — each with the research artifacts the run
+  persisted. The commit is the run's last act, after its upkeep. The ask is
+  a line in the invoking brief — a `/hex-loop` brief for a planning,
+  architecture or execution run carries it
+  ([`goal-prompt.md`](../../hex-loop/assets/goal-prompt.md), the hygiene
+  line) — or the human's own words in the invocation, or, for
+  `/hex-discuss`, the explicit yes at its restate-gate, which names the
+  commit. Without the ask a mode commits nothing and its artifacts stay
+  uncommitted. A run's `hex.md` upkeep writes join the commit only when
+  `hex.md` was clean when the run began; otherwise they stay for the human,
+  so an edit of theirs is never swept in.
+- **Later writes on a plan.** `/hex-execute` and `/hex-review` change the
+  plan's Status block, and `/hex-review`'s fold adds the resolved spec file
+  and the plan's receipt. On the same ask, `/hex-execute` commits them:
+  after the review's exit round and its upkeep, it stages the plan and the
+  files that round wrote by name and commits them before it hands off to
+  `/hex-finalize`, which then starts on a clean tree. `/hex-review` itself
+  never commits. Without the ask nothing here is committed, and a fold
+  stays for the human's `git add`, where finalize's halt names it.
 - **`/hex-init` audits both directions:**
   [worktree path](../../hex-init/references/audit.md#worktree-path-gitignored)
   and [retro inbox](../../hex-init/references/audit.md#retro-home-gitignored-conditional)
