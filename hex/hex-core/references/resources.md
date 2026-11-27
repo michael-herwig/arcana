@@ -41,8 +41,9 @@ the background.
 ## Worktree cleanup
 
 **Whoever creates a worktree removes it** when the work lands, with its build
-outputs: the worktree's artifact directory (sheet below), redirected build
-directories, daemons it started, containers it started. Rules:
+outputs: the worktree's artifact directory (sheet below). It stops the
+daemons and removes the containers it started by rules 2 and 3 and nothing
+else; any other path outside the worktree is reported, never deleted. Rules:
 
 1. **Delete only what this run created.** A target that does not resolve —
    after symlink resolution — under the run's own worktree or scratch root
@@ -54,16 +55,18 @@ directories, daemons it started, containers it started. Rules:
    prune -f --volumes` — it destroys unrelated work on the machine.
 3. **Daemons stop with the worktree** (`./gradlew --stop`), so no daemon
    outlives the tree it serves.
-4. **No `rm -rf`, no `--force`.** Clients' permission layers deny
-   `rm -rf`, above all inside a compound command, for workers and
-   orchestrators alike. Remove a worktree with `git worktree remove <path>`
-   (then `git worktree prune`): it deletes the tree's ignored build outputs
-   along with it, and it refuses a tree that holds modified or untracked
-   files — report those paths and leave the worktree (rule 1). Never
-   `--force`, which deletes uncommitted work. Put other transient files
-   under the run's scratch root, so nothing outside a worktree needs
-   deleting; whatever still lies outside is reported, never deleted by the
-   run.
+4. **No recursive path deletion; removal goes through the VCS.** Remove a
+   worktree only with `git worktree remove`, never by deleting its
+   directory. First verify it clean: `git -C <path> status --porcelain`
+   prints nothing — no tracked modifications, no untracked non-ignored
+   files; ignored build output does not count. Dirty: report the paths
+   and leave the worktree (rule 1), never force it. Clean: run
+   `git worktree remove <path>`, and only if git refuses a clean tree
+   (it always refuses one that contains a submodule) repeat it with
+   `--force`; then `git worktree prune`. Removal deletes the tree's
+   ignored build outputs with it. Put other transient files under the
+   run's scratch root, so nothing outside a worktree needs deleting;
+   whatever still lies outside is reported, never deleted by the run.
 
 ## Per-ecosystem knob sheet
 

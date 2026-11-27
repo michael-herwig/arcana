@@ -51,15 +51,20 @@ on its own branch in its own worktree:
   loop past the one pass, never force-push, never rebase a published
   pipeline branch. A resolution stages only the resolved paths, by name
   ([universal rule 5](workers.md#universal-worker-protocol)), and before
-  committing checks that the merge adds no file absent from both parents —
-  in `bash`, since `sh` fails on the process substitution and prints
-  nothing, which would read as a pass:
-  `comm -23 <(git diff --cached --no-renames --name-only --diff-filter=A HEAD | sort) <(git ls-tree -r --name-only MERGE_HEAD | sort)`
-  must print nothing. `--no-renames` keeps a foreign file from passing as
-  a rename. A listed file is unstaged and reported, never
+  committing checks that the merge adds no file absent from both parents.
+  The check runs under any POSIX `sh`:
+
+  ```sh
+  list=$(git -c core.quotePath=false diff --cached --no-renames --name-only --diff-filter=A HEAD) && printf '%s\n' "$list" | { n=0; bad=0; while IFS= read -r p; do [ -n "$p" ] || continue; n=$((n+1)); git cat-file -e "MERGE_HEAD:$p" 2>/dev/null || { echo "FOREIGN: $p"; bad=1; }; done; echo "checked $n files"; [ "$bad" -eq 0 ]; }
+  ```
+
+  It passes only on exit 0 with a `checked N files` line; a missing line
+  or a non-zero exit is a failure. `--no-renames` keeps a foreign file from
+  passing as a rename. A `FOREIGN:` file is unstaged and reported, never
   committed. A failing integration gate follows
   [the two gates](verify.md#the-two-gates), not this playbook.
-- **Delete the pipeline branch and remove its worktree after it merges.**
+- **Delete the pipeline branch and remove its worktree after it merges**
+  (removal follows [`resources.md` § Worktree cleanup](resources.md#worktree-cleanup) rule 4).
   **Removing a worktree removes its build outputs** — target directories and
   caches live inside it — so none outlives its pipeline. The feature branch
   is what survives; landing it on the trunk is the human's step (their PR or

@@ -27,8 +27,9 @@ Checks, commits, build budget, generated files: <per [universal rule 10](../work
 
 Before writing: read the project's rules and conventions for the files you
 touch; grep for existing utilities and patterns and extend them — never
-work around one. When the code to extend lies outside your owned files,
-return it as deferred with its `path:line`; never copy it into your files.
+work around one. Calling or importing code outside your owned files is
+fine. When the task needs a change to code outside them, return that change
+as deferred with its `path:line`; never copy that code into your files.
 No placeholders or TODOs; never remove or skip tests.
 
 stub: create only the public surface with not-implemented bodies.
@@ -42,5 +43,6 @@ Self-check before return (one fix pass, universal rule 7):
 - diff stays inside the owned file set;
 - no placeholders or TODOs; no test removed or skipped;
 - step feedback ran as rule 10 says, no more;
-- existing utilities extended, not reinvented.
+- existing utilities extended, not reinvented; no change outside the owned
+  files, no copy of code from outside them.
 ```

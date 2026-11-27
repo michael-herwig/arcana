@@ -16,10 +16,11 @@ Usage:
 
 Exit codes:
     0 - ok
-    1 - selftest failure
+    1 - selftest failure (an interpreter below 3.11 exits 3 before any
+        subcommand, selftest included, runs)
     2 - invalid input (nothing written)
-    3 - environment error (not a git work tree, unsafe home, thresholds
-        table not found)
+    3 - environment error (Python below 3.11, not a git work tree, unsafe
+        home, thresholds table not found)
 
 Refusals and environment errors are reported on stderr as one line:
 "Error: <reason>".
@@ -41,7 +42,7 @@ import tempfile
 
 # Preflight (a), before the 3.11-only import below can crash with a traceback.
 if sys.version_info < (3, 11):
-    sys.stderr.write("Error: python3 3.11+ not found — /hex-retro folds the ledger with it\n")
+    sys.stderr.write("Error: Python 3.11+ is required — /hex-retro folds the ledger with it\n")
     sys.exit(3)  # EXIT_ENV, defined below
 
 import tomllib  # noqa: E402 — guarded by the preflight above

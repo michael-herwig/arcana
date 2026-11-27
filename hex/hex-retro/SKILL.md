@@ -57,7 +57,7 @@ exclusive ([Errors](#errors) (f)); anything else is (j).
 
 ## Flow
 
-1. Preflight — `python3` ≥ 3.11 (else (a)); `retro.py where` (exit 3 → (b), (c), (h) or (k) by its `Error:` line; script absent → (h)).
+1. Preflight — no `python3` on the host → (a); else `retro.py where`, which itself checks the interpreter (exit 3 → (a), (b), (c), (h) or (k) by its `Error:` line; script absent → (h)).
 2. Import — only with `--import`: [Import](#import).
 3. Mine — `retro.py mine`; each `degraded` item → one `Degraded: objective channel — <item>` line.
 4. Read — `retro.py read` → valid entries plus the skipped count and reasons.
@@ -349,7 +349,7 @@ the inbox is untouched.
 
 | Case | `Error:` | `Fix:` |
 |---|---|---|
-| (a) no `python3` ≥ 3.11 (`retro.py` exits 3 with this line before any import can crash) | `Error: python3 3.11+ not found — /hex-retro folds the ledger with it` | run `retro.py` with a 3.11+ interpreter — a project venv, or `uv run --no-project --python ">=3.11" python <retro.py> …` — or install python3 3.11+, then re-run /hex-retro |
+| (a) no `python3`, or one below 3.11 (`retro.py` exits 3 with this line before any import can crash) | `Error: Python 3.11+ is required — /hex-retro folds the ledger with it` | run `retro.py` with any Python 3.11+ interpreter on the host, then re-run /hex-retro |
 | (b) not a git work tree | `Error: not inside a git work tree` | run /hex-retro from the project checkout |
 | (c) home unsafe | `Error: retro home <path> is a symlink, outside the repo, or in a client configuration directory` | point the Pointers `Retro:` row at a plain in-repo directory such as `.agents/retro/` (/hex-init) |
 | (d) `--loop` target not a goal file | `Error: <path> is not a goal file` | /hex-retro --loop <goal file written by /hex-loop> |
