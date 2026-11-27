@@ -2,9 +2,10 @@
 hex-loop prompt template: the only home of the invariant core, lines I1 to I11.
 This comment is not part of the paste; everything after it is. /hex-loop fills
 the seven slots once each per SKILL.md § The prompt, counts the rendered paste,
-and refuses rather than truncates. The one edit to the core: deleting an I9
-default act a narrowing extra forbids — or, on re-print, a § Autonomy
-forbidden act. I-lines point at goal-file sections
+and refuses rather than truncates. The core's only edits are the slot fills
+and deleting I9 units: an act a narrowing extra forbids (on re-print, a
+§ Autonomy forbidden act), and the Session-grant sentence unless the
+Preferences hint keeps it. I-lines point at goal-file sections
 instead of restating them; the goal template owns their content.
 -->
 {wrapper}Autonomous goal loop; I1–I11 bind for the whole run.

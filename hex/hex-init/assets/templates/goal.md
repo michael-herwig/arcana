@@ -107,8 +107,8 @@ with an unclear cause — runs this protocol:
 ### Would-be issues
 
 <!--
-Without I9's issue grant — the default; a project opts in with `issues: on`
-in its Goal loop hint — deferrals and follow-ups land here instead of on
+Without I9's issue grant (the default; hex-loop `SKILL.md` § Preferences
+hint owns the opt-in), deferrals and follow-ups land here instead of on
 the forge. One entry per deferral or follow-up, committed when added:
 `- <repo> · "<title>" · deferral | follow-up — <what, why, evidence pointer>`.
 The DONE block lists them all, each as a title plus a body ready to paste

@@ -46,19 +46,33 @@ with an unclear cause — runs this protocol:
 
 1. Delegate the research to a sub-orchestrator.
 2. Record question → research → decision in this file or in the PR.
-3. Defer to a GitHub issue only in hard cases — the research ends with no
-   decision, or the decision needs an act outside the grants; the issue
-   link is the recorded decision.
+3. Defer only in hard cases — the research ends with no decision, or the
+   decision needs an act outside the grants. Defer to an issue when I9
+   grants opening issues, else to a § Would-be issues entry; the issue
+   link or the entry is the recorded decision.
 4. Every doubt not deferred ends in an action.
 5. A pre-existing failure that blocks done is in scope and runs this
    protocol.
-6. Findings outside this goal's scope become follow-up issues.
+6. Findings outside this goal's scope become follow-up issues when I9
+   grants opening issues, else § Would-be issues entries.
 7. Secrets and credential-bearing logs are never written to any committed
    file, commit message, PR text, PR comment or review comment, or issue.
-   Security findings are never filed as issues:
+   Security findings are never filed as issues or would-be issues:
    this file records them by reference only — location and class, no
    secret value or exploit detail — and only the DONE block reports them
    in full.
+
+### Would-be issues
+
+<!--
+Without I9's issue grant, deferrals and follow-ups land here instead of on
+the forge. One entry per deferral or follow-up, committed when added:
+`- <repo> · "<title>" · deferral | follow-up — <what, why, evidence pointer>`.
+The DONE block lists them all, each as a title plus a body ready to paste
+into an issue.
+-->
+
+None.
 
 ## Loop shape
 

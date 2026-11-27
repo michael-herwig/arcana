@@ -2429,7 +2429,8 @@ re-verify at each client minor release.
   granted merge and release. Bound: the shipped template grants neither;
   only the human's invocation extras can render such a grant — or any
   other remote act beyond I9's fixed defaults — into the prompt only; a
-  `Goal loop:` hint grants only local acts in this repo's working tree
+  `Goal loop:` hint grants only local acts in this repo's working tree,
+  except `issues: on`
   ([`hex-loop/SKILL.md` § Preferences hint](hex-loop/SKILL.md#preferences-hint))
   — and it stays with the pasted session, never relayed into a brief. A
   grant the session cannot quote verbatim from its paste is omitted.

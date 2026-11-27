@@ -33,6 +33,8 @@ preferences, not copies. Team-shared — commit it.
   one-way-door/security signals or `--adversary`).
 - Limits: max-workers 8, loop rounds 1 (per-run `--loop-rounds`
   overrides).
+- Goal loop:
+  - issues: on
 
 ## Memory
 
