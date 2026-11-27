@@ -43,8 +43,9 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
   classifier never emits it
   ([`protocol.md`](../hex-core/references/protocol.md#tier-grammar)).
 - **target** (one of):
-  - empty — in loop mode, `anchor..HEAD` (the plan's `Reviewed:` anchor when
-    valid, else the resolved baseline; step 2). Otherwise the **working
+  - empty — in loop mode, `<baseline>..HEAD`: the `--base` of a
+    `--fix-round`, else the plan's `Reviewed:` anchor when valid, else the
+    resolved baseline (step 2). Otherwise the **working
     tree**: uncommitted changes (staged + unstaged) against `HEAD`. If the
     working tree is clean, fall back to the current branch's diff against the
     resolved baseline and say so in the announce block.
@@ -67,13 +68,14 @@ If `hex-core` is not installed: `grim add ghcr.io/michael-herwig/arcana/hex-core
     off.
   - `--dry-run` — make the meta-plan gate block for explicit approval and
     stop there (preview only, no workers launched).
-  - `--round` — loop mode, from `/hex-execute`: round 1 or a fix
-    re-check. It records its verdict but never writes the terminal review
-    state, because the integration gate may still be red.
-  - `--exit` — loop mode, from `/hex-execute`: the run's exit call, made
-    once the integration gate is green; its Approve writes the terminal
-    review state
-    ([`loop.md` § The loop](../hex-core/references/loop.md#the-loop)).
+  - `--fix-round` — loop mode, from `/hex-execute`: this invocation is a fix
+    round of a review call already open, not a new call. It takes
+    `--base=<the SHA the previous round reviewed>`, the previous round's
+    actionable findings and the integration gate's result on the head from
+    the brief, and runs those findings' perspectives instead of the tier's
+    full panel. A fresh call carries no marker, and only a round leaves
+    `Reviewed:` alone until it approves. Contract:
+    [`loop.md` § The loop](../hex-core/references/loop.md#the-loop).
 
 ## Dispatch
 
@@ -118,11 +120,7 @@ baseline doesn't resolve (`git rev-parse --verify <base>` fails) — print
 remediation and stop. An empty baseline-to-HEAD diff reports
 "nothing to review" and exits clean where no converged pass is outstanding;
 an empty `anchor..HEAD` delta proceeds to that pass instead
-([`loop.md`](../hex-core/references/loop.md#delta-round-scope)). An
-`--exit` call with an empty delta runs no diff panel but always runs the
-convergence check (Stage 1's `reviewer`, focus `spec`, against the plan);
-it approves when the call names no open actionable finding and the check
-reports Converged, whatever `State` reads.
+([`loop.md`](../hex-core/references/loop.md#delta-round-scope)).
 A markdown-artifact target skips baseline resolution entirely.
 
 **Federation refusal (C-323).** A run is federated only if its own resolved
@@ -327,15 +325,12 @@ terminal review state — `done`, or `landing` for a plan carrying a `Repo`
 column — where the run ended with a non-empty stranded set
 ([`decompose.md`](../hex-core/references/decompose.md#parallel-by-default-decomposition)).
 This skill runs when invoked, by the user or in loop mode, and remains the
-sole writer of the terminal review state. **A `--round` call never writes
-it**: its Approve sets `State: review` and leaves `Next` alone, because the
-integration gate may still be red. An `--exit` call, and a call with
-neither flag — a human's, or `/hex-loop`'s closing review — write it on
-Approve.
+sole writer of the terminal review state. Every round of a loop records its
+verdict this way, and the exit round's Approve is the run's
+([`loop.md` § The loop](../hex-core/references/loop.md#the-loop)).
 Writing the `Reviewed:` anchor is a Status-block write, the class of write
-`hex-review` already performs — a branch-scope pass only, plus the loop's
-exit call: an `--exit` call that approves writes `Reviewed: <head>` with
-the terminal review state
+`hex-review` already performs — a branch-scope pass only, plus an
+approving `--fix-round`
 ([`loop.md`](../hex-core/references/loop.md#the-last-reviewed-anchor)).
 
 **Federated diff scope (C-309).** When the target traces to a plan carrying a
@@ -480,9 +475,10 @@ uncommitted (revert is `git checkout -- <file>`, see
 [`archive.md`](../hex-core/references/archive.md#revert)). Every finding is
 reported, not applied; the fix loop belongs to
 [`/hex-execute`](../hex-core/references/loop.md#the-review-fix-loop).
-**Fix rounds** are the caller's: cap 2, each re-review covers the fix delta
-only ([`loop.md`](../hex-core/references/loop.md#delta-round-scope)); what
-remains after round 2 goes to the user.
+**Fix rounds** are the caller's to start: cap 2, each a `--fix-round`
+invocation over the fix delta
+([`loop.md`](../hex-core/references/loop.md#the-loop)); what remains after
+round 2 goes to the user.
 
 ## Constraints
 

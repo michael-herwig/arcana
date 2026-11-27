@@ -54,11 +54,9 @@ attached, then one class up, then defer as residue and keep the loop going.
   may add at most two more mid-run, for a very big finished chunk with much
   still to come: **three calls per run at most**. Each reads `anchor..HEAD`
   ([the last-reviewed anchor](#the-last-reviewed-anchor)), so later edits to
-  reviewed code are included next time.
-- **Fix-round re-checks and the exit call are `/hex-review` calls too**
-  ([the loop](#the-loop)), never counted toward these three: a re-check
-  counts toward the 2-round cap, and so does an exit call that does not
-  approve.
+  reviewed code are included next time. A call is its round 1 plus the fix
+  rounds that follow it ([the loop](#the-loop)); those rounds belong to
+  their call.
 - **Seats are `standard` at every tier**; tier scales the seat count only.
   Seats are split per pipeline, plus one for the seams between pipelines.
   `deep` seats run only when the user asks.
@@ -79,14 +77,21 @@ attached, then one class up, then defer as residue and keep the loop going.
     loop on it.
 - **Fix rounds** — fix, then re-check the **fix delta only**
   ([delta scope](#delta-round-scope)), re-running only the perspectives
-  with actionable findings. The re-check is a `/hex-review` loop-mode
-  call that `/hex-execute` starts with `--round`, `--base=<the SHA the
-  previous round reviewed>` and the previous round's actionable findings
-  named inline —
-  their files and perspectives — so it reads those files in full and
-  re-runs only those perspectives. It records its verdict on the plan like
-  any review, but never the terminal state. A finding that surfaces two
-  rounds running (oscillating) auto-defers.
+  with actionable findings. `/hex-execute` runs the fixers; `/hex-review`
+  runs every round, round 1 and each re-check alike, because it alone
+  records verdicts. `/hex-execute` starts a re-check as
+  `/hex-review --fix-round --base=<the SHA the previous round reviewed>`
+  ([the flag](../../hex-review/SKILL.md#argument-syntax)) and names the
+  previous round's actionable findings, with their files and perspectives,
+  in the brief. A re-check is a round of the call that began at round 1,
+  never a new call. A finding that surfaces two rounds running
+  (oscillating) auto-defers.
+- **Every round records its verdict** on the plan's Status block, as any
+  review does ([`/hex-review` § The review report](../../hex-review/SKILL.md#the-review-report)).
+  The brief carries the integration gate's result on the round's head, and
+  the round draws its verdict once that result and its panel are both in. A
+  red gate is an actionable finding of the round: the one fix pass serves
+  both.
 - **Cap: 2 fix rounds** (a red gate re-runs after its fix pass under the
   same cap, [the two gates](verify.md#the-two-gates)). Actionable findings
   left after the cap: **stop and escalate to the user** with the outstanding
@@ -100,27 +105,19 @@ attached, then one class up, then defer as residue and keep the loop going.
   built from an accepted ADR reviews only its decomposition, never the
   ADR's decisions again ([`/hex-plan`](../../hex-plan/SKILL.md)). Re-enabling multi-round artifact loops takes an **explicit**
   `artifact loop rounds: N` limit in `hex.md › Preferences`.
-- **Exit** — no actionable findings remain, the integration gate is green
-  on the final state, and deferred findings are documented for handoff.
-  Then `/hex-execute` makes **the exit call**,
-  `/hex-review --exit --base=<the SHA the last call reviewed>`, and only
-  once the gate is green on `HEAD`. It reviews what changed since the last
-  call — gate fixes, if any; an empty delta runs no diff panel — and it
-  always runs the [convergence check](#convergence-contract), a whole-plan
-  check that needs no diff, so Fold-Back has its result. A non-Approve
-  exit verdict counts as a fix round under the same cap: fix, gate, a new
-  exit call that carries the previous exit call's actionable findings
-  inline, as a re-check does; past the cap, stop and escalate. **Its Approve is the
-  run's**: `/hex-review` — still the sole writer — sets the
-  terminal review state, runs Fold-Back and Upkeep, and clears the
-  active-plan pointer ([`archive.md` § Plan archive](archive.md#plan-archive)).
-  Every other call from `/hex-execute` carries `--round` and never writes
-  the terminal state, so no call of `/hex-execute`'s ends a red gate at
-  `done`: where the gate stays red after its cap, no exit call runs, the
-  plan stays at `review`, and the residue goes to the user. A call with
-  neither flag — a human's mid-run, or `/hex-loop`'s closing review —
-  still writes the terminal state on Approve; `/hex-execute`'s handoff
-  flags a plan that reads `done` or `landing` while its gate ended red.
+- **Exit** — the round that leaves no actionable finding, with the
+  integration gate green on its head and the
+  [convergence check](#convergence-contract) Converged, records Approve;
+  deferred findings are documented for handoff. That Approve is the run's:
+  `/hex-review` writes `Reviewed: <head>` and the terminal review state,
+  runs Fold-Back and Upkeep, and clears the active-plan pointer
+  ([`archive.md` § Plan archive](archive.md#plan-archive)), exactly as for
+  any Approve. Round 1 is itself the exit round on a clean run: one
+  invocation, no second pass. A fix round runs the convergence check only
+  when it would otherwise be the exit round. A free-text target has no plan
+  artifact and so no Status block: its exit round records the Approve in
+  the report only. Where the cap ends with actionable findings, the plan
+  stays at a non-terminal state and the residue goes to the user.
 
 ### The last-reviewed anchor
 
@@ -128,10 +125,9 @@ attached, then one class up, then defer as residue and keep the loop going.
 A review round reads `<last-reviewed>..HEAD`, where `<last-reviewed>` is the
 SHA the previous round **of the same scope** reviewed.
 
-- **Round scope** — across one run's rounds, each a separate
-  `/hex-review` call that `/hex-execute` starts, the anchor is the SHA round
-  N−1 reviewed. `/hex-execute` holds it in its session state and passes it
-  as `--base`; it **is not persisted**.
+- **Round scope** — across the fix rounds inside one review call, the
+  anchor is the SHA round N−1 reviewed. `/hex-execute` holds it in its
+  session state and passes it as `--base`; it **is not persisted**.
 - **Branch scope** — across review calls and `/hex-review` invocations on
   the feature branch, the anchor must survive the session and **is
   persisted** as one Status-block line: `- Reviewed: <full 40-char SHA>`,
@@ -145,11 +141,10 @@ SHA the previous round **of the same scope** reviewed.
   commit reachable from this SHA has been through at least one review
   pass"* — nothing about verdicts, and nothing about whether findings
   remain. A round-scope round **never** writes the field, with one
-  exception: the loop's **exit call** writes `Reviewed: <head>` when it
-  approves, because at exit every commit reachable from the head has had a
-  review pass — round 1 over the branch range, each fix round and the exit
-  call over their deltas. Absent field ⇒
-  never reviewed ⇒ full-branch review.
+  exception: the exit round writes `Reviewed: <head>` when it approves,
+  because at exit every commit reachable from the head has had a review
+  pass — round 1 over the branch range, each fix round over its delta.
+  Absent field ⇒ never reviewed ⇒ full-branch review.
 
 ### Anchor validation
 
